@@ -1,0 +1,41 @@
+
+/* Título específico do login */
+.login-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--dark-color);
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* Card específico do login */
+.card-login {
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem;
+}
+
+/* Responsividade específica do login */
+@media (max-width: 768px) {
+    .card-login {
+        margin: 10px;
+        max-width: calc(100% - 20px);
+        padding: 1.5rem;
+    }
+    
+    .login-title {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .card-login {
+        margin: 5px;
+        max-width: calc(100% - 10px);
+        padding: 1rem;
+    }
+}
+
+
+
