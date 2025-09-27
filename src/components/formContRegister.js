@@ -1,4 +1,5 @@
 import NavBar from "../components/NavBar.js";
+import CepAPI from "../utils/cepAPI.js";
 
 export default function renderFormContRegister(container) {
     // Cria o formulário
@@ -139,15 +140,54 @@ export default function renderFormContRegister(container) {
     const labelCep = document.createElement('label');
     labelCep.textContent = 'CEP';
     labelCep.className = 'form-label';
+    
+    // Container para CEP com botão de busca
+    const cepContainer = document.createElement('div');
+    cepContainer.style.display = 'flex';
+    cepContainer.style.gap = '8px';
+    
     const inputCep = document.createElement('input');
     inputCep.type = 'text';
     inputCep.className = 'form-control';
     inputCep.id = 'cep';
     inputCep.placeholder = '00000-000';
     inputCep.required = true;
+    inputCep.style.flex = '1';
+    
+    // Botão de busca
+    const btnBuscarCep = document.createElement('button');
+    btnBuscarCep.type = 'button';
+    btnBuscarCep.className = 'btn btn-outline-secondary';
+    btnBuscarCep.innerHTML = '<i class="fas fa-search"></i>';
+    btnBuscarCep.title = 'Buscar endereço pelo CEP';
+    btnBuscarCep.style.padding = '8px 12px';
+    
+    cepContainer.appendChild(inputCep);
+    cepContainer.appendChild(btnBuscarCep);
+    
     divCep.appendChild(labelCep);
-    divCep.appendChild(inputCep);
+    divCep.appendChild(cepContainer);
     secaoEndereco.appendChild(divCep);
+
+    // Adiciona funcionalidade de busca de CEP
+    adicionarBuscaCep(inputCep, btnBuscarCep);
+
+    // Estado (será preenchido automaticamente)
+    const divEstado = document.createElement('div');
+    divEstado.className = 'cont-register-field';
+    const labelEstado = document.createElement('label');
+    labelEstado.textContent = 'Estado';
+    labelEstado.className = 'form-label';
+    const inputEstado = document.createElement('input');
+    inputEstado.type = 'text';
+    inputEstado.className = 'form-control';
+    inputEstado.id = 'estado';
+    inputEstado.placeholder = 'Estado';
+    inputEstado.readOnly = true;
+    inputEstado.style.backgroundColor = '#f8f9fa';
+    divEstado.appendChild(labelEstado);
+    divEstado.appendChild(inputEstado);
+    secaoEndereco.appendChild(divEstado);
 
     // Complemento
     const divComplemento = document.createElement('div');
@@ -272,5 +312,108 @@ function adicionarAlternanciaTipoPessoa(selectTipo, container) {
             divCampo.appendChild(input);
             container.appendChild(divCampo);
         }
+    });
+}
+
+/**
+ * Adiciona funcionalidade de busca automática de CEP
+ * @param {HTMLInputElement} inputCep - Campo de entrada do CEP
+ * @param {HTMLButtonElement} btnBuscar - Botão de busca
+ */
+function adicionarBuscaCep(inputCep, btnBuscar) {
+    let timeoutId = null;
+    
+    // Função para buscar CEP
+    const buscarCep = async () => {
+        const cep = inputCep.value.trim();
+        
+        if (!cep || cep.length < 8) {
+            CepAPI.removerErro();
+            return;
+        }
+
+        try {
+            // Mapeamento dos campos
+            const campos = {
+                cidade: 'cidade',
+                bairro: 'bairro', 
+                rua: 'street',
+                estado: 'state'
+            };
+
+            // Busca e preenche automaticamente
+            await CepAPI.buscarEPreencher(cep, campos, {
+                success: (dados) => {
+                    console.log('CEP encontrado:', dados);
+                    
+                    // Formata o CEP no campo
+                    inputCep.value = CepAPI.formatarCep(cep);
+                    
+                    // Foca no próximo campo (número)
+                    const campoNumero = document.getElementById('numero');
+                    if (campoNumero) {
+                        campoNumero.focus();
+                    }
+                },
+                error: (error) => {
+                    console.error('Erro ao buscar CEP:', error);
+                }
+            });
+
+        } catch (error) {
+            console.error('Erro na busca do CEP:', error);
+        }
+    };
+
+    // Event listener para busca automática (após parar de digitar)
+    inputCep.addEventListener('input', (e) => {
+        // Remove caracteres não numéricos
+        let valor = e.target.value.replace(/\D/g, '');
+        
+        // Limita a 8 dígitos
+        if (valor.length > 8) {
+            valor = valor.substring(0, 8);
+        }
+        
+        // Formata enquanto digita
+        if (valor.length > 5) {
+            valor = valor.replace(/(\d{5})(\d{3})/, '$1-$2');
+        }
+        
+        e.target.value = valor;
+        
+        // Remove erro anterior
+        CepAPI.removerErro();
+        
+        // Cancela timeout anterior
+        if (timeoutId) {
+            clearTimeout(timeoutId);
+        }
+        
+        // Busca automaticamente quando CEP estiver completo
+        if (valor.replace(/\D/g, '').length === 8) {
+            timeoutId = setTimeout(buscarCep, 800); // Aguarda 800ms após parar de digitar
+        }
+    });
+
+    // Event listener para o botão de busca
+    btnBuscar.addEventListener('click', buscarCep);
+
+    // Event listener para Enter no campo CEP
+    inputCep.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            buscarCep();
+        }
+    });
+
+    // Event listener para paste
+    inputCep.addEventListener('paste', (e) => {
+        setTimeout(() => {
+            const valor = e.target.value.replace(/\D/g, '');
+            if (valor.length === 8) {
+                buscarCep();
+            }
+        }, 100);
     });
 }
