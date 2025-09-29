@@ -5,13 +5,13 @@ export default function loginForm() {
 
     // Cria o container do card
     const container = document.createElement('div');
-    container.className = 'card-base card-login shadow-lg rounded-card card-login-default'; 
+    container.className = 'card-base card-login shadow-lg rounded-card card-login-default';
     divRoot.appendChild(container);
 
     // Adiciona o título
     const titulo = document.createElement('h1');
     titulo.textContent = 'Entrar';
-    titulo.className = 'login-title page-title-default'; 
+    titulo.className = 'login-title page-title-default';
     container.appendChild(titulo);
 
     // Cria o formulário
@@ -29,7 +29,7 @@ export default function loginForm() {
     const password = document.createElement('input');
     password.type = 'password';
     password.placeholder = "Sua senha";
-    password.className = 'form-control mb-3'; 
+    password.className = 'form-control mb-3';
     formulario.appendChild(password);
 
     // Cria o botão de submit
@@ -40,5 +40,5 @@ export default function loginForm() {
     formulario.appendChild(btn);
     container.appendChild(formulario);
 
-    return container; 
+    return container;
 }

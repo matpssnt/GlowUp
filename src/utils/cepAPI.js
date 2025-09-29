@@ -1,14 +1,17 @@
-/* Utilitário para busca de CEP usando Brasil API
-Documentação: https://brasilapi.com.br/docs*/
+/**
+ * API busca de CEP usando Brasil API
+ * @see https://brasilapi.com.br/docs
+ */
 
 export class CepAPI {
     constructor() {
         this.baseURL = 'https://brasilapi.com.br/api/cep/v1';
     }
 
-    /** Busca informações do CEP
-     @param {string} cep
-     @returns {Promise<Object>} Dados do endereço
+    /**
+     * Busca informações do CEP
+     * @param {string} cep - CEP a ser buscado
+     * @returns {Promise<Object>} Dados do endereço
      */
     async buscarCep(cep) {
         try {
@@ -16,7 +19,7 @@ export class CepAPI {
             const cepLimpo = cep.replace(/\D/g, '');
             
             // Valida formato do CEP
-            if (!this.validarCep(cepLimpo)) {
+            if (!/^\d{8}$/.test(cepLimpo)) {
                 throw new Error('CEP deve ter 8 dígitos');
             }
 
@@ -39,22 +42,17 @@ export class CepAPI {
         }
     }
 
-    /** Valida formato do CEP
-     @param {string} cep 
-     @returns {boolean}
-     
-    validarCep(cep) {
-        return /^\d{8}$/.test(cep);
-    }
-
     /**
      * Formata CEP para exibição
-     * @param {string} cep - CEP limpo
+     * @param {string} cep - CEP a ser formatado
      * @returns {string} CEP formatado (00000-000)
      */
     formatarCep(cep) {
         const cepLimpo = cep.replace(/\D/g, '');
-        return cepLimpo.replace(/(\d{5})(\d{3})/, '$1-$2');
+        if (cepLimpo.length === 8) {
+            return cepLimpo.replace(/(\d{5})(\d{3})/, '$1-$2');
+        }
+        return cepLimpo;
     }
 
     /**
@@ -63,21 +61,29 @@ export class CepAPI {
      * @param {Object} campos - Objeto com IDs dos campos do formulário
      */
     preencherEndereco(dadosCep, campos = {}) {
+        console.log('Preenchendo endereço com dados:', dadosCep);
+        console.log('Campos fornecidos:', campos);
+        
         const camposPadrao = {
-            cidade: 'cidade',
-            bairro: 'bairro',
-            rua: 'rua',
-            estado: 'estado',
-            cep: 'cep'
+            city: 'cidade',
+            neighborhood: 'bairro',
+            street: 'rua',
+            state: 'estado'
         };
 
         const camposFinais = { ...camposPadrao, ...campos };
+        console.log('Campos finais:', camposFinais);
 
         // Preenche cada campo se existir
         Object.keys(camposFinais).forEach(campo => {
             const elemento = document.getElementById(camposFinais[campo]);
+            console.log(`Tentando preencher campo ${campo} (ID: ${camposFinais[campo]})`, elemento, dadosCep[campo]);
+            
             if (elemento && dadosCep[campo]) {
                 elemento.value = dadosCep[campo];
+                console.log(`Campo ${campo} preenchido com: ${dadosCep[campo]}`);
+            } else {
+                console.log(`Campo ${campo} não preenchido - elemento:`, elemento, 'dados:', dadosCep[campo]);
             }
         });
     }
@@ -87,6 +93,7 @@ export class CepAPI {
      * @param {string} cep - CEP a ser buscado
      * @param {Object} campos - Mapeamento de campos
      * @param {Function} callback - Callback para tratamento de erro
+     * @returns {Promise<Object>} Dados do endereço
      */
     async buscarEPreencher(cep, campos = {}, callback = null) {
         try {

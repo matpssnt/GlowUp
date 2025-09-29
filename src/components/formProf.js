@@ -45,7 +45,7 @@ export default function renderFormProf(container) {
     // Redirecionamento simples
     formulario.addEventListener('submit', (e) => {
         e.preventDefault();
-        
+
         // Salva os dados básicos no localStorage
         const dadosBasicos = {
             nome: nome.value,
@@ -54,7 +54,7 @@ export default function renderFormProf(container) {
             tipo: 'profissional'
         };
         localStorage.setItem('dadosBasicos', JSON.stringify(dadosBasicos));
-        
+
         // Redireciona para continuar cadastro
         window.location.href = 'cont-register';
     });
