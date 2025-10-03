@@ -20,10 +20,10 @@ export default function renderLoginPage() {
     nav.appendChild(navbar);
 
     const campo = document.getElementById('comecar');
-    if(campo) campo.remove();
+    if (campo) campo.remove();
 
 
-    
+
     const formulario = loginForm();
     // Cria link para página de cadastro
     const btnVoltar = document.createElement('a');

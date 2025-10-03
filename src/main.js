@@ -13,11 +13,11 @@ const routes = {
 };
 
 function getPath() {
-    //Exemplo: obetém o /login
-    const url = (location.pathname || "").replace("/telaHome/", "/").trim();
+    // Remove o nome do projeto da URL
+    const url = (location.pathname || "").replace("/GlowUp/", "/").replace("/GlowUp", "").trim();
 
-    //retorna url se começar com "/", se não, retorna "/register" como padrão
-    return url && url.startsWith("/") ? url : "/home"; //retorna url limpa
+    // Se não tiver rota, vai para home
+    return url && url.startsWith("/") ? url : "/home";
 }
 
 //Decide o que renderizar com base na rota atual

@@ -56,24 +56,24 @@ export default function renderHomePage() {
     divCards.className = "cards";
 
     for (var i = 0; i < 5; i++) {
-        const card = RoomCard(i); 
+        const card = RoomCard(i);
         divCards.appendChild(card);
     }
-    
+
 
     const footerContainer = document.getElementById('footer');
     footerContainer.innerHTML = '';
     footerContainer.style.marginTop = '150px';
     const footer = Footer();
     footerContainer.appendChild(footer);
-    
+
 
     // Botão Whatsapp
     const whatsappFloat = document.createElement('div');
     whatsappFloat.className = 'whatsapp-float';
 
     const whatsappLink = document.createElement('a');
-    whatsappLink.href = '#'; 
+    whatsappLink.href = '#';
 
     const whatsappIcon = document.createElement('i');
     whatsappIcon.className = 'fab fa-whatsapp';

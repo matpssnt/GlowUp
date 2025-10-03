@@ -1,9 +1,10 @@
 import NavBar from "../components/NavBar.js";
+import CepAPI from "../utils/cepAPI.js";
 
 export default function renderFormContRegister(container) {
     // Cria o formulário
     const formulario = document.createElement('form');
-    formulario.className = 'd-flex flex-wrap cont-register-form'; // Alterado de flex-column para flex-wrap
+    formulario.className = 'cont-register-form';
 
     // Seção: Informações do Estabelecimento
     const nav = document.getElementById('navbar');
@@ -11,11 +12,11 @@ export default function renderFormContRegister(container) {
 
     const navbar = NavBar();
     nav.appendChild(navbar);
-    
+
 
     const secaoInfo = document.createElement('div');
     secaoInfo.className = 'cont-register-section';
-    
+
     const tituloInfo = document.createElement('h4');
     tituloInfo.textContent = 'Informações do Estabelecimento';
     tituloInfo.className = 'cont-register-section-title';
@@ -47,7 +48,7 @@ export default function renderFormContRegister(container) {
     textareaDescricao.addEventListener('input', () => {
         const count = textareaDescricao.value.length;
         contador.textContent = `${count}/70 caracteres`;
-        
+
         // Adiciona classes de warning/danger baseado no limite
         contador.classList.remove('warning', 'danger');
         if (count > 60) {
@@ -63,11 +64,15 @@ export default function renderFormContRegister(container) {
     // Seção: Endereço do Estabelecimento
     const secaoEndereco = document.createElement('div');
     secaoEndereco.className = 'cont-register-section cont-register-section-horizontal'; // Classe para layout horizontal
-    
+
     const tituloEndereco = document.createElement('h4');
     tituloEndereco.textContent = 'Endereço do Estabelecimento';
     tituloEndereco.className = 'cont-register-section-title';
     secaoEndereco.appendChild(tituloEndereco);
+
+    // Linha 1: Cidade e Bairro lado a lado
+    const linha1 = document.createElement('div');
+    linha1.className = 'cont-register-row-1';
 
     // Cidade
     const divCidade = document.createElement('div');
@@ -83,7 +88,7 @@ export default function renderFormContRegister(container) {
     inputCidade.required = true;
     divCidade.appendChild(labelCidade);
     divCidade.appendChild(inputCidade);
-    secaoEndereco.appendChild(divCidade);
+    linha1.appendChild(divCidade);
 
     // Bairro
     const divBairro = document.createElement('div');
@@ -99,9 +104,14 @@ export default function renderFormContRegister(container) {
     inputBairro.required = true;
     divBairro.appendChild(labelBairro);
     divBairro.appendChild(inputBairro);
-    secaoEndereco.appendChild(divBairro);
+    linha1.appendChild(divBairro);
 
-    // Rua
+    secaoEndereco.appendChild(linha1);
+
+    // Linha 2: Rua (largura total)
+    const linha2 = document.createElement('div');
+    linha2.className = 'cont-register-row-2';
+
     const divRua = document.createElement('div');
     divRua.className = 'cont-register-field';
     const labelRua = document.createElement('label');
@@ -115,7 +125,13 @@ export default function renderFormContRegister(container) {
     inputRua.required = true;
     divRua.appendChild(labelRua);
     divRua.appendChild(inputRua);
-    secaoEndereco.appendChild(divRua);
+    linha2.appendChild(divRua);
+
+    secaoEndereco.appendChild(linha2);
+
+    // Linha 3: Número, CEP e Complemento lado a lado
+    const linha3 = document.createElement('div');
+    linha3.className = 'cont-register-row-3';
 
     // Número
     const divNumero = document.createElement('div');
@@ -131,7 +147,7 @@ export default function renderFormContRegister(container) {
     inputNumero.required = true;
     divNumero.appendChild(labelNumero);
     divNumero.appendChild(inputNumero);
-    secaoEndereco.appendChild(divNumero);
+    linha3.appendChild(divNumero);
 
     // CEP
     const divCep = document.createElement('div');
@@ -139,15 +155,17 @@ export default function renderFormContRegister(container) {
     const labelCep = document.createElement('label');
     labelCep.textContent = 'CEP';
     labelCep.className = 'form-label';
+
     const inputCep = document.createElement('input');
     inputCep.type = 'text';
     inputCep.className = 'form-control';
     inputCep.id = 'cep';
     inputCep.placeholder = '00000-000';
     inputCep.required = true;
+
     divCep.appendChild(labelCep);
     divCep.appendChild(inputCep);
-    secaoEndereco.appendChild(divCep);
+    linha3.appendChild(divCep);
 
     // Complemento
     const divComplemento = document.createElement('div');
@@ -162,14 +180,36 @@ export default function renderFormContRegister(container) {
     inputComplemento.placeholder = 'Apartamento, casa, etc.';
     divComplemento.appendChild(labelComplemento);
     divComplemento.appendChild(inputComplemento);
-    secaoEndereco.appendChild(divComplemento);
+    linha3.appendChild(divComplemento);
+
+    secaoEndereco.appendChild(linha3);
+
+    // Adiciona funcionalidade de busca de CEP
+    adicionarBuscaCep(inputCep);
+
+    // Estado (será preenchido automaticamente)
+    const divEstado = document.createElement('div');
+    divEstado.className = 'cont-register-field';
+    const labelEstado = document.createElement('label');
+    labelEstado.textContent = 'Estado';
+    labelEstado.className = 'form-label';
+    const inputEstado = document.createElement('input');
+    inputEstado.type = 'text';
+    inputEstado.className = 'form-control';
+    inputEstado.id = 'estado';
+    inputEstado.placeholder = 'Estado';
+    inputEstado.readOnly = true;
+    inputEstado.style.backgroundColor = '#f8f9fa';
+    divEstado.appendChild(labelEstado);
+    divEstado.appendChild(inputEstado);
+    secaoEndereco.appendChild(divEstado);
 
     formulario.appendChild(secaoEndereco);
 
     // Seção: Documentação
     const secaoDocumento = document.createElement('div');
     secaoDocumento.className = 'cont-register-section';
-    
+
     const tituloTipoPessoa = document.createElement('h4');
     tituloTipoPessoa.textContent = 'Documentação';
     tituloTipoPessoa.className = 'cont-register-section-title';
@@ -215,18 +255,33 @@ export default function renderFormContRegister(container) {
     // Adiciona funcionalidade de alternância
     adicionarAlternanciaTipoPessoa(selectTipo, camposDinamicos);
 
+    // Container para os botões
+    const containerBotoes = document.createElement('div');
+    containerBotoes.className = 'cont-register-buttons-container';
+
     // Botão de finalizar
     const btnFinalizar = document.createElement('button');
     btnFinalizar.type = 'submit';
     btnFinalizar.textContent = 'Finalizar Cadastro Profissional';
     btnFinalizar.className = 'btn btn-primary cont-register-submit';
-    formulario.appendChild(btnFinalizar);
+
+    // Botão voltar
+    const btnVoltar = document.createElement('button');
+    btnVoltar.type = 'button';
+    btnVoltar.textContent = 'Voltar';
+    btnVoltar.className = 'btn btn-secondary cont-register-voltar';
+    btnVoltar.addEventListener('click', () => {
+        window.history.back();
+    });
+
+    containerBotoes.appendChild(btnFinalizar);
+    containerBotoes.appendChild(btnVoltar);
+    formulario.appendChild(containerBotoes);
 
     // Adiciona evento de submit
     formulario.addEventListener('submit', (e) => {
         e.preventDefault();
         alert('Cadastro finalizado com sucesso!');
-        // Aqui você pode adicionar lógica para salvar os dados
     });
 
     container.appendChild(formulario);
@@ -235,7 +290,7 @@ export default function renderFormContRegister(container) {
 function adicionarAlternanciaTipoPessoa(selectTipo, container) {
     selectTipo.addEventListener('change', () => {
         const tipo = selectTipo.value;
-        
+
         // Limpa o container
         container.innerHTML = '';
         container.classList.remove('d-none');
@@ -272,5 +327,113 @@ function adicionarAlternanciaTipoPessoa(selectTipo, container) {
             divCampo.appendChild(input);
             container.appendChild(divCampo);
         }
+    });
+}
+
+/**
+ * Adiciona funcionalidade de busca automática de CEP
+ * @param {HTMLInputElement} inputCep - Campo de entrada do CEP
+ */
+function adicionarBuscaCep(inputCep) {
+    let timeoutId = null;
+
+    // Função para buscar CEP
+    const buscarCep = async () => {
+        const cep = inputCep.value.trim();
+
+        if (!cep || cep.length < 8) {
+            CepAPI.removerErro();
+            return;
+        }
+
+        try {
+            console.log('Iniciando busca do CEP:', cep);
+
+            // Mapeamento dos campos
+            const campos = {
+                cidade: 'cidade',
+                bairro: 'bairro',
+                street: 'rua',
+                state: 'estado'
+            };
+
+            console.log('Mapeamento de campos:', campos);
+
+            // Busca e preenche automaticamente
+            const dados = await CepAPI.buscarEPreencher(cep, campos, {
+                success: (dados) => {
+                    console.log('CEP encontrado:', dados);
+
+                    // Formata o CEP no campo
+                    inputCep.value = CepAPI.formatarCep(cep);
+
+                    // Foca no próximo campo (número)
+                    const campoNumero = document.getElementById('numero');
+                    if (campoNumero) {
+                        campoNumero.focus();
+                    }
+                },
+                error: (error) => {
+                    console.error('Erro ao buscar CEP:', error);
+                    alert('Erro ao buscar CEP: ' + error.message);
+                }
+            });
+
+            console.log('Dados retornados:', dados);
+
+        } catch (error) {
+            console.error('Erro na busca do CEP:', error);
+            alert('Erro na busca do CEP: ' + error.message);
+        }
+    };
+
+    // Event listener para busca automática (após parar de digitar)
+    inputCep.addEventListener('input', (e) => {
+        // Remove caracteres não numéricos
+        let valor = e.target.value.replace(/\D/g, '');
+
+        // Limita a 8 dígitos
+        if (valor.length > 8) {
+            valor = valor.substring(0, 8);
+        }
+
+        // Formata enquanto digita
+        if (valor.length > 5) {
+            valor = valor.replace(/(\d{5})(\d{3})/, '$1-$2');
+        }
+
+        e.target.value = valor;
+
+        // Remove erro anterior
+        CepAPI.removerErro();
+
+        // Cancela timeout anterior
+        if (timeoutId) {
+            clearTimeout(timeoutId);
+        }
+
+        // Busca automaticamente quando CEP estiver completo
+        if (valor.replace(/\D/g, '').length === 8) {
+            timeoutId = setTimeout(buscarCep, 800); // Aguarda parar de digitar
+        }
+    });
+
+
+    // Event listener para Enter no campo CEP
+    inputCep.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            buscarCep();
+        }
+    });
+
+    // Event listener para paste
+    inputCep.addEventListener('paste', (e) => {
+        setTimeout(() => {
+            const valor = e.target.value.replace(/\D/g, '');
+            if (valor.length === 8) {
+                buscarCep();
+            }
+        }, 100);
     });
 }
