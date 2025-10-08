@@ -1,4 +1,6 @@
 <?php
+
+
 class ClientModel {
 
     public static function getAll($conn) {
