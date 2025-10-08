@@ -65,12 +65,12 @@ a.btn.btn-outline-primary[role="button"] {
 }
 
 .footer-link {
-  transition: color 0.3s ease;
+    transition: color 0.3s ease;
 }
 
 .footer-link:hover {
-  color: #bd9f78 !important;
-  text-decoration: none;
+    color: #bd9f78 !important;
+    text-decoration: none;
 }
 
 footer.bg-body-tertiary {
@@ -220,61 +220,63 @@ a.btn.btn-outline-primary.register-btn:hover {
 
 
 .cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-  padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
 
 }
 
 
 .btn-conhecer {
-  background: linear-gradient(135deg, #fac37c, #e4a676);
-  border: none;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 20px;
-  font-weight: bold;
-  transition: transform 0.2s, box-shadow 0.2s;
-  text-decoration: none;
-  display: inline-block;
+    background: linear-gradient(135deg, #fac37c, #e4a676);
+    border: none;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 20px;
+    font-weight: bold;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    display: inline-block;
 }
 
 .btn-conhecer:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
 }
 
 .card .carousel-item img {
-  height: 200px;       
-  object-fit: cover;
+    height: 200px;
+    object-fit: cover;
 }
 
 .navbar .dropdown-menu {
-  border-radius: 12px;
-  padding: 10px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-  animation: fadeIn 0.3s ease;
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    animation: fadeIn 0.3s ease;
 }
 
 .navbar .dropdown-item {
-  border-radius: 8px;
-  padding: 10px 14px;
-  transition: background 0.2s, color 0.2s;
+    border-radius: 8px;
+    padding: 10px 14px;
+    transition: background 0.2s, color 0.2s;
 }
 
 .map-responsive {
-  overflow: hidden;
-  padding-bottom: 56.25%; /* 16:9 ratio */
-  position: relative;
-  height: 0;
+    overflow: hidden;
+    padding-bottom: 56.25%;
+    /* 16:9 ratio */
+    position: relative;
+    height: 0;
 }
+
 .map-responsive iframe {
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 100%;
-  position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    position: absolute;
 }
 
 
@@ -346,35 +348,32 @@ a.btn.btn-outline-primary.register-btn:hover {
 }
 
 .card-cont-register {
-  max-width: 600px;
-  width: 100%;
-  padding: 2rem;
-  margin-top: 2rem;
+    max-width: 600px;
+    width: 100%;
+    padding: 2rem;
+    margin-top: 2rem;
 }
 
 .cont-register-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: var(--primary-color);
-  text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    text-align: center;
 }
 
 .cont-register-nav-link {
-  display: block;
-  text-align: center;
-  font-weight: 600;
-  color: var(--primary-color);
-  text-decoration: none;
+    display: block;
+    text-align: center;
+    font-weight: 600;
+    color: var(--primary-color);
+    text-decoration: none;
 }
 
 .cont-register-nav-link:hover {
-  color: var(--dark-color);
+    color: var(--dark-color);
 }
 
-
-/* ===== ESTILOS PADRONIZADOS PARA NAVEGAÇÃO ===== */
-
-/* Link de navegação padrão */
+/* Link de navegação */
 .nav-link-default {
     color: var(--primary-color);
     text-decoration: none;
@@ -404,26 +403,26 @@ a.btn.btn-outline-primary.register-btn:hover {
     margin-top: 0.5rem;
 }
 
-/* ===== ESTILOS PADRONIZADOS PARA FORMULÁRIOS ===== */
+/* ESTILOS FORMULÁRIOS*/
 
-/* Container de formulário padrão */
+/* Container de formulário  */
 .form-container {
     margin-top: 1rem;
 }
 
-/* Campo de formulário padrão */
+/* Campo de formulário  */
 .form-field {
     margin-bottom: 1rem;
 }
 
-/* Botão de formulário padrão */
+/* Botão de formulário */
 .form-submit-btn {
     margin-top: 1rem;
 }
 
-/* ===== ESTILOS PADRONIZADOS PARA CARDS ===== */
+/* ESTILO PARA CARDS */
 
-/* Card de registro padrão */
+/* Card de registro */
 .card-register-default {
     max-width: 700px;
     width: 100%;
@@ -432,19 +431,20 @@ a.btn.btn-outline-primary.register-btn:hover {
 
 
 
-/* Card de login padrão */
+/* Card de login  */
 .card-login-default {
     max-width: 400px;
     width: 100%;
     padding: 2rem;
 }
 
-/* ===== ESTILOS PADRONIZADOS PARA TÍTULOS ===== */
+/* ===== ESTILOS PARA TÍTULOS */
 
-/* Título de página padrão */
+/* Título de página */
 .page-title-default {
     margin-bottom: 2rem;
 }
+
 .rounded-card {
     border-radius: 20px !important;
     overflow: hidden;
@@ -481,7 +481,9 @@ a.btn.btn-outline-primary.register-btn:hover {
     display: block;
 }
 
-.form-control, .cont-register-textarea, .cont-register-select {
+.form-control,
+.cont-register-textarea,
+.cont-register-select {
     width: 100%;
     padding: 8px;
     border-radius: 4px;
@@ -528,36 +530,12 @@ a.btn.btn-outline-primary.register-btn:hover {
     .cont-register-section-horizontal {
         flex-direction: column;
     }
+
     .cont-register-field {
         max-width: 100%;
     }
+
     .cont-register-dynamic.show {
         flex-direction: column;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

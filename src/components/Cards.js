@@ -15,15 +15,15 @@ export default function RoomCard(index) {
             <div class="carousel-inner shadow">
 
                 <div class="carousel-item active">
-                    <img class="d-block w-100" src="src/images/botox.jpg" alt="First slide">
+                    <img class="d-block w-100" src="public/assets/src/images/botox.jpg" alt="First slide">
                 </div>
 
                 <div class="carousel-item">
-                    <img class="d-block w-100" src="src/images/Florence-estetica.jpg" alt="Second slide">
+                    <img class="d-block w-100" src="public/assets/src/images/Florence-estetica.jpg" alt="Second slide">
                 </div>
 
                 <div class="carousel-item">
-                    <img class="d-block w-100" src="src/images/sla.avif" alt="Third slide">
+                    <img class="d-block w-100" src="public/assets/src/images/sla.avif" alt="Third slide">
                 </div>
 
             </div>
