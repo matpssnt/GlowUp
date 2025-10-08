@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 08/10/2025 às 18:53
+-- Tempo de geração: 08/10/2025 às 19:12
 -- Versão do servidor: 10.4.28-MariaDB
 -- Versão do PHP: 8.2.4
 
@@ -35,6 +35,14 @@ CREATE TABLE `agendamentos` (
   `id_servico_fk` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `agendamentos`
+--
+
+INSERT INTO `agendamentos` (`id`, `data_hora`, `status`, `id_cliente_fk`, `id_servico_fk`) VALUES
+(1, '2025-10-10 14:00:00', 'Agendado', 1, 1),
+(2, '2025-10-11 10:00:00', 'Agendado', 1, 2);
+
 -- --------------------------------------------------------
 
 --
@@ -49,6 +57,15 @@ CREATE TABLE `cadastros` (
   `isProfissional` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `cadastros`
+--
+
+INSERT INTO `cadastros` (`id`, `nome`, `email`, `senha`, `isProfissional`) VALUES
+(1, 'João Silva', 'joao@email.com', 'senha123', 0),
+(2, 'Maria Santos', 'maria@email.com', 'senha456', 1),
+(3, 'Empresa Beauty', 'beauty@email.com', 'senha789', 1);
+
 -- --------------------------------------------------------
 
 --
@@ -59,6 +76,15 @@ CREATE TABLE `categorias` (
   `id` int(11) NOT NULL,
   `nome` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `categorias`
+--
+
+INSERT INTO `categorias` (`id`, `nome`) VALUES
+(1, 'Cabelo'),
+(2, 'Unhas'),
+(3, 'Estética');
 
 -- --------------------------------------------------------
 
@@ -72,6 +98,13 @@ CREATE TABLE `clientes` (
   `id_cadastro_fk` int(11) DEFAULT NULL,
   `id_telefone_fk` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `clientes`
+--
+
+INSERT INTO `clientes` (`id`, `nome`, `id_cadastro_fk`, `id_telefone_fk`) VALUES
+(1, 'João Silva', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -91,6 +124,14 @@ CREATE TABLE `enderecos` (
   `id_profissional_fk` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `enderecos`
+--
+
+INSERT INTO `enderecos` (`id`, `rua`, `numero`, `cep`, `bairro`, `cidade`, `estado`, `complemento`, `id_profissional_fk`) VALUES
+(1, 'Rua das Flores', '123', '01234-567', 'Centro', 'São Paulo', 'SP', 'Sala 1', 1),
+(2, 'Avenida Principal', '456', '04567-890', 'Jardins', 'Rio de Janeiro', 'RJ', 'Loja 2', 2);
+
 -- --------------------------------------------------------
 
 --
@@ -105,6 +146,14 @@ CREATE TABLE `escalas` (
   `id_profissional_fk` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `escalas`
+--
+
+INSERT INTO `escalas` (`id`, `inicio`, `fim`, `dia_semana`, `id_profissional_fk`) VALUES
+(1, '2025-10-08 11:00:00', '2025-10-08 20:00:00', 1, 1),
+(2, '2025-10-08 12:00:00', '2025-10-08 21:00:00', 1, 2);
+
 -- --------------------------------------------------------
 
 --
@@ -116,6 +165,13 @@ CREATE TABLE `fisicos` (
   `cpf` varchar(255) NOT NULL,
   `id_profissional_fk` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `fisicos`
+--
+
+INSERT INTO `fisicos` (`id`, `cpf`, `id_profissional_fk`) VALUES
+(1, '123.456.789-00', 1);
 
 -- --------------------------------------------------------
 
@@ -129,6 +185,13 @@ CREATE TABLE `juridicos` (
   `id_profissional_fk` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `juridicos`
+--
+
+INSERT INTO `juridicos` (`id`, `cnpj`, `id_profissional_fk`) VALUES
+(1, '12.345.678/0001-90', 2);
+
 -- --------------------------------------------------------
 
 --
@@ -140,6 +203,15 @@ CREATE TABLE `portifolios` (
   `imagens` varchar(255) NOT NULL,
   `id_profissional_fk` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `portifolios`
+--
+
+INSERT INTO `portifolios` (`id`, `imagens`, `id_profissional_fk`) VALUES
+(1, 'foto1.jpg', 1),
+(2, 'foto2.jpg', 1),
+(3, 'foto3.jpg', 2);
 
 -- --------------------------------------------------------
 
@@ -157,6 +229,14 @@ CREATE TABLE `profissionais` (
   `id_cadastro_fk` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `profissionais`
+--
+
+INSERT INTO `profissionais` (`id`, `nome`, `email`, `descricao`, `acessibilidade`, `isJuridica`, `id_cadastro_fk`) VALUES
+(1, 'Maria Santos', 'maria@email.com', 'Cabeleireira profissional com 10 anos de experiência', 1, 0, 2),
+(2, 'Empresa Beauty', 'beauty@email.com', 'Salão de beleza completo', 1, 1, 3);
+
 -- --------------------------------------------------------
 
 --
@@ -173,6 +253,15 @@ CREATE TABLE `servicos` (
   `id_categoria_fk` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `servicos`
+--
+
+INSERT INTO `servicos` (`id`, `nome`, `descricao`, `preco`, `duracao`, `id_profissional_fk`, `id_categoria_fk`) VALUES
+(1, 'Corte Feminino', 'Corte e finalização', 50.00, '0000-00-00 00:00:00', 1, 1),
+(2, 'Manicure', 'Manicure completa', 35.00, '0000-00-00 00:00:00', 2, 2),
+(3, 'Limpeza de Pele', 'Limpeza facial profunda', 120.00, '0000-00-00 00:00:00', 2, 3);
+
 -- --------------------------------------------------------
 
 --
@@ -185,6 +274,15 @@ CREATE TABLE `telefones` (
   `digitos` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `telefones`
+--
+
+INSERT INTO `telefones` (`id`, `ddd`, `digitos`) VALUES
+(1, '11', '99999-9999'),
+(2, '21', '88888-8888'),
+(3, '31', '77777-7777');
+
 -- --------------------------------------------------------
 
 --
@@ -195,6 +293,14 @@ CREATE TABLE `tel_prof` (
   `id_profissional_fk` int(11) DEFAULT NULL,
   `id_telefone_fk` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `tel_prof`
+--
+
+INSERT INTO `tel_prof` (`id_profissional_fk`, `id_telefone_fk`) VALUES
+(1, 2),
+(2, 3);
 
 --
 -- Índices para tabelas despejadas
@@ -302,73 +408,73 @@ ALTER TABLE `tel_prof`
 -- AUTO_INCREMENT de tabela `agendamentos`
 --
 ALTER TABLE `agendamentos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `cadastros`
 --
 ALTER TABLE `cadastros`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `categorias`
 --
 ALTER TABLE `categorias`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `clientes`
 --
 ALTER TABLE `clientes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de tabela `enderecos`
 --
 ALTER TABLE `enderecos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `escalas`
 --
 ALTER TABLE `escalas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `fisicos`
 --
 ALTER TABLE `fisicos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de tabela `juridicos`
 --
 ALTER TABLE `juridicos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de tabela `portifolios`
 --
 ALTER TABLE `portifolios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `profissionais`
 --
 ALTER TABLE `profissionais`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `servicos`
 --
 ALTER TABLE `servicos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `telefones`
 --
 ALTER TABLE `telefones`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Restrições para tabelas despejadas
