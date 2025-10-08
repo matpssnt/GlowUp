@@ -9,11 +9,11 @@
     $subRoute = $seguimentos[1] ??  null;
 
     if($route != "api"){
-        require "index.html";
+        require "index.php";
         exit;
         
     }elseif($route === "api"){
-        if(in_array( $subRoute, ["login", "home", "register", "contRegister"])){
+        if(in_array( $subRoute, ["login", "home", "register", "contRegister", "client", "services"])){
             require "routes/${subRoute}.php";
         }else{
             return jsonResponse(['message' => 'rota não encontrada'], 404);
