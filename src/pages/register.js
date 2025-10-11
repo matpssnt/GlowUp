@@ -3,7 +3,7 @@ import renderFormProf from "../components/formProf.js";
 import NavBar from "../components/NavBar.js";
 
 export default function renderRegisterPage() {
-    
+
     const root = document.getElementById('root');
     root.innerHTML = '';
     root.style.display = 'flex';
@@ -22,7 +22,7 @@ export default function renderRegisterPage() {
     nav.appendChild(navbar);
 
     const campo = document.getElementById('comecar');
-    if(campo) campo.remove();
+    if (campo) campo.remove();
 
     // Cria o container principal
     const mainContainer = document.createElement('div');
@@ -96,11 +96,11 @@ export default function renderRegisterPage() {
             // Ativa aba de cliente
             tabCliente.classList.add('active');
             tabProf.classList.remove('active');
-            
+
             // Mostra formulário de cliente
             formCliente.classList.remove('d-none');
             formCliente.classList.add('d-block');
-            
+
             // Oculta formulário de profissional
             formProf.classList.remove('d-block');
             formProf.classList.add('d-none');
@@ -108,11 +108,11 @@ export default function renderRegisterPage() {
             // Ativa aba de profissional
             tabProf.classList.add('active');
             tabCliente.classList.remove('active');
-            
+
             // Mostra formulário de profissional
             formProf.classList.remove('d-none');
             formProf.classList.add('d-block');
-            
+
             // Oculta formulário de cliente
             formCliente.classList.remove('d-block');
             formCliente.classList.add('d-none');
