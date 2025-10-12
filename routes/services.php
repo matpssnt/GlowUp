@@ -6,16 +6,16 @@ $id = $seguimentos[2] ?? null;
 
 if ($_SERVER['REQUEST_METHOD'] === "GET") {
     if (isset($id)) {
-        ServicesController::getById($conn, $id);
+        ServicesController::getById($id);
     }else{
-        ServicesController::getAll($conn);
+        ServicesController::getAll();
     }
 }
 
 elseif ($_SERVER['REQUEST_METHOD'] === "POST") {
     $data = json_decode(file_get_contents('php://input'), true);
     if ($data) {
-        ServicesController::create($conn, $data);
+        ServicesController::create($data);
     }else{
         jsonResponse(['message' => 'dados inválidos'], 400);
     }
@@ -28,12 +28,12 @@ elseif ($_SERVER['REQUEST_METHOD'] === "PUT") {
     if (!$id) {
         jsonResponse(['message' => 'ID do serviço é obrigatorio'], 400);
     }
-    ServicesController::update($conn, $id, $data);
+    ServicesController::update($id, $data);
 }
 
 elseif ($_SERVER['REQUEST_METHOD'] === "DELETE") {
     if (isset($id)) {
-    ServicesController::delete($conn, $id);
+    ServicesController::delete($id);
     }else{
         jsonResponse(['message' => 'ID do serviço é obrigatorio'], 400);
     }

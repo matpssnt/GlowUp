@@ -2,6 +2,8 @@
 
 require_once __DIR__ . "/jwt/jwt_include.php";
 
+define('SECRET_KEY', "ChavePoderosa");
+
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
@@ -23,7 +25,7 @@ function validateToken($token) {
         return $decode->sub;
     }
     catch (Exception $error) {
-        return 'FALSO';
+        return false;
     }
 }
 
