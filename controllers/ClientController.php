@@ -3,29 +3,29 @@
     require_once "PasswordController.php"; 
 
     class ClientController{
-        public static function create($conn, $data){
+        public static function create($data){
             $data['senha'] = PasswordController::generateHash($password = $data['senha']);
-            $result = ClientModel::create($conn, $data);
+            $result = ClientModel::create($data);
 
             if($result){
                 return jsonResponse(['message'=> 'Cliente criado']);
             }else{
-            return jsonResponse(['message'=> 'Deu merda'], 400);
+            return jsonResponse(['message'=> 'Falha ao criar um cliente'], 400);
             }
         }
         
-        public static function getAll($conn) {
-            $clientList = ClientModel::getAll($conn);
+        public static function getAll() {
+            $clientList = ClientModel::getAll();
             return jsonResponse($clientList);
         }
 
-        public static function getById($conn, $id) {
-            $result = ClientModel::getById($conn, $id);
+        public static function getById($id) {
+            $result = ClientModel::getById( $id);
             return jsonResponse($result);
         }
 
-        public static function delete($conn, $id){
-            $result = ClientModel::delete($conn, $id);
+        public static function delete($id){
+            $result = ClientModel::delete($id);
             if($result){
                 return jsonResponse(['message'=> 'cliente deletado']);
             }else{
@@ -33,8 +33,8 @@
             }
         }
 
-        public static function update($conn, $id, $data){
-            $result = ClientModel::update($conn, $id, $data);
+        public static function update($id, $data){
+            $result = ClientModel::update($id, $data);
             if($result){
                 return jsonResponse(['message'=> 'cliente atualizado']);
             }else{

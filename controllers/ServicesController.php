@@ -3,8 +3,8 @@ require_once __DIR__ . '/../models/ServicesModel.php';
 
 class ServicesController {
 
-    public static function create($conn, $data) {
-        $result = ServicesModel::create($conn, $data);
+    public static function create($data) {
+        $result = ServicesModel::create($data);
         if ($result) {
             return jsonResponse(['message' => 'serviço criado com sucesso']);
         } else {
@@ -12,13 +12,13 @@ class ServicesController {
         }
     }
 
-    public static function getAll($conn) {
-        $services = ServicesModel::getAll($conn);
+    public static function getAll() {
+        $services = ServicesModel::getAll();
         return jsonResponse($services);
     }
 
-    public static function getById($conn, $id) {
-        $service = ServicesModel::getById($conn, $id);
+    public static function getById($id) {
+        $service = ServicesModel::getById($id);
         if ($service) {
             return jsonResponse($service);
         } else {
@@ -26,8 +26,8 @@ class ServicesController {
         }
     }
 
-    public static function delete($conn, $id) {
-        $result = ServicesModel::delete($conn, $id);
+    public static function delete($id) {
+        $result = ServicesModel::delete($id);
         if ($result) {
             return jsonResponse(['message' => 'serviço deletado']);
         } else {
@@ -35,8 +35,8 @@ class ServicesController {
         }
     }
 
-    public static function update($conn, $id, $data) {
-        $result = ServicesModel::update($conn, $id, $data);
+    public static function update($id, $data) {
+        $result = ServicesModel::update($id, $data);
         if ($result) {
             return jsonResponse(['message' => 'serviço atualizado']);
         } else {

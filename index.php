@@ -1,6 +1,5 @@
 <?php
     $uri = Strtolower(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
-    $method = $_SERVER['REQUEST_METHOD'];
     $pasta = Strtolower(basename(dirname(__FILE__)));
     $uri = str_replace("/$pasta", "", $uri);
     $seguimentos = explode("/", trim($uri, "/") );
@@ -9,7 +8,8 @@
     $subRoute = $seguimentos[1] ??  null;
 
     if($route != "api"){
-        require "index.php";
+        // require __DIR__ . "/public/index.html";
+        require "teste.php";
         exit;
         
     }elseif($route === "api"){

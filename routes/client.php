@@ -5,28 +5,28 @@ if ( $_SERVER['REQUEST_METHOD'] === "GET" ){
     $id = $segments[2] ?? null;
 
     if(isset($id)){
-        ClientController::getById($conn, $id); 
+        ClientController::getById( $id); 
     }else{
-        ClientController::getAll($conn, $id);
+        ClientController::getAll();
     } 
 }
 
 elseif($_SERVER['REQUEST_METHOD'] == "POST"){
     $data = json_decode(file_get_contents('php://input'), true);
-    ClientController::create($conn, $data);
+    ClientController::create($data);
 }
 
 elseif($_SERVER['REQUEST_METHOD'] == "PUT"){
     $data = json_decode(file_get_contents('php://input'), true);
     $id = $data['id'];
-    ClientController::update($conn, $id, $data);
+    ClientController::update($id, $data);
 }
 
 if ( $_SERVER['REQUEST_METHOD'] === "DELETE" ){
     $id = $segments[2] ?? null;
 
     if(isset($id)){
-        ClientController::delete($conn);
+        ClientController::delete( $id);
     }else{
        jsonResponse(['message'=>'ID do cliente é obrigatório'], 404);
     }
