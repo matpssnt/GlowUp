@@ -3,7 +3,10 @@ export default function NavBar({hidelogin = false} = {}) {
     nav.className = 'navbar navbar-expand-lg bg-body-tertiary';
     nav.innerHTML = `
     <div class="container-fluid">
-        <a class="navbar-brand" href="home">Glow Up</a>
+        <a class="navbar-brand d-flex align-items-center" href="home">
+            <img src="public/assets/images/logo.png" alt="Glow Up" style = "width: 70px; height: 70px; class="logo-img me-2" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+            <span class="logo-text" style="display: none;">Glow Up</span>
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
         </button>

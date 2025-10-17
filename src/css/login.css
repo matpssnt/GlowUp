@@ -25,6 +25,38 @@
     box-shadow: 0 25px 50px rgba(139, 107, 75, 0.2);
 }
 
+/* Campos e botões no login */
+.card-login .form-control {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 14px 16px;
+    background: #fafafa;
+}
+
+.card-login .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(139, 107, 75, 0.15);
+    background: #fff;
+}
+
+.card-login .btn.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    border: none;
+    padding: 14px 18px;
+    font-weight: 700;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(139, 107, 75, 0.3);
+}
+
+.card-login .btn.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(139, 107, 75, 0.35);
+}
+
+.card-login .btn.btn-primary:active {
+    transform: translateY(0);
+}
+
 /* Responsividade específica do login */
 @media (max-width: 768px) {
     .card-login {
