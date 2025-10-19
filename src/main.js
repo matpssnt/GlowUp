@@ -14,7 +14,7 @@ const routes = {
 
 function getPath() {
     // Remove o nome do projeto da URL
-    const url = (location.pathname || "").replace("/GlowUp-front/", "/").trim();
+    const url = (location.pathname || "").replace("/GlowUp/", "/").trim();
 
     // Se não tiver rota, vai para home
     return url && url.startsWith("/") ? url : "/home";
