@@ -1,10 +1,14 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
+
 class ServicesModel {
 
     public static function create($data) {
-        global $conn;
-        $sql = "INSERT INTO servicos (nome, descricao, preco, duracao, id_profissional_fk, id_categoria_fk) VALUES (?, ?, ?, ?, ?, ?)";
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
+        
+        $sql = "INSERT INTO servicos (nome, descricao, preco, duracao, id_profissional_fk, id_categoria_fk)
+                VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ssdsii",
             $data["nome"],
@@ -18,14 +22,18 @@ class ServicesModel {
     }
 
     public static function getAll() {
-        global $conn;
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
+        
         $sql = "SELECT * FROM servicos";
         $result = $conn->query($sql);
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
     public static function getById($id) {
-        global $conn;
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
+
         $sql = "SELECT * FROM servicos WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id);
@@ -34,8 +42,12 @@ class ServicesModel {
     }
 
     public static function update($id, $data) {
-        global $conn;
-        $sql = "UPDATE servicos SET nome = ?, descricao = ?, preco = ?, duracao = ?, id_profissional_fk = ?, id_categoria_fk = ? WHERE id = ?";
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
+
+        $sql = "UPDATE servicos
+                SET nome = ?, descricao = ?, preco = ?, duracao = ?, id_profissional_fk = ?, id_categoria_fk = ?
+                WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ssdsiii",
             $data["nome"],
@@ -50,7 +62,9 @@ class ServicesModel {
     }
 
     public static function delete($id) {
-        global $conn;
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
+
         $sql = "DELETE FROM servicos WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id);
