@@ -1,6 +1,7 @@
 <?php
     require_once __DIR__ . "/../models/ClientModel.php";
     require_once "PasswordController.php"; 
+    require_once __DIR__ . '/../helpers/response.php';
 
     class ClientController{
         public static function create($data){

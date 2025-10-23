@@ -3,6 +3,7 @@
 
     require_once __DIR__ . "/../models/ClientModel.php";
     require_once __DIR__ . "/../helpers/token_jwt.php";
+    require_once __DIR__ . '/../helpers/response.php';
 
     class AuthController {
         public static function loginClient($data) {

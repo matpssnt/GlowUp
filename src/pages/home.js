@@ -46,7 +46,6 @@ export default function renderHomePage() {
         divCards.appendChild(card);
     }
 
-
     const footerContainer = document.getElementById('footer');
     footerContainer.innerHTML = '';
     footerContainer.style.marginTop = '150px';

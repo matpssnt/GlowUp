@@ -1,16 +1,30 @@
 <?php
-
 require_once 'config.php';
-
-$erroDB = false;
-
-try {
-    $conn = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_BANCO);
-    if ($conn->connect_error){
-        $erroDB = true;
+class Database {
+    private $conn;
+    private static $instancia = null;
+    public function __construct(){
+        try{
+            $this->conn = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_BANCO);
+            if($this->conn->connect_error){
+                throw new Exception("Erro na conexão com o banco de dados");
+            }
+        }catch(Exception $erro){
+            die("Erro: " . $erro->getMessage());
+        }
     }
-} catch (mysqli_sql_exception $erro) {
-    $erroDB = true;
+
+    public static function getInstancia() {
+        if (self::$instancia === null) {
+            self::$instancia = new Database();
+        }
+        return self::$instancia;
+    }
+
+    public function pegarConexao(){
+        return $this->conn;
+    }
+
 }
 
 ?>

@@ -1,7 +1,6 @@
 <?php
 require_once __DIR__ . '/../controllers/ServicesController.php';
 
-//AINDA NÃO TESTADO!!!!
 $id = $seguimentos[2] ?? null;
 
 if ($_SERVER['REQUEST_METHOD'] === "GET") {
