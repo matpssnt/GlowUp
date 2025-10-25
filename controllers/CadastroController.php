@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../models/CadastroModel.php';
 
+require_once __DIR__ . '/../models/CadastroModel.php';
 
 class AgendamentoController{
     public static function create($data){
