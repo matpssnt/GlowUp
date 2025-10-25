@@ -19,17 +19,17 @@ class ValidadorController{
         }
     }
 
-    public static function dateHour_validate() {
-        
-        $dateTime = new DateTime();
-        return $dateTime->format('Y-m-d H:i:s');
-    }
-
-    public static function validateDateTime($dateString) {
+    public static function validateDateTime($dateString = null) {
+        date_default_timezone_set('America/Sao_Paulo');
         try {
-            date_default_timezone_set('America/Sao_Paulo');
-            $dateTime = new DateTime($dateString);
+            if ($dateString === null) {
+                $dateString = new DateTime();
+            }
+            else {
+                $dateTime = new DateTime($dateString);
+            }
             return $dateTime->format('Y-m-d H:i:s');
+
         }
         catch (Exception $e) {
             return false;
