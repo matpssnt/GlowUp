@@ -7,7 +7,6 @@
 
     class AuthController {
         public static function loginClient($data) {
-            global $conn;
             $data['email'] = trim($data['email']);
             $data['password'] = trim($data['password']);
 
