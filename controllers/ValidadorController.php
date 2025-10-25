@@ -1,6 +1,6 @@
 <?php
 
-class ValidatorController{
+class ValidadadorController{
 
 public static function validate_data($data, $labels) {
     $faltando = [];
