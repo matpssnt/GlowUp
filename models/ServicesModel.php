@@ -4,6 +4,7 @@ require_once __DIR__ . '/../config/database.php';
 class ServicesModel {
 
     public static function create($data) {
+
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
         
@@ -44,7 +45,7 @@ class ServicesModel {
     public static function update($id, $data) {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
-
+        
         $sql = "UPDATE servicos
                 SET nome = ?, descricao = ?, preco = ?, duracao = ?, id_profissional_fk = ?, id_categoria_fk = ?
                 WHERE id = ?";

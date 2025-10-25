@@ -7,7 +7,6 @@
         public static function create($data){
             $data['senha'] = PasswordController::generateHash($password = $data['senha']);
             $result = ClientModel::create($data);
-
             if($result){
                 return jsonResponse(['message'=> 'Cliente criado']);
             }else{

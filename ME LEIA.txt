@@ -1,3 +1,0 @@
-Todos os parâmetros $conn foram removidos, ou seja, não é mais necessário passar a conexão como parâmetro.
-Dentro de cada função, utilize a instrução global $conn.
-Além disso, a conexão com o banco de dados deve ser incluída via require_once, assim todas as funções terão acesso ao banco.
