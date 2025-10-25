@@ -10,9 +10,7 @@ class AgendamentoController{
         $dateHour = ValidadorController::validateDateTime($data['data_hora']);
         
         if (!$dateHour){
-            return jsonResponse([
-                'message'=> "Data/hora é inválida"
-            ], 400);
+            return jsonResponse(['message'=> "Data/hora é inválida"], 400);
         }
 
         $resultado = AgendamentoModel::create($data);
