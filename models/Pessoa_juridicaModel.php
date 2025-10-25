@@ -4,7 +4,8 @@ class Pessoa_juridicaModel
 {
     public static function create($data)
     {
-        global $conn;
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
         $sql = "INSERT INTO juridicos (cnpj, id_profissional_fk) VALUES (?, ?)";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("si", $data['cnpj'], $data['id_profissional_fk']);
@@ -15,7 +16,8 @@ class Pessoa_juridicaModel
 
     public static function update($id, $data)
     {
-        global $conn;
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
         $sql = "UPDATE juridicos SET cnpj = ?, id_profissional = ? WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("sii", $data['cnpj'], $data['id_profissional'], $id);
@@ -27,7 +29,8 @@ class Pessoa_juridicaModel
 
     public static function delete($id)
     {
-        global $conn;
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
         $sql = "DELETE FROM juridicos WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id);
@@ -39,7 +42,8 @@ class Pessoa_juridicaModel
 
     public static function getById($id)
     {
-        global $conn;
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
         $sql = "SELECT * FROM juridicos WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id);
@@ -52,7 +56,8 @@ class Pessoa_juridicaModel
 
     public static function getAll()
     {
-        global $conn;
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
         $sql = "SELECT * FROM juridicos";
         $result = $conn->query($sql);
         return $result->fetch_all(MYSQLI_ASSOC);

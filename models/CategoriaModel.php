@@ -4,8 +4,8 @@ class CategoriaModel
 {
     public static function create($data)
     {
-        global $conn;
-
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
         $sql = "INSERT INTO categorias (nome) VALUES (?)";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $data['nome']); 
@@ -16,7 +16,8 @@ class CategoriaModel
 
     public static function delete($id)
     {   
-        global $conn;
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
         $sql = "DELETE FROM categorias WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id); 
@@ -27,7 +28,8 @@ class CategoriaModel
 
     public static function update($id, $data)
     {   
-        global $conn;
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
         $sql = "UPDATE categorias SET nome = ? WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("si", $data['nome'], $id);
@@ -38,7 +40,8 @@ class CategoriaModel
 
     public static function getById($id)
     {
-        global $conn;
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
         $sql = "SELECT * FROM categorias WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id);
@@ -50,7 +53,8 @@ class CategoriaModel
 
     public static function getAll()
     {
-        global $conn;
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
         $sql = "SELECT * FROM categorias";
         $result = $conn->query($sql);
         return $result->fetch_all(MYSQLI_ASSOC);

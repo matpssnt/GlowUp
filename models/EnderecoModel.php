@@ -4,7 +4,8 @@ require_once __DIR__ . '/../config/database.php';
 class EnderecoModel
 {
     public static function create($data){
-        global $conn;
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
         $sql = "INSERT INTO enderecos (rua, numero, cep, bairro, cidade, estado, complemento, id_profissional_fk) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
@@ -27,7 +28,8 @@ class EnderecoModel
 
     public static function update($id, $data)
     {
-        global $conn;
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
         $sql = "UPDATE enderecos 
                 SET rua = ?, numero = ?, cep = ?, bairro = ?, cidade = ?, estado = ?, complemento = ?, id_profissional_fk = ?
                 WHERE id = ?";
@@ -53,7 +55,8 @@ class EnderecoModel
 
     public static function delete($id)
     {   
-        global $conn;
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
         $sql = "DELETE FROM enderecos WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id);
@@ -65,7 +68,8 @@ class EnderecoModel
 
     public static function getById($id)
     {
-        global $conn;
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
         $sql = "SELECT * FROM enderecos WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id);
@@ -78,7 +82,8 @@ class EnderecoModel
 
     public static function getAll()
     {
-        global $conn;
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
         $sql = "SELECT * FROM enderecos";
         $result = $conn->query($sql);
         return $result->fetch_all(MYSQLI_ASSOC);
