@@ -13,13 +13,11 @@ const routes = {
 };
 
 function getPath() {
-    // Divide o caminho atual em partes
-    const pathParts = location.pathname.split('/').filter(Boolean); // remove vazios
-    // Remove o primeiro item (que é o nome da pasta do projeto)
-    pathParts.shift();
-    // Junta de novo as partes restantes
-    const path = '/' + pathParts.join('/');
-    return path;
+    // Remove o nome do projeto da URL
+    const url = (location.pathname || "").replace("/GlowUp/", "/").trim();
+
+    // Se não tiver rota, vai para home
+    return url && url.startsWith("/") ? url : "/home";
 }
 
 //Decide o que renderizar com base na rota atual
