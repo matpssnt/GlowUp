@@ -58,6 +58,7 @@ class ClientModel {
     }
 
     public static function clientValidation($email, $password) {
+        
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
         $sql = "SELECT c.id AS cadastro_id, c.id, c.nome, c.email, c.senha, c.isProfissional, cli.id 
