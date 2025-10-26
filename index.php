@@ -13,7 +13,7 @@
         exit;
         
     }elseif($route === "api"){
-        if(in_array( $subRoute, ["login", "home", "register", "contRegister", "client", "services"])){
+        if(in_array( $subRoute, ["home", "login", "register", "contRegister", "client", "services", "booking" /*Agendamento*/])){
             require "routes/${subRoute}.php";
         }else{
             return jsonResponse(['message' => 'rota não encontrada'], 404);
