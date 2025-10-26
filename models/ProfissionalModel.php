@@ -1,12 +1,13 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
 
-class ClientModel {
+class ProfissionalModel
+{
 
     public static function getAll() {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
-        $sql = "SELECT * FROM clientes";
+        $sql = "SELECT * FROM profissionais";
         $result = $conn->query($sql);
         return $result->fetch_all(MYSQLI_ASSOC);
     }
@@ -14,7 +15,7 @@ class ClientModel {
     public static function getById($id) {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
-        $sql = "SELECT * FROM clientes WHERE id= ?";
+        $sql = "SELECT * FROM profissionais WHERE id= ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -24,12 +25,16 @@ class ClientModel {
     public static function create($data) {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
-        $sql = "INSERT INTO clientes (nome, id_cadastro_fk, id_telefone_fk) VALUES (?, ?, ?);";
+        $sql = "INSERT INTO profissionais (nome, email, descricao, acessibilidade, isJuridica, id_cadastro_fk) 
+        VALUES (?, ?, ?, ?, ?, ?);";
         $stat = $conn->prepare($sql);
-        $stat->bind_param("sii", 
+        $stat->bind_param("sssiii", 
             $data["nome"],
-            $data["id_cadastro_fk"],
-            $data["id_telefone_fk"]
+            $data["email"],
+            $data["descricao"],
+            $data["acessibilidade"],
+            $data["isJuridica"],
+            $data["id_cadastro_fk"]
         );
         return $stat->execute();
     }
@@ -37,12 +42,15 @@ class ClientModel {
     public static function update($id, $data) {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
-        $sql = "UPDATE clientes SET nome = ?, id_cadastro_fk = ?, id_telefone_fk = ? WHERE id = ?";
+        $sql = "UPDATE profissionais SET nome = ?, email = ? , descricao = ? , acessibilidade = ? , isJuridica = ? , id_cadastro_fk = ? WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("siii",
-            $data["nome"],
+            $$data["nome"],
+            $data["email"],
+            $data["descricao"],
+            $data["acessibilidade"],
+            $data["isJuridica"],
             $data["id_cadastro_fk"],
-            $data["id_telefone_fk"],
             $id
         );
         return $stmt->execute();
@@ -51,37 +59,34 @@ class ClientModel {
     public static function delete($id) {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
-        $sql = "DELETE FROM clientes WHERE id= ?";
+        $sql = "DELETE FROM profissionais WHERE id= ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id);
         return $stmt->execute();
     }
 
     public static function clientValidation($email, $password) {
-        
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
-        $sql = "SELECT c.id AS cadastro_id, c.id, c.nome, c.email, c.senha, c.isProfissional, cli.id 
-        AS cliente_id, cli.id_telefone_fk
-        FROM cadastros c 
-        JOIN clientes cli ON cli.id_cadastro_fk = c.id
-        WHERE c.email = ? AND c.isProfissional = 0";
-
+        $sql = "SELECT profissionais.id, profissionais.nome, profissionais.email
+        FROM profissionais 
+        JOIN cadastros ON cadastros.id = profissionais.id_cadastro_fk
+        WHERE profissionais.email = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
-        
-        if($client = $result->fetch_assoc()) {
-            if(PasswordController::validateHash($password, $client['senha'])) {
-                unset($client['senha']);
-                return $client;  
+        if($prof = $result->fetch_assoc()) {
+            if(PasswordController::validateHash($password, $prof['senha'])) {
+                unset($prof['senha']);
+                return $prof;
             }
 
         return false;
         
         }
     }
+
 }
 
 ?>

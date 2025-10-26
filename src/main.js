@@ -14,7 +14,7 @@ const routes = {
 
 function getPath() {
     // Divide o caminho atual em partes
-    const pathParts = location.pathname.split('/').filter(Boolean); // remove vazios
+    const pathParts = location.pathname.split('/').filter(Boolean); // Remove vazios
     // Remove o primeiro item (que é o nome da pasta do projeto)
     pathParts.shift();
     // Junta de novo as partes restantes
