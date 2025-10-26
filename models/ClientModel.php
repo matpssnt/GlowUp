@@ -58,12 +58,16 @@ class ClientModel {
     }
 
     public static function clientValidation($email, $password) {
+        
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
-        $sql = "SELECT clientes.id, clientes.nome, clientes.email, clientes.senha 
+
+        $sql = "SELECT clientes.id, clientes.nome, clientes.email, clientes.senha
+
         FROM clientes 
         JOIN cargos ON cargos.id = clientes.cargo_id
         WHERE clientes.email = ?";
+
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $email);
         $stmt->execute();
