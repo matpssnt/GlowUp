@@ -2,13 +2,13 @@
 
 require_once __DIR__ . '/../models/CadastroModel.php';
 
-class AgendamentoController{
+class CadastroController{
     public static function create($data){
         $resultado = CadastroModel::create($data);
         if($resultado){
             return jsonResponse(['message'=> 'Cadastro criado com sucesso'], 400);
         }else{
-            return jsonResponse(['message'=> 'Erro ao criar um Agendamento'], 200);
+            return jsonResponse(['message'=> 'Erro ao criar um cadastro'], 200);
         }
     }
 

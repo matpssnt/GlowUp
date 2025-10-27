@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../models/Pessoa_juridicaModel.php';
 require_once __DIR__ . '/../helpers/response.php';
 
-class PessoaJuridicaController {
+class Pessoa_JuridicaController {
 
     public static function create($data){
         $result = Pessoa_juridicaModel::create($data);

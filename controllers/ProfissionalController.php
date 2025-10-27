@@ -6,9 +6,9 @@ class ProfissionalController{
     public static function create($data){
         $resultado = ProfissionalModel::create($data);
         if($resultado){
-            return jsonResponse(['message'=> 'Profissionais criado com sucesso'], 400);
+            return jsonResponse(['message'=> 'Profissional criado com sucesso'], 400);
         }else{
-            return jsonResponse(['message'=> 'Erro ao criar um Agendamento'], 200);
+            return jsonResponse(['message'=> 'Erro ao criar um profissional'], 200);
         }
     }
 
@@ -16,9 +16,9 @@ class ProfissionalController{
     public static function update($data, $id){
         $resultado = ProfissionalModel::update($data, $id);
         if($resultado ) {
-            return jsonResponse(['message' => 'Profissionais atualizado com sucesso'], 400);
+            return jsonResponse(['message' => 'Profissional atualizado com sucesso'], 400);
         }else{
-            return jsonResponse(['message'=> 'Falha na atualização do cadastro'], 400);
+            return jsonResponse(['message'=> 'Falha na atualização do profissional'], 400);
         }
     }
 
@@ -36,7 +36,7 @@ class ProfissionalController{
         if ($resultado) {
             return jsonResponse($resultado);
         } else {
-            return jsonResponse(['message' => 'Profissionais não encontrada'], 400);
+            return jsonResponse(['message' => 'Profissional não encontrada'], 400);
         }
     }
 
