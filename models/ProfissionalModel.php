@@ -68,10 +68,12 @@ class ProfissionalModel
     public static function clientValidation($email, $password) {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
+        
         $sql = "SELECT profissionais.id, profissionais.nome, profissionais.email
         FROM profissionais 
         JOIN cadastros ON cadastros.id = profissionais.id_cadastro_fk
         WHERE profissionais.email = ?";
+
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $email);
         $stmt->execute();
