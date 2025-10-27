@@ -1,8 +1,8 @@
 <?php
 
-require_once __DIR__ . '/../models/ProfissionalController.php';
+require_once __DIR__ . '/../models/ProfissionalModel.php';
 
-class AgendamentoController{
+class ProfissionalController{
     public static function create($data){
         $resultado = ProfissionalModel::create($data);
         if($resultado){
