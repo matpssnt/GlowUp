@@ -16,33 +16,13 @@ export default function renderquemSomos(){
        <h1 style="font-size: 2.8rem; font-weight: 700;">
             Quem somos nós?
         </h1>
-        <p style="font-size 1rem; font-weight: 500;">
+        <p style="font-size: 1rem; font-weight: 500;">
             Conheça nossa empresa
         </p>
         <div class="line">
         </div> 
-        <style>
-            .line{
-                border-bottom: 1px solid #0c0b0b85;
-                display: inline-block;
-                width: 50%;
-                padding-top: 2rem;
-            }
-        </style>
     `;
     fundoPrincipal.className = 'fund-principal fade-in';
-    fundoPrincipal.style.padding = '20px';
-    fundoPrincipal.style.width = '100%';
-    fundoPrincipal.style.height = '50vh'; // ou 50vh
-    fundoPrincipal.style.display = 'flex';
-    fundoPrincipal.style.flexDirection = 'column';
-    fundoPrincipal.style.alignItems = 'center'; // centraliza o texto verticalmente
-    fundoPrincipal.style.justifyContent = 'center'; 
-    // fundoPrincipal.style.backgroundImage = 'url("src/images/fundoPrincipal.jfif")';
-    fundoPrincipal.style.background = `radial-gradient(circle, #fac37c, #c7824dff)`;
-    fundoPrincipal.style.backgroundSize = 'cover';
-    fundoPrincipal.style.backgroundPosition = 'center';
-    fundoPrincipal.style.backgroundRepeat = 'no-repeat';
     
 
     const footerContainer = document.getElementById('footer');
