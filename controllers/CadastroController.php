@@ -1,9 +1,16 @@
 <?php
 
 require_once __DIR__ . '/../models/CadastroModel.php';
+require_once __DIR__ . '/../controllers/PasswordController.php';
+require_once __DIR__ . '/../controllers/ValidadorController.php';
+
 
 class CadastroController{
     public static function create($data){
+
+        ValidadorController::validate_data($data, ["nome", "email", "senha", "isProfissional"]);
+        $data['senha'] = PasswordController::generateHash($data['senha']);
+
         $resultado = CadastroModel::create($data);
         if($resultado){
             return jsonResponse(['message'=> 'Cadastro criado com sucesso'], 400);
