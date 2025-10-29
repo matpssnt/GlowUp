@@ -24,7 +24,7 @@ switch ($method) {
             jsonResponse(['message' => 'ID do cadastro é obrigatório'], 400); 
             break; 
         }
-        if (empty($data['nome']) || empty($data['email']) || empty($data['senha']) || !isset($data['isProfissinal'])) {
+        if (empty($data['nome']) || empty($data['email']) || empty($data['senha']) || !isset($data['isProfissional'])) {
             jsonResponse(['message' => 'Dados inválidos ou incompletos'], 400);
             break;
         }
