@@ -1,7 +1,6 @@
 import NavBar from "../components/NavBar.js";
 import Footer from "../components/Footer.js";
 import PerfilBanner from "../components/PerfilBanner.js";
-import MiniCarrossel from "../components/MiniCarrosel.js";
 
 export default function renderAgendamentoPage() {
 	const root = document.getElementById('root');
@@ -18,20 +17,24 @@ export default function renderAgendamentoPage() {
 	const navbar = NavBar();
 	nav.appendChild(navbar);
 
-	const pageContainer = document.createElement('div');
-	pageContainer.className = 'container my-5';
 
-	const perfilBanner = PerfilBanner();
-	pageContainer.appendChild(perfilBanner);
+	const agendamento = document.createElement('div');
+	agendamento.innerHTML = '';
 
-	const carrossel = MiniCarrossel();
-	pageContainer.appendChild(carrossel);
 
-	root.appendChild(pageContainer);
+	const agnd = PerfilBanner();
+	agendamento.appendChild(agnd);
+	
+	root.appendChild(agendamento);
+
+
+
 
 	const footerContainer = document.getElementById('footer');
 	footerContainer.innerHTML = '';
 	footerContainer.style.marginTop = '60px';
+	
 	const footer = Footer();
 	footerContainer.appendChild(footer);
+	
 }

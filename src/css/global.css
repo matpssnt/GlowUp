@@ -486,6 +486,7 @@ a.btn.btn-outline-primary.register-btn:hover {
 
 /* Mini Carrossel */
 .mini-carrossel-section {
+    position: absolute;
     width: 100%;
     max-width: 520px;
     margin: 30px 0 30px auto; /* right align */
@@ -518,16 +519,16 @@ a.btn.btn-outline-primary.register-btn:hover {
 
 /* Perfil Banner */
 .perfilContainer-frame {
-    width: 100%;
-    max-width: 1100px;
-    margin: 20px auto 40px auto;
+    width: 99% !important;
+    height: 60% !important;
+    margin-left: 10px;
+    margin-top: 10px;
 }
 
 .perfil-banner-card {
     position: relative;
     background: #fff;
     border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
     overflow: hidden;
 }
 
