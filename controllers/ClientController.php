@@ -1,11 +1,9 @@
 <?php
     require_once __DIR__ . "/../models/ClientModel.php";
-    require_once "PasswordController.php"; 
     require_once __DIR__ . '/../helpers/response.php';
 
     class ClientController{
         public static function create($data){
-            $data['senha'] = PasswordController::generateHash($password = $data['senha']);
             $result = ClientModel::create($data);
             if($result){
                 return jsonResponse(['message'=> 'Cliente criado']);
@@ -29,7 +27,7 @@
             if($result){
                 return jsonResponse(['message'=> 'cliente deletado']);
             }else{
-            return jsonResponse(['message'=> ''], 400);
+            return jsonResponse(['message'=> 'falha ao deletar um cliente'], 400);
             }
         }
 
@@ -38,7 +36,7 @@
             if($result){
                 return jsonResponse(['message'=> 'cliente atualizado']);
             }else{
-                return jsonResponse(['message'=> 'deu ruim'], 400);
+                return jsonResponse(['message'=> 'falha ao atualizar um cliente'], 400);
             }
         }
 }

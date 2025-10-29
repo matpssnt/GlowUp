@@ -66,6 +66,33 @@ class CadastroModel
         return $result;
     }
 
+        public static function LoginVerify($email, $password) {
+        
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
+        
+        $sql = "SELECT c.id AS cadastro_id, c.id, c.nome, c.email, c.senha, c.isProfissional, cli.id 
+        AS cliente_id, cli.id_telefone_fk
+        FROM cadastros c 
+        JOIN clientes cli ON cli.id_cadastro_fk = c.id
+        WHERE c.email = ? AND c.isProfissional = 0";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if($client = $result->fetch_assoc()) {
+            if(PasswordController::validateHash($password, $client['senha'])) {
+                unset($client['senha']);
+                return $client;  
+            }
+        return false;
+        
+        }
+    }
+
+
     public static function getAll()
     {
         $db = Database::getInstancia();
