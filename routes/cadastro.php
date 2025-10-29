@@ -7,15 +7,13 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 switch ($method) {
     case 'GET':
+        $data = json_decode(file_get_contents('php://input'), true);
+        $id = $data['id'] ?? $id;
         $id ? CadastroController::getById($id) : CadastroController::getAll();
         break;
 
     case 'POST':
         $data = json_decode(file_get_contents('php://input'), true);
-        if (!$data || empty($data['nome']) || empty($data['email']) || empty($data['senha']) || !isset($data['isProfissional'])) {
-            jsonResponse(['message' => 'Dados inválidos ou incompletos'], 400);
-            break;
-        }
         CadastroController::create($data);
         break;
 
@@ -26,7 +24,7 @@ switch ($method) {
             jsonResponse(['message' => 'ID do cadastro é obrigatório'], 400); 
             break; 
         }
-        if (empty($data['nome']) || empty($data['email']) || empty($data['senha']) || !isset($data['isProfissional'])) {
+        if (empty($data['nome']) || empty($data['email']) || empty($data['senha']) || !isset($data['isProfissinal'])) {
             jsonResponse(['message' => 'Dados inválidos ou incompletos'], 400);
             break;
         }
