@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../controllers/ServicesController.php';
+require_once __DIR__ . '../helpers/response.php';
 
 $id = $seguimentos[2] ?? null;
 

@@ -1,8 +1,9 @@
 <?php
 require_once __DIR__ . "/../controllers/ClientController.php";
+require_once __DIR__ . '../helpers/response.php';
 
 if ( $_SERVER['REQUEST_METHOD'] === "GET" ){
-    $id = $segments[2] ?? null;
+    $id = $segmentos[2] ?? null;
 
     if(isset($id)){
         ClientController::getById( $id); 
