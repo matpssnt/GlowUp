@@ -33,11 +33,11 @@ switch ($method) {
         $data = json_decode(file_get_contents('php://input'), true);
         $id = $data['id'] ?? $id;
 
-        if (empty($data['id_profissional_fk']) || empty($data['id_telefone_fk'])) {
+        if (!$id) {
             jsonResponse(['message' => 'IDs obrigatórios'], 400);
             break;
         }
-        TelefoneController::delete($data);
+        ProfissionalController::delete($id);
         break;
 
 

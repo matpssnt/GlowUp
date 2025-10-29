@@ -2,7 +2,7 @@ export default function RoomCard(index) {
   const containerCards = document.createElement("div");
   containerCards.className = "heroContainer-frame";
   containerCards.innerHTML = `
-    <div class="card card-base rounded-card card-partner" style="width: 18rem;">
+    <div class="card card-base rounded-card card-partner" style="width: 17rem;">
 
         <div id="carouselExampleIndicators-${index}" class="carousel slide rounded-card overflow-hidden">
 
@@ -41,8 +41,7 @@ export default function RoomCard(index) {
             <div class="card-body">
                 <h5 class="card-title">Card title</h5>
                 <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card’s content.</p>
-                <div class="d-flex justify-content-between align-items-center">
-                  <span class="badge partner-badge">Destaque</span>
+                <div class="d-flex justify-content-end align-items-center">
                   <a href="#" class="btn-conhecer">Conhecer</a>
                 </div>
              </div>

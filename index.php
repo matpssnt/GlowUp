@@ -1,7 +1,7 @@
 <?php
-    require_once "config/database.php";
-    require_once "helpers/response.php";
-    require_once "helpers/token_jwt.php";
+require_once "config/database.php";
+require_once "helpers/response.php";
+require_once "helpers/token_jwt.php";
 
     $uri = Strtolower(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
     $pasta = Strtolower(basename(dirname(__FILE__)));
@@ -17,7 +17,7 @@
         exit;
         
     }elseif($route === "api"){
-        if(in_array( $subRoute, ["home", "agendamento", "categoria", "client", "cadastro", "endereco", "escala", "login", "profissional", "service", "telefone", "telprof"])){
+        if(in_array( $subRoute, ["home", "agendamento", "cadastro", "categoria", "client", "endereco", "escala", "login", "profissional", "services", "telefone", "telprof"])){
             require "routes/${subRoute}.php";
         }else{
             return jsonResponse(['message' => 'rota não encontrada'], 404);

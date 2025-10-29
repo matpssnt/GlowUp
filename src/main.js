@@ -3,13 +3,15 @@ import renderRegisterPage from './pages/register.js';
 import renderContRegisterPage from './pages/contRegister.js';
 import renderHomePage from './pages/home.js';
 import renderquemSomos from './pages/somos.js';
+import renderAgendamentoPage from './pages/agendamento.js';
 
 const routes = {
     "/home": renderHomePage,
     "/login": renderLoginPage,           // Rota para página de login
     "/register": renderRegisterPage,     // Rota para página de registro
     "/cont-register": renderContRegisterPage,  // Rota para página de continuar cadastro
-    "/sobre": renderquemSomos
+    "/sobre": renderquemSomos,
+    "/agendamento": renderAgendamentoPage
 };
 
 function getPath() {

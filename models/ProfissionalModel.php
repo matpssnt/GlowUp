@@ -39,13 +39,13 @@ class ProfissionalModel
         return $stat->execute();
     }
 
-    public static function update($id, $data) {
+    public static function update($data, $id) {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
         $sql = "UPDATE profissionais SET nome = ?, email = ? , descricao = ? , acessibilidade = ? , isJuridica = ? , id_cadastro_fk = ? WHERE id = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("siii",
-            $$data["nome"],
+        $stmt->bind_param("sssiiii",
+            $data["nome"],
             $data["email"],
             $data["descricao"],
             $data["acessibilidade"],
