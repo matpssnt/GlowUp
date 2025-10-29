@@ -1,12 +1,10 @@
 <?php
 require_once __DIR__ . '/../models/AgendamentoModel.php';
-require_once __DIR__ .'ValidadorController.php';
+require_once __DIR__ . '/ValidadorController.php';
 
 class AgendamentoController{
     public static function create($data){
-
         ValidadorController::validate_data($data, ['data_hora', 'status', 'id_cliente_fk', 'id_servico_fk']);
-
         $dateHour = ValidadorController::validateDateTime($data['data_hora']);
         
         if (!$dateHour){

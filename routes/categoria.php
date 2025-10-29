@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../controllers/CategoriaController.php';
+require_once __DIR__ . '../helpers/response.php';
 
 $id = $seguimentos[2] ?? null;
 $method = $_SERVER['REQUEST_METHOD'];
@@ -26,7 +27,7 @@ switch ($method) {
 
     case 'PUT':
         $data = json_decode(file_get_contents('php://input'), true);
-
+        $id = $data['id'] ?? ($seguimentos[2] ?? null);
         if (!$id) {
             jsonResponse(['message' => 'ID da categoria é obrigatório'], 400);
             break;
@@ -41,6 +42,8 @@ switch ($method) {
         break;
 
     case 'DELETE':
+        $data = json_decode(file_get_contents('php://input'), true);
+        $id = $data['id'] ?? ($seguimentos[2] ?? null);
         if (!$id) {
             jsonResponse(['message' => 'ID da categoria é obrigatório'], 400);
             break;
