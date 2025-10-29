@@ -7,9 +7,9 @@ class ServicesController {
     public static function create($data) {
         $result = ServicesModel::create($data);
         if ($result) {
-            return jsonResponse(['message' => 'serviço criado com sucesso']);
+            return jsonResponse(['message' => 'O serviço criado com sucesso!']);
         } else {
-            return jsonResponse(['message' => 'erro ao criar serviço'], 400);
+            return jsonResponse(['message' => 'Erro ao criar serviço'], 400);
         }
     }
 
@@ -23,25 +23,25 @@ class ServicesController {
         if ($service) {
             return jsonResponse($service);
         } else {
-            return jsonResponse(['message' => 'serviço não encontrado'], 404);
+            return jsonResponse(['message' => 'Serviço não encontrado!'], 404);
         }
     }
 
     public static function delete($id) {
         $result = ServicesModel::delete($id);
         if ($result) {
-            return jsonResponse(['message' => 'serviço deletado']);
+            return jsonResponse(['message' => 'O serviço foi deletado!']);
         } else {
-            return jsonResponse(['message' => 'erro ao deletar serviço'], 400);
+            return jsonResponse(['message' => 'Erro ao deletar serviço'], 400);
         }
     }
 
     public static function update($id, $data) {
         $result = ServicesModel::update($id, $data);
         if ($result) {
-            return jsonResponse(['message' => 'serviço atualizado']);
+            return jsonResponse(['message' => 'Serviço atualizado com sucesso!']);
         } else {
-            return jsonResponse(['message' => 'erro ao atualizar serviço'], 400);
+            return jsonResponse(['message' => 'Erro ao atualizar serviço'], 400);
         }
     }
 }

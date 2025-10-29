@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../controllers/TelProfController.php';
-require_once __DIR__ . '../helpers/response.php';
+require_once __DIR__ . '/../helpers/response.php';
 
 $id = $seguimentos[2] ?? null;
 $method = $_SERVER['REQUEST_METHOD'];
@@ -27,7 +27,7 @@ switch ($method) {
             jsonResponse(['message' => 'IDs obrigatórios'], 400);
             break;
         }
-        TelefoneController::delete($data);
+        TelProfController::delete($data);
         break;
 
     default:

@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../controllers/ServicesController.php';
-require_once __DIR__ . '../helpers/response.php';
+require_once __DIR__ . '/../helpers/response.php';
 
 $id = $seguimentos[2] ?? null;
 
@@ -17,7 +17,7 @@ elseif ($_SERVER['REQUEST_METHOD'] === "POST") {
     if ($data) {
         ServicesController::create($data);
     }else{
-        jsonResponse(['message' => 'dados inválidos'], 400);
+        jsonResponse(['message' => 'Os dados estão inválidos'], 400);
     }
 }
 
@@ -42,6 +42,6 @@ elseif ($_SERVER['REQUEST_METHOD'] === "DELETE") {
 else {
     jsonResponse([
         'status' => 'erro',
-        'message' => 'método não permitido'
+        'message' => 'Método não permitido!'
     ], 405);
 }
