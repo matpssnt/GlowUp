@@ -1,9 +1,7 @@
 import NavBar from "../components/NavBar.js";
 import Footer from "../components/Footer.js";
-import CarouselServ from "../components/CarouselServ.js";
-import carrosselProf from "../components/carrosselProf.js";
-import descriptionProf from "../components/descriptionProf.js";
-import CardServ from "../components/CardServ.js";
+import PerfilBanner from "../components/PerfilBanner.js";
+import MiniCarrossel from "../components/MiniCarrosel.js";
 
 export default function renderAgendamentoPage() {
 	const root = document.getElementById('root');
@@ -23,21 +21,11 @@ export default function renderAgendamentoPage() {
 	const pageContainer = document.createElement('div');
 	pageContainer.className = 'container my-5';
 
-	// Carousel de Serviços
-	const carouselServ = CarouselServ(1);
-	pageContainer.appendChild(carouselServ);
+	const perfilBanner = PerfilBanner();
+	pageContainer.appendChild(perfilBanner);
 
-	// Carrossel de Profissionais
-	const carrosselProfComponent = carrosselProf();
-	pageContainer.appendChild(carrosselProfComponent);
-
-	// Descrição do Profissional
-	const descriptionProfComponent = descriptionProf();
-	pageContainer.appendChild(descriptionProfComponent);
-
-	// Cards de Serviços
-	const cardServ = CardServ(0);
-	pageContainer.appendChild(cardServ);
+	const carrossel = MiniCarrossel();
+	pageContainer.appendChild(carrossel);
 
 	root.appendChild(pageContainer);
 
