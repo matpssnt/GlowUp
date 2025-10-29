@@ -5,8 +5,8 @@ class PasswordController {
         return password_hash($password, PASSWORD_BCRYPT);
     }
 
-    public static function validateHash($password, $hash){
-        return password_verify($password, $hash);
+    public static function validateHash($value, $hash){
+        return password_verify($value, $hash);
     }
 }
 
