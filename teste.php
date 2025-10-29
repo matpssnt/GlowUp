@@ -37,8 +37,7 @@
     // date_default_timezone_set('America/Sao_Paulo');
     // $dataAtual = date('Y-m-d H:i:s');
 
-    ServicesController::getAll();
-    
+
     
     // $data = [
     //     "inicio"=>$dataAtual,
