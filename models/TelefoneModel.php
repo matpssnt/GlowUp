@@ -21,7 +21,11 @@ class TelefoneModel
         $conn = $db->pegarConexao();
         $sql = "UPDATE telefones SET ddd = ?, digitos = ? WHERE id = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssi", $data['ddd'], $data['digitos'], $id);
+        $stmt->bind_param("ssi", 
+        $data['ddd'], 
+        $data['digitos'], 
+            $id
+        );
         $result = $stmt->execute();
         $stmt->close();
 

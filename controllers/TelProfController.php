@@ -8,10 +8,10 @@ class TelProfController {
         $result = TelProfModel::create( $data);
         if ($result) {
             return jsonResponse([   
-                'message' => 'telefone-profissional criada com sucesso',
+                'message' => 'Telefone do profissional criada com sucesso',
             ], 200);
         } else {
-            return jsonResponse(['message' => 'Erro ao adicionar o telefone-profissional'], 400);
+            return jsonResponse(['message' => 'Erro ao adicionar o telefone do profissional'], 400);
         }
     }
 
@@ -19,7 +19,7 @@ class TelProfController {
         $result = TelProfModel::delete( $data["id_profissional_fk"], $data["id_telefone_fk"]);
 
         if ($result) {
-            return jsonResponse(['message' => 'telefone-profissional atualizada com sucesso']);
+            return jsonResponse(['message' => 'Telefone do profissional atualizada com sucesso']);
         } else {
             return jsonResponse(['message' => 'Erro ao atualizar telefone-profissional'], 400);
         }
@@ -29,7 +29,7 @@ class TelProfController {
         $result = TelProfModel::delete( $data["id_profissional_fk"], $data["id_telefone_fk"]);
 
         if ($result) {
-            return jsonResponse(['message' => 'telefone-profissional deletada com sucesso']);
+            return jsonResponse(['message' => 'Telefone do profissional deletado com sucesso']);
         } else {
             return jsonResponse(['message' => 'Erro ao deleta telefone-profissional'], 400);
         }

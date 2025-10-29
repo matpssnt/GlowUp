@@ -22,8 +22,8 @@ export default function renderHomePage() {
         </h1>
         <p class="hero-subtitle">Sua plataforma de beleza e bem-estar.</p>
         <div class="d-flex justify-content-center gap-3 mt-3">
-            <a href="/login" class="btn btn-outline-primary">Começar</a>
-            <a href="#" class="btn btn-outline-primary">Veja como funciona</a>
+            <a href="/login" class="btn btn-outline-primary register-btn">Começar</a>
+            <a href="#" class="btn btn-outline-primary register-btn">Veja como funciona</a>
         </div>
     `;
     fundoPrincipal.className = 'text-center fade-in hero';
@@ -41,7 +41,7 @@ export default function renderHomePage() {
     divCards.innerHTML = '';
     divCards.className = "cards";
 
-    for (var i = 0; i < 5; i++) {
+    for (var i = 0; i < 10; i++) {
         const card = RoomCard(i);
         divCards.appendChild(card);
     }

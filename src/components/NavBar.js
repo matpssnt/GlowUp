@@ -4,7 +4,7 @@ export default function NavBar({hidelogin = false} = {}) {
     nav.innerHTML = `
     <div class="container-fluid">
         <a class="navbar-brand d-flex align-items-center" href="home">
-            <img src="public/assets/images/logo.png" alt="Glow Up" style = "width: 70px; height: 70px; class="logo-img me-2" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+            <img src="public/assets/images/logo.png" alt="Glow Up" style="width: 70px; height: 70px;" class="logo-img me-2" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
             <span class="logo-text" style="display: none;">Glow Up</span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -17,6 +17,9 @@ export default function NavBar({hidelogin = false} = {}) {
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="sobre">Sobre nós</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="agendamento">Agendamento</a>
             </li>
             <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
