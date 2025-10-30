@@ -1,9 +1,9 @@
 :root {
-    --primary-color: #8b6232;
+    --primary-color: #295f1cd5;
     /* Verde escuro principal */
     --secondary-color: #EAE6DD;
     /* Bege claro secundário */
-    --accent-color: #b19a65;
+    --accent-color: #75b16e;
     /* Verde acentuado */
     --dark-color: #2E2E2E;
     /* Texto escuro */
@@ -85,7 +85,6 @@ html {
     padding: 2rem;
     background: linear-gradient(135deg, var(--secondary-color) 0%, rgba(255,255,255,0.9) 100%);
     border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     backdrop-filter: blur(10px);
 }
 
@@ -362,9 +361,11 @@ a.btn.btn-outline-primary.register-btn:hover {
 
 
 .cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
+    justify-content: center;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    gap: 70px;
     padding: 20px;
 
 }
@@ -403,7 +404,6 @@ a.btn.btn-outline-primary.register-btn:hover {
     border: none;
     overflow: hidden;
     background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
 }
 
 .card-partner:hover {
@@ -423,28 +423,11 @@ a.btn.btn-outline-primary.register-btn:hover {
     border-radius: 15px;
     font-weight: 700;
     font-size: 0.85rem;
-    box-shadow: 0 4px 10px rgba(59, 90, 64, 0.3);
 }
 
 /* Carousel */
-.carousel-control-prev-icon,
-.carousel-control-next-icon {
-    background-color: var(--primary-color);
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    opacity: 0.8;
-    transition: all 0.3s ease;
-}
-
-.carousel-control-prev-icon:hover,
-.carousel-control-next-icon:hover {
-    opacity: 1;
-    background-color: var(--accent-color);
-}
-
 .carousel .carousel-indicators [data-bs-target] {
-    background-color: var(--primary-color);
+    background-color: transparent;
     border-radius: 50%;
     width: 12px;
     height: 12px;
@@ -452,9 +435,6 @@ a.btn.btn-outline-primary.register-btn:hover {
     transition: all 0.3s ease;
 }
 
-.carousel .carousel-indicators [data-bs-target].active {
-    background-color: var(--accent-color);
-}
 
 .navbar .dropdown-menu {
     border-radius: 12px;
@@ -485,8 +465,8 @@ a.btn.btn-outline-primary.register-btn:hover {
 }
 
 /* Mini Carrossel */
+
 .mini-carrossel-section {
-    position: absolute;
     width: 100%;
     max-width: 520px;
     margin: 30px 0 30px auto; /* right align */
@@ -509,20 +489,19 @@ a.btn.btn-outline-primary.register-btn:hover {
 }
 
 .mini-carrossel-section .carousel-indicators [data-bs-target] {
-    background-color: #fff;
-    border: 2px solid var(--primary-color);
+    background-color: transparent
 }
 
 .mini-carrossel-section .carousel-indicators .active {
-    background-color: var(--primary-color);
+    background-color: transparent;
 }
 
 /* Perfil Banner */
 .perfilContainer-frame {
-    width: 99% !important;
+    width: 95% !important;
     height: 60% !important;
-    margin-left: 10px;
-    margin-top: 10px;
+    margin-left: 2.5%;
+    margin-top: 2%;
 }
 
 .perfil-banner-card {

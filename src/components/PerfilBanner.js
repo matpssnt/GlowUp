@@ -10,11 +10,11 @@ export default function PerfilBanner() {
           </div>
           <div class="info-perfil">
             <h5 class="perfil-nome">Daiana Oliveira</h5>
-            <p class="perfil-bio">Meu nome é Daiana Oliveira, tenho 22 anos, sou cabeleleira profissional especializada em cabelos femininos</p>
+            <p class="perfil-bio">daiana.oli@gmail.com</p>
           </div>
         </div>
       
-        <div id="miniCarousel" class="mini-carrossel-section" data-bs-ride="carousel" data-bs-interval="3000" data-bs-pause="hover">
+        <div id="miniCarousel" class="carousel slide mini-carrossel-section" data-bs-ride="carousel" data-bs-interval="3000" data-bs-pause="hover">
       
           <!-- Indicadores -->
           <div class="carousel-indicators">

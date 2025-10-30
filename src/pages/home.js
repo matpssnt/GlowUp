@@ -41,7 +41,7 @@ export default function renderHomePage() {
     divCards.innerHTML = '';
     divCards.className = "cards";
 
-    for (var i = 0; i < 10; i++) {
+    for (var i = 0; i < 4; i++) {
         const card = RoomCard(i);
         divCards.appendChild(card);
     }
