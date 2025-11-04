@@ -1,9 +1,9 @@
 :root {
-    --primary-color: #8b6232;
+    --primary-color: #295f1cd5;
     /* Verde escuro principal */
     --secondary-color: #EAE6DD;
     /* Bege claro secundário */
-    --accent-color: #b19a65;
+    --accent-color: #75b16e;
     /* Verde acentuado */
     --dark-color: #2E2E2E;
     /* Texto escuro */
@@ -85,7 +85,6 @@ html {
     padding: 2rem;
     background: linear-gradient(135deg, var(--secondary-color) 0%, rgba(255,255,255,0.9) 100%);
     border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     backdrop-filter: blur(10px);
 }
 
@@ -119,7 +118,7 @@ html {
 
 .navbar.navbar-expand-lg.bg-body-tertiary {
     background: linear-gradient(135deg, var(--secondary-color) 0%, rgba(255,255,255,0.9) 100%);
-    padding: 15px 0;
+    padding: 5px 0;
     box-shadow: 0 2px 20px rgba(0,0,0,0.1);
     backdrop-filter: blur(10px);
     position: sticky;
@@ -128,6 +127,9 @@ html {
     transition: all 0.3s ease;
 }
 
+#miniCarousel{
+    margin-right: 25px
+}
 
 .navbar-brand {
     font-size: 1.8rem;
@@ -362,9 +364,11 @@ a.btn.btn-outline-primary.register-btn:hover {
 
 
 .cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
+    justify-content: center;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    gap: 70px;
     padding: 20px;
 
 }
@@ -403,7 +407,6 @@ a.btn.btn-outline-primary.register-btn:hover {
     border: none;
     overflow: hidden;
     background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
 }
 
 .card-partner:hover {
@@ -423,28 +426,11 @@ a.btn.btn-outline-primary.register-btn:hover {
     border-radius: 15px;
     font-weight: 700;
     font-size: 0.85rem;
-    box-shadow: 0 4px 10px rgba(59, 90, 64, 0.3);
 }
 
-/* Carousel controls visíveis */
-.carousel-control-prev-icon,
-.carousel-control-next-icon {
-    background-color: var(--primary-color);
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    opacity: 0.8;
-    transition: all 0.3s ease;
-}
-
-.carousel-control-prev-icon:hover,
-.carousel-control-next-icon:hover {
-    opacity: 1;
-    background-color: var(--accent-color);
-}
-
+/* Carousel */
 .carousel .carousel-indicators [data-bs-target] {
-    background-color: var(--primary-color);
+    background-color: transparent;
     border-radius: 50%;
     width: 12px;
     height: 12px;
@@ -452,9 +438,6 @@ a.btn.btn-outline-primary.register-btn:hover {
     transition: all 0.3s ease;
 }
 
-.carousel .carousel-indicators [data-bs-target].active {
-    background-color: var(--accent-color);
-}
 
 .navbar .dropdown-menu {
     border-radius: 12px;
@@ -482,6 +465,109 @@ a.btn.btn-outline-primary.register-btn:hover {
     height: 100%;
     width: 100%;
     position: absolute;
+}
+
+/* Mini Carrossel */
+
+.mini-carrossel-section {
+    width: 100%;
+    max-width: 520px;
+    margin: 30px 0 30px auto; /* right align */
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    background: #fff;
+}
+
+.mini-carrossel-section .carousel,
+.mini-carrossel-section .carousel-inner,
+.mini-carrossel-section .carousel-item,
+.mini-carrossel-section img {
+    border-radius: 16px;
+}
+
+.mini-carrossel-section img {
+    height: 300px;
+    object-fit: cover;
+}
+
+.mini-carrossel-section .carousel-indicators [data-bs-target] {
+    background-color: transparent
+}
+
+.mini-carrossel-section .carousel-indicators .active {
+    background-color: transparent;
+}
+
+/* Perfil Banner */
+.perfilContainer-frame {
+    width: 95% !important;
+    height: 60% !important;
+    margin-left: 2.5%;
+    margin-top: 2%;
+}
+
+.perfil-banner-card {
+    position: relative;
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.perfil-banner-card .banner-img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    filter: brightness(0.85);
+}
+
+.perfil-overlay {
+    position: relative;
+    padding: 16px 20px 24px 120px; /* espaço para a foto sobrepor */
+}
+
+.perfil-overlay .foto-perfil {
+    position: absolute;
+    left: 24px;
+    top: -48px; /* faz a foto invadir o banner */
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #fff;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    background: #fff;
+}
+
+.perfil-overlay .foto-perfil img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.info-perfil {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.perfil-nome {
+    margin: 0;
+    font-weight: 700;
+    color: var(--dark-color);
+}
+
+.perfil-bio {
+    margin: 0;
+    color: #666;
+    font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+    .mini-carrossel-section img { height: 220px; }
+    .perfil-banner-card .banner-img { height: 140px; }
+    .perfil-overlay { padding: 12px 16px 20px 92px; }
+    .perfil-overlay .foto-perfil { width: 80px; height: 80px; top: -40px; left: 16px; }
 }
 
 
@@ -526,7 +612,7 @@ a.btn.btn-outline-primary.register-btn:hover {
     color: var(--dark-color);
 }
 
-/* Estilos genéricos para formulários */
+/* Estilos para formulários */
 .form-control {
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -645,16 +731,11 @@ a.btn.btn-outline-primary.register-btn:hover {
     padding: 2rem;
 }
 
-/* ===== ESTILOS PARA TÍTULOS */
+/*  ESTILOS PARA TÍTULOS */
 
 /* Título de página */
 .page-title-default {
     margin-bottom: 2rem;
-}
-
-.rounded-card {
-    border-radius: 20px !important;
-    overflow: hidden;
 }
 
 /* formulario */
@@ -732,124 +813,6 @@ a.btn.btn-outline-primary.register-btn:hover {
     transform: scale(0.9);
 }
 
-/* Estilos para página de agendamento */
-.agendamento-hero {
-    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-    color: white;
-    padding: 80px 20px;
-    text-align: center;
-    margin-bottom: 40px;
-}
-
-.agendamento-hero h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-}
-
-.agendamento-hero p {
-    font-size: 1.2rem;
-    opacity: 0.9;
-}
-
-.agendamento-section {
-    margin-bottom: 60px;
-}
-
-.agendamento-section h2 {
-    color: var(--primary-color);
-    font-size: 2rem;
-    font-weight: 600;
-    margin-bottom: 30px;
-    text-align: center;
-}
-
-/* Cards de serviços na página de agendamento */
-.agendamento-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
-    margin-bottom: 40px;
-}
-
-.agendamento-card {
-    background: white;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-}
-
-.agendamento-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-}
-
-.agendamento-card img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-}
-
-.agendamento-card-body {
-    padding: 20px;
-}
-
-.agendamento-card h3 {
-    color: var(--primary-color);
-    font-size: 1.3rem;
-    font-weight: 600;
-    margin-bottom: 10px;
-}
-
-.agendamento-card p {
-    color: var(--dark-color);
-    line-height: 1.6;
-}
-
-/* Carousel de agendamento */
-.agendamento-carousel {
-    margin-bottom: 40px;
-}
-
-.agendamento-carousel .carousel-item img {
-    height: 400px;
-    object-fit: cover;
-}
-
-.agendamento-carousel .carousel-caption {
-    background: rgba(0,0,0,0.7);
-    border-radius: 10px;
-    padding: 20px;
-}
-
-/* Formulário de descrição do profissional */
-.agendamento-form {
-    background: white;
-    border-radius: 16px;
-    padding: 30px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-    margin-bottom: 40px;
-}
-
-.agendamento-form h3 {
-    color: var(--primary-color);
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 20px;
-}
-
-.agendamento-form .form-control {
-    border: 2px solid #e9ecef;
-    border-radius: 8px;
-    padding: 12px 15px;
-    transition: all 0.3s ease;
-}
-
-.agendamento-form .form-control:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(59, 90, 64, 0.15);
-}
 
 /* Estilos para página somos */
 .line {
@@ -888,16 +851,3 @@ a.btn.btn-outline-primary.register-btn:hover {
     }
 }
 
-.agendamento-hero h1 {
-    font-size: 2rem;
-}
-.agendamento-hero p {
-    font-size: 1rem;
-}
-.agendamento-cards {
-    grid-template-columns: 1fr;
-    gap: 20px;
-}
-.agendamento-carousel .carousel-item img {
-    height: 250px;
-}
