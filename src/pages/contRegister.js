@@ -29,11 +29,4 @@ export default function renderContRegisterPage() {
 
     // Renderiza o formulário
     renderFormContRegister(contRegisterWrapper);
-
-    // Adiciona link para voltar ao registro
-    const btnVoltar = document.createElement('a');
-    btnVoltar.innerHTML = "Voltar ao cadastro";
-    btnVoltar.href = "register";
-    btnVoltar.className = 'cont-register-nav-link mt-4';
-    mainContainer.appendChild(btnVoltar);
 }

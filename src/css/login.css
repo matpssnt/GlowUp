@@ -20,11 +20,6 @@
     transition: all 0.3s ease;
 }
 
-.card-login:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 25px 50px rgba(139, 107, 75, 0.2);
-}
-
 /* Campos e botões no login */
 .card-login .form-control {
     border: 1px solid #ddd;

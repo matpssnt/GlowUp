@@ -17,17 +17,13 @@ export default function renderAgendamentoPage() {
 	const navbar = NavBar();
 	nav.appendChild(navbar);
 
-
 	const agendamento = document.createElement('div');
 	agendamento.innerHTML = '';
-
 
 	const agnd = PerfilBanner();
 	agendamento.appendChild(agnd);
 	
 	root.appendChild(agendamento);
-
-
 
 
 	const footerContainer = document.getElementById('footer');
