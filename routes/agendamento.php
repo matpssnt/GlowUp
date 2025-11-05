@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../helpers/response.php';
 require_once __DIR__ . '/../controllers/AgendamentoController.php';
+require_once __DIR__ . "/../controllers/ValidadorController.php";
 
 $id = $seguimentos[2] ?? null;
 $method = $_SERVER['REQUEST_METHOD'];
@@ -12,11 +13,6 @@ switch ($method) {
 
     case 'POST':
         $data = json_decode(file_get_contents('php://input'), true);
-
-        if (!$data || empty($data['data_hora']) || !isset($data['status']) || empty($data['id_cliente_fk']) || empty($data['id_servico_fk'])) {
-            jsonResponse(['message' => 'Dados inválidos ou incompletos'], 400);
-            break;
-        }
 
         AgendamentoController::create($data);
         break;

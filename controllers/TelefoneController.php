@@ -1,10 +1,13 @@
 <?php
 require_once __DIR__ . '/../models/TelefoneModel.php';
 require_once __DIR__ . '/../helpers/response.php';
+require_once __DIR__ . '/ValidadorController.php';
 
 class TelefoneController {
 
     public static function create($data){
+        ValidadorController::validate_data($data, ['ddd', 'digitos']);
+
         $result = TelefoneModel::create($data);
         if ($result) {
             return jsonResponse(['message' => 'Telefone criado com sucesso'], 200);
@@ -16,7 +19,7 @@ class TelefoneController {
     public static function update($id, $data){
         $result = TelefoneModel::update($id, $data);
         if ($result) {
-            return jsonResponse(['message' => 'Telefone atualizado com sucesso']);
+            return jsonResponse(['message' => 'Telefone atualizado com sucesso'], 200);
         } else {
             return jsonResponse(['message' => 'Erro ao atualizar telefone'], 400);
         }
@@ -25,7 +28,7 @@ class TelefoneController {
     public static function delete($id){
         $result = TelefoneModel::delete($id);
         if ($result) {
-            return jsonResponse(['message' => 'Telefone deletado com sucesso']);
+            return jsonResponse(['message' => 'Telefone deletado com sucesso'], 200);
         } else {
             return jsonResponse(['message' => 'Erro ao deletar telefone'], 400);
         }

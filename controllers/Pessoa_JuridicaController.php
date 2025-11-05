@@ -16,7 +16,7 @@ class Pessoa_JuridicaController {
     public static function update($id, $data){
         $result = Pessoa_juridicaModel::update($id, $data);
         if ($result) {
-            return jsonResponse(['message' => 'Pessoa jurídica atualizada com sucesso']);
+            return jsonResponse(['message' => 'Pessoa jurídica atualizada com sucesso'], 200);
         } else {
             return jsonResponse(['message' => 'Erro ao atualizar pessoa jurídica'], 400);
         }
@@ -25,7 +25,7 @@ class Pessoa_JuridicaController {
     public static function delete($id){
         $result = Pessoa_juridicaModel::delete($id);
         if ($result) {
-            return jsonResponse(['message' => 'Pessoa jurídica deletada com sucesso']);
+            return jsonResponse(['message' => 'Pessoa jurídica deletada com sucesso'], 200);
         } else {
             return jsonResponse(['message' => 'Erro ao deletar pessoa jurídica'], 400);
         }

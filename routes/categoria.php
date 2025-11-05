@@ -18,10 +18,6 @@ switch ($method) {
     case 'POST':
         $data = json_decode(file_get_contents('php://input'), true);
 
-        if (!$data || empty($data['nome'])) {
-            jsonResponse(['message' => 'Nome da categoria é obrigatório'], 400);
-            break;
-        }
         CategoriaController::create($data);
         break;
 

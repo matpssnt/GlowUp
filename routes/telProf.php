@@ -12,10 +12,7 @@ switch ($method) {
 
     case 'POST':
         $data = json_decode(file_get_contents('php://input'), true);
-        if (empty($data['id_profissional_fk']) || empty($data['id_telefone_fk'])) {
-            jsonResponse(['message' => 'IDs obrigatórios'], 400);
-            break;
-        }
+        
         TelProfController::create($data);
         break;
 

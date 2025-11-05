@@ -1,10 +1,13 @@
 <?php
 require_once __DIR__ . '/../models/tel_profModel.php';
 require_once __DIR__ . '/../helpers/response.php';
+require_once __DIR__ . '/ValidadorController.php';
 
 class TelProfController {
     
     public static function create($data){
+        ValidadorController::validate_data($data, ['id_profissional_fk', 'id_telefone_fk']);
+
         $result = TelProfModel::create( $data);
         if ($result) {
             return jsonResponse([   
@@ -19,7 +22,7 @@ class TelProfController {
         $result = TelProfModel::delete( $data["id_profissional_fk"], $data["id_telefone_fk"]);
 
         if ($result) {
-            return jsonResponse(['message' => 'Telefone do profissional atualizada com sucesso']);
+            return jsonResponse(['message' => 'Telefone do profissional atualizada com sucesso'], 200);
         } else {
             return jsonResponse(['message' => 'Erro ao atualizar telefone-profissional'], 400);
         }
@@ -29,7 +32,7 @@ class TelProfController {
         $result = TelProfModel::delete( $data["id_profissional_fk"], $data["id_telefone_fk"]);
 
         if ($result) {
-            return jsonResponse(['message' => 'Telefone do profissional deletado com sucesso']);
+            return jsonResponse(['message' => 'Telefone do profissional deletado com sucesso'], 200);
         } else {
             return jsonResponse(['message' => 'Erro ao deleta telefone-profissional'], 400);
         }

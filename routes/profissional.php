@@ -12,10 +12,7 @@ switch ($method) {
 
     case 'POST':
         $data = json_decode(file_get_contents('php://input'), true);
-        if (!$data || empty($data['nome']) || empty($data['email']) || empty($data['descricao']) || !isset($data['acessibilidade']) || !isset($data['isJuridica']) || empty($data['id_cadastro_fk'])) {
-            jsonResponse(['message' => 'Dados inválidos ou incompletos'], 400);
-            break;
-        }
+
         ProfissionalController::create($data);
         break;
 

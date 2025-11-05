@@ -12,10 +12,7 @@ switch ($method) {
 
     case 'POST':
         $data = json_decode(file_get_contents('php://input'), true);
-        if (!$data || empty($data['inicio']) || empty($data['fim']) || empty($data['dia_semana']) || empty($data['id_profissional_fk'])) {
-            jsonResponse(['message' => 'Dados inválidos, preencha todos os campos'], 400);
-            break;
-        }
+        
         EscalaController::create($data);
         break;
 

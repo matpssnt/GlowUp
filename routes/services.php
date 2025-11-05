@@ -14,11 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] === "GET") {
 
 elseif ($_SERVER['REQUEST_METHOD'] === "POST") {
     $data = json_decode(file_get_contents('php://input'), true);
-    if ($data) {
-        ServicesController::create($data);
-    }else{
-        jsonResponse(['message' => 'Os dados estão inválidos'], 400);
-    }
+
+    ServicesController::create($data);
 }
 
 elseif ($_SERVER['REQUEST_METHOD'] === "PUT") {

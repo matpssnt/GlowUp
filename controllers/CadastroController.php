@@ -13,9 +13,9 @@ class CadastroController{
 
         $resultado = CadastroModel::create($data);
         if($resultado){
-            return jsonResponse(['message'=> 'Cadastro criado com sucesso'], 400);
+            return jsonResponse(['message'=> 'Cadastro criado com sucesso'], 200);
         }else{
-            return jsonResponse(['message'=> 'Erro ao criar um cadastro'], 200);
+            return jsonResponse(['message'=> 'Erro ao criar um cadastro'], 400);
         }
     }
 
@@ -23,7 +23,7 @@ class CadastroController{
     public static function update($data, $id){
         $resultado = CadastroModel::update($data, $id);
         if($resultado ) {
-            return jsonResponse(['message' => 'Cadastro atualizado com sucesso'], 400);
+            return jsonResponse(['message' => 'Cadastro atualizado com sucesso'], 200);
         }else{
             return jsonResponse(['message'=> 'Falha na atualização do cadastro'], 400);
         }
@@ -32,7 +32,7 @@ class CadastroController{
     public static function delete($id){
         $result = CadastroModel::delete($id);
         if ($result) {
-            return jsonResponse(['message' => 'Cadastro deletada com sucesso']);
+            return jsonResponse(['message' => 'Cadastro deletada com sucesso'], 200);
         } else {
             return jsonResponse(['message' => 'Erro ao deletar cadastro'], 400);
         }

@@ -12,10 +12,7 @@ switch ($method) {
 
     case 'POST':
         $data = json_decode(file_get_contents('php://input'), true);
-        if (!$data) {
-            jsonResponse(['message' => 'Dados inválidos'], 400);
-            break;
-        }
+
         EnderecoController::create($data);
         break;
 
