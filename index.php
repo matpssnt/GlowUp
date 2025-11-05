@@ -17,7 +17,7 @@ require_once "helpers/token_jwt.php";
         exit;
         
     }elseif($route === "api"){
-        if(in_array( $subRoute, ["home", "agendamento", "cadastro", "categoria", "client", "endereco", "escala", "login", "profissional", "services", "telefone", "telprof"])){
+        if(in_array( $subRoute, ["home", "agendamento", "cont-register", "categoria", "client", "endereco", "escala", "login", "profissional", "services", "telefone", "telprof"])){
             require "routes/${subRoute}.php";
         }else{
             return jsonResponse(['message' => 'rota não encontrada'], 404);

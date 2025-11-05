@@ -265,14 +265,12 @@ export default function renderFormContRegister(container) {
     btnFinalizar.textContent = 'Finalizar Cadastro Profissional';
     btnFinalizar.className = 'btn btn-primary cont-register-submit';
 
-    // Botão voltar
-    const btnVoltar = document.createElement('button');
-    btnVoltar.type = 'button';
-    btnVoltar.textContent = 'Voltar';
-    btnVoltar.className = 'btn btn-secondary cont-register-voltar';
-    btnVoltar.addEventListener('click', () => {
-        window.history.back();
-    });
+    const btnVoltar = document.createElement('a');
+    btnVoltar.innerHTML = "Voltar ao cadastro";
+    btnVoltar.href = "register";
+    btnVoltar.className = 'cont-register-nav-link mt-3';
+    btnVoltar.style.textAlign = 'center';
+    containerBotoes.appendChild(btnVoltar);
 
     containerBotoes.appendChild(btnFinalizar);
     containerBotoes.appendChild(btnVoltar);
