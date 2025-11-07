@@ -157,7 +157,7 @@
 
     .mini-carrossel-section {
         flex: 1;
-        max-width: 45%;
+        max-width: 50%;
     }
 
     .titulo-principal {
@@ -557,7 +557,7 @@
     }
 
     .mini-carrossel-section img {
-        height: 300px;
+        height: 500px;
         object-fit: cover;
     }
 
@@ -1066,16 +1066,21 @@
 
     .mini-carrossel-section {
         flex: 1;
-        max-width: 40%;
+        max-width: 520px;
         border-radius: 10px;
         overflow: hidden;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
 
-    .mini-carrossel-section img {
-        border-radius: 10px;
-        height: 330px;
-        object-fit: cover;
+    .mini-carrossel-section {
+        max-width: 550px;
+        margin: 30px 0 30px auto;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        background: var(--white-color);
+        position: relative;
+        top: -80px; /* ← Sobe o elemento */
     }
 
     @media (max-width: 900px) {
@@ -1095,6 +1100,6 @@
         }
 
         .mini-carrossel-section img {
-            height: 250px;
+            height: 300px;
         }
     }
