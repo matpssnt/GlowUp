@@ -1,71 +1,49 @@
 <?php
-    require_once "PasswordController.php";
+require_once "PasswordController.php";
+require_once __DIR__ . "/../models/CadastroModel.php";
+require_once __DIR__ . "/../helpers/token_jwt.php";
+require_once __DIR__ . '/../helpers/response.php';
+require_once __DIR__ . '/ValidadorController.php';
 
-    require_once __DIR__ . "/../models/CadastroModel.php";
-    require_once __DIR__ . "/../helpers/token_jwt.php";
-    require_once __DIR__ . '/../helpers/response.php';
-    require_once __DIR__ . '/ValidadorController.php';
-
-    class AuthController {
-
-        public static function login($data){
+class AuthController
+{
+    public static function loginClient($data)
+    {
         ValidadorController::validate_data($data, ["email", "senha"]);
 
-        $data['email'] = trim($data['email']);
-        $data['senha'] = trim($data['senha']);
+        $email = trim($data['email']);
+        $senha = trim($data['senha']);
 
-        if (empty($data['email']) || empty($data['senha'])) {
-            return jsonResponse(
-                [
-                    "status" => "erro",
-                    "message" => "Preencha todos os campos"
-
-                ],
-                403
-            );
+        if (empty($email) || empty($senha)) {
+            return jsonResponse(["status" => "erro", "message" => "Preencha todos os campos"], 403);
         }
 
-        $login = CadastroModel::LoginVerify($data['email'], $data['senha']);
+        $login = CadastroModel::LoginCliente($email, $senha);
         if ($login) {
             $token = createToken($login);
-            return jsonResponse(["token" => $token]);
-        } else {
-            return jsonResponse(
-                [
-                    "reposta" => "Erro",
-                    "message" => "Credenciais invalidas"
-
-                ],
-                401
-            );
+            return jsonResponse(["message" => "Cliente logado com sucesso", "token" => $token]);
         }
+        return jsonResponse(["status" => "erro", "message" => "Credenciais inválidas"], 401);
     }
 
-        public static function loginClient($data) {
-            $data['email'] = trim($data['email']);
-            $data['senha'] = trim($data['senha']);
+    public static function loginFuncionario($data)
+    {
+        ValidadorController::validate_data($data, ["email", "senha"]);
 
-            if (empty($data['email']) || empty($data['senha'])) {
-                return jsonResponse([
-                    "status" => "Erro de login!",
-                    "message" => "Preencha todos os campos!",
-                ], 401);
-            }
+        $email = trim($data['email']);
+        $senha = trim($data['senha']);
 
-            $cliente = CadastroModel::LoginVerify($data['email'] , $data['senha']);
-            if ($cliente) {
-                $token = createToken($cliente);
-                return jsonResponse(["token" => $token ]);
-            }
-
-            else {
-                jsonResponse([
-                    "status"=>"Erro na geração de token!",
-                    "message"=>"Credenciais inválidas!"
-                ], 401);
-            }
+        if (empty($email) || empty($senha)) {
+            return jsonResponse(["status" => "erro", "message" => "Preencha todos os campos"], 403);
         }
 
-    }
+        $login = CadastroModel::LoginFuncionario($email, $senha);
+        if ($login) {
+            $token = createToken($login);
+            return jsonResponse(["message" => "Funcionario logado com sucesso", "token" => $token]);
+        }
 
+        return jsonResponse(["status" => "erro", "message" => "Credenciais inválidas"], 401);
+    }
+}
 ?>

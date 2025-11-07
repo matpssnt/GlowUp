@@ -2,24 +2,27 @@
 require_once __DIR__ . '/../controllers/AuthController.php';
 require_once __DIR__ . '/../helpers/response.php';
 
-if($_SERVER['REQUEST_METHOD'] == "POST"){
+if ($_SERVER['REQUEST_METHOD'] === "POST") {
     $opcao = $seguimentos[2] ?? null;
     $data = json_decode(file_get_contents('php://input'), true);
 
-    if($opcao === "cliente"){
+    if ($opcao === "cliente") {
         AuthController::loginClient($data);
-
     }
     elseif ($opcao === "funcionario") {
-        AuthController::login($data);   
+        AuthController::loginFuncionario($data);
     }
-    
-}else{
+    else {
+        jsonResponse([
+            'status' => 'erro',
+            'message' => 'Rota de login inválida!'
+        ], 404);
+    }
+
+} else {
     jsonResponse([
-        'status'=>'erro',
-        'message'=>'método não permitido!'
-    ],405);
+        'status' => 'erro',
+        'message' => 'Método não permitido!'
+    ], 405);
 }
-
-
 ?>

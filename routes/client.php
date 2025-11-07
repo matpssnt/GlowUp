@@ -6,7 +6,7 @@ if ( $_SERVER['REQUEST_METHOD'] === "GET"){
     $id = $segmentos[2] ?? null;
 
     if(isset($id)){
-        ClientController::getById( $id); 
+        ClientController::getById($id); 
     }else{
         ClientController::getAll();
     } 

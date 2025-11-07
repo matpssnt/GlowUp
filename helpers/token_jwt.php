@@ -18,7 +18,6 @@ function createToken($user) {
 }
 
 function validateToken($token) {
-
     try {
         $key = new Key(SECRET_KEY, 'HS256');
         $decode = JWT::decode($token, $key);
@@ -29,16 +28,16 @@ function validateToken($token) {
     }
 }
 
-function  validateTokenAPI() {
+function validateTokenAPI() {
     $headers = getallheaders();
-
+    
     if ( !isset($headers['Authorization']) ) {
         jsonResponse(['message'=>'Token ausente'], 401);
         exit;
     }
 
-    $token = str_replace("Bearer", "", $headers['Authorization']);
-        if ( !validateToken($token) ) {
+    $token = str_replace("Bearer ", "", $headers['Authorization']);
+        if (!validateToken($token) ) {
         jsonResponse(['message'=>'Token inválido'], 401);
         exit;
     }

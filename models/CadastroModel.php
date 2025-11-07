@@ -12,36 +12,38 @@ class CadastroModel
         $sql = "INSERT INTO cadastros (nome, email, senha, isProfissional) 
         VALUES (?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssi",
+        $stmt->bind_param(
+            "sssi",
             $data["nome"],
             $data["email"],
             $data["senha"],
             $data["isProfissional"]
-        ); 
+        );
         $result = $stmt->execute();
         $stmt->close();
         return $result;
     }
 
     public static function delete($id)
-    {   
+    {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
         $sql = "DELETE FROM cadastros WHERE id = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $id); 
+        $stmt->bind_param("i", $id);
         $result = $stmt->execute();
         $stmt->close();
         return $result;
     }
 
     public static function update($id, $data)
-    {   
+    {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
         $sql = "UPDATE cadastros SET nome = ?, email = ?, senha = ?, isProfissional = ? WHERE id = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssii", 
+        $stmt->bind_param(
+            "sssii",
             $data["nome"],
             $data["email"],
             $data["senha"],
@@ -66,32 +68,53 @@ class CadastroModel
         return $result;
     }
 
-        public static function LoginVerify($email, $password) {
-        
+    public static function LoginCliente($email, $password)
+    {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
-        
-        $sql = "SELECT c.id AS cadastro_id, c.id, c.nome, c.email, c.senha, c.isProfissional, cli.id 
-        AS cliente_id, cli.id_telefone_fk
-        FROM cadastros c 
-        JOIN clientes cli ON cli.id_cadastro_fk = c.id
-        WHERE c.email = ? AND c.isProfissional = 0";
+
+        $sql = "SELECT c.id, c.nome, c.email, c.senha, cli.id AS cliente_id
+                FROM cadastros c
+                JOIN clientes cli ON cli.id_cadastro_fk = c.id
+                WHERE c.email = ? AND c.isProfissional = 0";
 
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
-        
-        if($client = $result->fetch_assoc()) {
-            if(PasswordController::validateHash($password, $client['senha'])) {
-                unset($client['senha']);
-                return $client;  
+
+        if ($user = $result->fetch_assoc()) {
+            if (PasswordController::validateHash($password, $user['senha'])) {
+                unset($user['senha']);
+                return $user;
             }
-        return false;
-        
         }
+        return false;
     }
 
+    public static function LoginFuncionario($email, $password)
+    {
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
+
+        $sql = "SELECT c.id, c.nome, c.email, c.senha, p.id AS profissional_id
+                FROM cadastros c
+                JOIN profissionais p ON p.id_cadastro_fk = c.id
+                WHERE c.email = ? AND c.isProfissional = 1";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($user = $result->fetch_assoc()) {
+            if (PasswordController::validateHash($password, $user['senha'])) {
+                unset($user['senha']);
+                return $user;
+            }
+        }
+        return false;
+    }
 
     public static function getAll()
     {
