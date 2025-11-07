@@ -5,7 +5,7 @@
 
     class ClientController{
         public static function create($data){
-            ValidadorController::validate_data($data, ['nome', 'id_cadastro_fk']);
+            ValidadorController::validate_data($data, ['nome', 'id_cadastro_fk', "id_telefone_fk"]);
 
             $result = ClientModel::create($data);
             if ($result) {
