@@ -129,7 +129,7 @@
 
     .navbar.navbar-expand-lg.bg-body-tertiary {
         background: linear-gradient(135deg, var(--secondary-color) 0%, rgba(255, 255, 255, 0.9) 100%);
-        padding: 5px 0;
+        padding: 1px 0;
         box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
         backdrop-filter: blur(10px);
         position: sticky;
