@@ -954,7 +954,7 @@
         gap: 20px;
         padding: 20px 40px;
         position: relative;
-        top: -60px;
+        top: -4px;
     }
 
     .foto-perfil img {
@@ -969,6 +969,8 @@
     .info-perfil {
         color: var(--white-color);
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        margin-left: 85px;
+        margin-top: -60px;
     }
 
     .perfil-nome {
