@@ -27,9 +27,6 @@ export default function renderAgendamentoPage() {
 	const divCards = document.createElement('div');
 	divCards.className = 'cards';
 
-	root.appendChild(agendamento);
-	root.appendChild(divCards);
-
 	const servicos = [
 		{ nome: "Botox", descricao: "Aplicação de botox facial.", imagem: "public/assets/images/botox.jpg" },
 		{ nome: "Massagem", descricao: "Massagem relaxante corporal.", imagem: "public/assets/images/sla.avif" },
@@ -44,11 +41,14 @@ export default function renderAgendamentoPage() {
 		divCards.appendChild(card);
 	});
 	
+	// Anexa os elementos ao root
+	root.appendChild(agendamento);
+	root.appendChild(divCards);
+
 	const footerContainer = document.getElementById('footer');
 	footerContainer.innerHTML = '';
 	footerContainer.style.marginTop = '60px';
 
 	const footer = Footer();
 	footerContainer.appendChild(footer);
-
 }
