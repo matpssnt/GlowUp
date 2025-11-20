@@ -20,8 +20,9 @@ class CadastroModel
             $data["isProfissional"]
         );
         $result = $stmt->execute();
+        $idCadastro = $stmt->insert_id;
         $stmt->close();
-        return $result;
+        return $idCadastro;
     }
 
     public static function delete($id)
