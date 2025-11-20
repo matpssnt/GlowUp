@@ -39,7 +39,7 @@ class CadastroController
                 ClientModel::create($clienteData);
             }
 
-            return jsonResponse(['message' => 'Cadastro criado com sucesso!'], 201);
+            return jsonResponse(['message' => 'Cadastro criado com sucesso!', 'idCadastro'=> $idCadastro], 201);
         } else {
             return jsonResponse(['message' => 'Erro ao criar cadastro'], 400);
         }
