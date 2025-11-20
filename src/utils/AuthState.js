@@ -1,7 +1,5 @@
-/**
- * Serviço de Gerenciamento de Estado de Autenticação
- * Gerencia o estado global do usuário logado
- */
+// Serviço de Gerenciamento de Estado de Autenticação
+// Gerencia o estado global do usuário logado
 
 class AuthState {
     constructor() {
@@ -9,9 +7,7 @@ class AuthState {
         this.loadState();
     }
 
-    /**
-     * Carrega o estado do localStorage
-     */
+    // Carrega o estado do localStorage
     loadState() {
         try {
             const token = localStorage.getItem('authToken');
@@ -28,9 +24,7 @@ class AuthState {
         }
     }
 
-    /**
-     * Salva os dados do usuário autenticado
-     */
+    // Salva os dados do usuário autenticado
     setUser(userData, token) {
         this.user = userData;
         this.token = token;
@@ -44,9 +38,7 @@ class AuthState {
         this.notifyListeners();
     }
 
-    /**
-     * Remove os dados do usuário (logout)
-     */
+    // Remove os dados do usuário (logout)
     clearUser() {
         this.user = null;
         this.token = null;
@@ -60,37 +52,27 @@ class AuthState {
         this.notifyListeners();
     }
 
-    /**
-     * Retorna os dados do usuário
-     */
+    // Retorna os dados do usuário
     getUser() {
         return this.user;
     }
 
-    /**
-     * Retorna o token
-     */
+    // Retorna o token
     getToken() {
         return this.token;
     }
 
-    /**
-     * Verifica se está autenticado
-     */
+    // Verifica se está autenticado
     isAuth() {
         return this.isAuthenticated;
     }
 
-    /**
-     * Retorna o tipo de usuário (cliente ou profissional)
-     */
+    // Retorna o tipo de usuário (cliente ou profissional)
     getUserType() {
         return this.user?.tipoUsuario || null;
     }
 
-    /**
-     * Registra um listener para mudanças de estado
-     */
+    // Registra um listener para mudanças de estado
     subscribe(listener) {
         this.listeners.push(listener);
         
@@ -100,9 +82,7 @@ class AuthState {
         };
     }
 
-    /**
-     * Notifica todos os listeners sobre mudanças
-     */
+    // Notifica todos os listeners sobre mudanças
     notifyListeners() {
         this.listeners.forEach(listener => {
             try {
@@ -117,8 +97,6 @@ class AuthState {
         });
     }
 }
-
-// Singleton - cria uma única instância
 const authState = new AuthState();
 
 export default authState;
