@@ -22,10 +22,11 @@ switch ($method) {
             jsonResponse(['message' => 'ID do cadastro é obrigatório'], 400); 
             break; 
         }
-        if (empty($data['nome']) || empty($data['email']) || empty($data['senha']) || !isset($data['isProfissional'])) {
+        if (empty($data['nome']) || empty($data['email']) || !isset($data['isProfissional'])) {
             jsonResponse(['message' => 'Dados inválidos ou incompletos'], 400);
             break;
         }
+        // Senha é opcional - se não fornecida, mantém a atual
         CadastroController::update($data, $id);
         break;
 

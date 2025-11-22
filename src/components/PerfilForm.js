@@ -1,15 +1,49 @@
 import authState from '../utils/AuthState.js';
+import ApiService from '../utils/api.js';
 
 export default function PerfilForm() {
     const content = document.createElement('div');
     content.className = 'bg-white rounded shadow-sm flex-grow-1';
     content.style.padding = '30px';
 
+    const api = new ApiService();
+    let cadastroCompleto = null;
+
     const user = authState.getUser();
     const nomeCompleto = user?.nome || 'Usuário';
     const partesNome = nomeCompleto.split(' ');
     const nome = partesNome[0] || 'Usuário';
     const sobrenome = partesNome.slice(1).join(' ') || '';
+
+    // Função para carregar dados completos do usuário
+    async function carregarDadosCompletos() {
+        try {
+            const cadastroId = authState.getCadastroId() || authState.getUser()?.id;
+            if (!cadastroId) return;
+            
+            const cadastro = await api.buscarCadastro(cadastroId);
+            if (!cadastro) return;
+            
+            cadastroCompleto = cadastro;
+            
+            // Atualiza campos do formulário
+            const nomeInput = content.querySelector('#nome');
+            const sobrenomeInput = content.querySelector('#sobrenome');
+            const emailInput = content.querySelector('#email');
+            
+            if (nomeInput && sobrenomeInput && cadastro.nome) {
+                const partesNome = cadastro.nome.split(' ');
+                nomeInput.value = partesNome[0] || '';
+                sobrenomeInput.value = partesNome.slice(1).join(' ') || '';
+            }
+            
+            if (emailInput && cadastro.email) {
+                emailInput.value = cadastro.email;
+            }
+        } catch (error) {
+            console.error('Erro ao carregar dados:', error);
+        }
+    }
 
     content.innerHTML = `
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -73,11 +107,12 @@ export default function PerfilForm() {
             <div class="mb-3">
                 <label for="senha" class="form-label">Senha</label>
                 <div class="input-group">
-                    <input type="password" class="form-control" id="senha" value="Senac123" required>
+                    <input type="password" class="form-control" id="senha" placeholder="Deixe em branco para manter a senha atual">
                     <span class="input-group-text bg-success text-white">
                         <i class="bi bi-check-circle"></i>
                     </span>
                 </div>
+                <small class="form-text text-muted">Deixe em branco para manter a senha atual</small>
             </div>
 
             <div class="d-flex justify-content-end gap-2 mt-4">
@@ -89,11 +124,79 @@ export default function PerfilForm() {
 
     // Event listeners
     const form = content.querySelector('#perfilForm');
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        // Aqui você pode integrar com a API depois
-        alert('Alterações salvas com sucesso!');
+        
+        // Desabilita botão durante requisição
+        const btnSalvar = content.querySelector('#btnSalvar');
+        const textoOriginal = btnSalvar.textContent;
+        btnSalvar.disabled = true;
+        btnSalvar.textContent = 'Salvando...';
+        
+        try {
+            // Se não tiver cadastro completo ainda, tenta carregar
+            if (!cadastroCompleto) {
+                await carregarDadosCompletos();
+            }
+            
+            // Verifica se tem ID do cadastro
+            const cadastroId = cadastroCompleto?.id || authState.getCadastroId();
+            if (!cadastroId) {
+                throw new Error('ID do cadastro não encontrado. Faça login novamente.');
+            }
+            
+            // Coleta dados do formulário
+            const nomeCompleto = `${content.querySelector('#nome').value.trim()} ${content.querySelector('#sobrenome').value.trim()}`.trim();
+            const email = content.querySelector('#email').value.trim();
+            const senha = content.querySelector('#senha').value.trim();
+            
+            // Validações básicas
+            if (!nomeCompleto || !email) {
+                throw new Error('Nome e email são obrigatórios.');
+            }
+            
+            // Busca tipo de usuário do authState
+            const userType = authState.getUserType();
+            const isProfissional = userType === 'profissional' ? 1 : 0;
+            
+            // Chama API para atualizar (senha é opcional - se vazia, mantém a atual)
+            await api.atualizarCadastro(
+                cadastroId,
+                nomeCompleto,
+                email,
+                senha || '', // Envia string vazia se não preenchida
+                isProfissional
+            );
+            
+            // Atualiza authState e recarrega dados
+            authState.setUser({ ...authState.getUser(), id: cadastroId, nome: nomeCompleto, email }, authState.getToken());
+            await carregarDadosCompletos();
+            
+            // Mostra mensagem de sucesso
+            const alertas = content.querySelectorAll('.alert');
+            alertas.forEach(a => a.remove());
+            
+            const successAlert = document.createElement('div');
+            successAlert.className = 'alert alert-success alert-dismissible fade show mt-3';
+            successAlert.innerHTML = `
+                <strong>Sucesso!</strong> Alterações salvas com sucesso!
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            form.insertAdjacentElement('afterend', successAlert);
+            setTimeout(() => successAlert.remove(), 3000);
+            
+        } catch (error) {
+            alert('Erro ao salvar: ' + error.message);
+            console.error('Erro ao salvar perfil:', error);
+        } finally {
+            // Reabilita botão
+            btnSalvar.disabled = false;
+            btnSalvar.textContent = textoOriginal;
+        }
     });
+    
+    // Carrega dados completos do usuário quando o formulário é criado
+    carregarDadosCompletos();
 
     const btnCancelar = content.querySelector('#btnCancelar');
     btnCancelar.addEventListener('click', () => {

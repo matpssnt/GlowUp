@@ -47,9 +47,21 @@ class CadastroController
 
     public static function update($data, $id)
     {
-        $resultado = CadastroModel::update($data, $id);
+        // Se senha foi fornecida e não está vazia, faz hash
+        // Se não foi fornecida, mantém a senha atual do banco
+        if (isset($data['senha']) && !empty(trim($data['senha']))) {
+            $data['senha'] = PasswordController::generateHash($data['senha']);
+        } else {
+            // Busca cadastro atual para manter senha
+            $cadastroAtual = CadastroModel::getById($id);
+            if ($cadastroAtual) {
+                $data['senha'] = $cadastroAtual['senha']; // Mantém senha atual
+            }
+        }
+        
+        $resultado = CadastroModel::update($id, $data);
         if ($resultado) {
-            return jsonResponse(['message' => 'Cadastro atualizado com sucesso'], 200);
+            return jsonResponse(['message' => 'Cadastro atualizado com sucesso', 'id' => $id], 200);
         } else {
             return jsonResponse(['message' => 'Falha na atualização do cadastro'], 400);
         }

@@ -9,10 +9,21 @@ export default function PerfilSidebar() {
     sidebar.style.position = 'sticky';
     sidebar.style.top = '20px';
 
-    const user = authState.getUser();
-    const nomeCompleto = user?.nome || 'Usuário';
-    const partesNome = nomeCompleto.split(' ');
-    const nome = partesNome[0] || 'Usuário';
+    const userType = authState.getUserType();
+    const currentPath = window.location.pathname;
+    const isPerfilPage = currentPath.includes('/perfil');
+    const isAgendamentosPage = currentPath.includes('/agendamentos');
+    const estiloAtivo = 'd-flex align-items-center p-2 rounded bg-light text-dark text-decoration-none';
+    const estiloInativo = 'd-flex align-items-center p-2 rounded text-dark text-decoration-none';
+    
+    const menuAgendamentos = userType === 'cliente' ? `
+        <li class="mb-2">
+            <a href="agendamentos" class="${isAgendamentosPage ? estiloAtivo : estiloInativo}">
+                <i class="bi bi-calendar me-2"></i>
+                <span>Meus Agendamentos</span>
+            </a>
+        </li>
+    ` : '';
 
     sidebar.innerHTML = `
         <div class="mb-4">
@@ -23,17 +34,12 @@ export default function PerfilSidebar() {
         </div>
         <ul class="list-unstyled">
             <li class="mb-2">
-                <a href="perfil" class="d-flex align-items-center p-2 rounded bg-light text-dark text-decoration-none">
+                <a href="perfil" class="${isPerfilPage ? estiloAtivo : estiloInativo}">
                     <i class="bi bi-pencil me-2"></i>
                     <span>Editar perfil</span>
                 </a>
             </li>
-            <li class="mb-2">
-                <a href="#" class="d-flex align-items-center p-2 rounded text-dark text-decoration-none">
-                    <i class="bi bi-calendar me-2"></i>
-                    <span>Agendas</span>
-                </a>
-            </li>
+            ${menuAgendamentos}
             <li class="mb-2">
                 <a href="#" class="d-flex align-items-center p-2 rounded text-dark text-decoration-none">
                     <i class="bi bi-bell me-2"></i>
