@@ -1,6 +1,7 @@
 import NavBar from "../components/NavBar.js";
 import Footer from "../components/Footer.js";
 import RoomCard from "../components/Cards.js";
+import ApiService from "../utils/api.js";
 
 export default function renderHomePage() {
     const divRoot = document.getElementById('root');
@@ -39,10 +40,42 @@ export default function renderHomePage() {
     divCards.innerHTML = '';
     divCards.className = "cards";
 
-    for (var i = 0; i < 4; i++) {
-        const card = RoomCard(i);
-        divCards.appendChild(card);
+    // Adiciona loading
+    const loading = document.createElement('div');
+    loading.className = 'text-center my-4';
+    loading.innerHTML = '<div class="spinner-border" role="status"><span class="visually-hidden">Carregando...</span></div>';
+    divCards.appendChild(loading);
+
+    // Função para carregar profissionais
+    async function carregarProfissionais() {
+        // Função auxiliar para usar fallback
+        const usarFallback = () => {
+            loading.remove();
+            for (let i = 0; i < 4; i++) {
+                divCards.appendChild(RoomCard(i));
+            }
+        };
+        
+        try {
+            const api = new ApiService();
+            const profissionais = await api.listarProfissionais();
+            loading.remove();
+            
+            // Se retornou array válido com dados, usa profissionais reais
+            if (Array.isArray(profissionais) && profissionais.length > 0) {
+                profissionais.slice(0, 4).forEach(prof => {
+                    divCards.appendChild(RoomCard(prof));
+                });
+            } else {
+                usarFallback();
+            }
+        } catch (error) {
+            usarFallback();
+        }
     }
+
+    // Carrega profissionais
+    carregarProfissionais();
 
     divRoot.appendChild(fundoPrincipal);
     divRoot.appendChild(informacoes);
