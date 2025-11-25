@@ -44,6 +44,10 @@ export default function renderHomePage() {
         divCards.appendChild(card);
     }
 
+    divRoot.appendChild(fundoPrincipal);
+    divRoot.appendChild(informacoes);
+    divRoot.appendChild(divCards);
+
     const footerContainer = document.getElementById('footer');
     footerContainer.innerHTML = '';
     footerContainer.style.marginTop = '150px';
@@ -67,8 +71,4 @@ export default function renderHomePage() {
         whatsappFloat.appendChild(whatsappLink);
         document.body.appendChild(whatsappFloat);
     }
-
-    divRoot.appendChild(fundoPrincipal);
-    divRoot.appendChild(informacoes);
-    divRoot.appendChild(divCards);
 }

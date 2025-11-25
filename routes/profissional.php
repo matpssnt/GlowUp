@@ -7,7 +7,16 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 switch ($method) {
     case 'GET':
-        $id ? ProfissionalController::getById($id) : ProfissionalController::getAll();
+        if ($id === 'cadastro') {
+            $idCadastro = $seguimentos[3] ?? null;
+            if ($idCadastro) {
+                ProfissionalController::getByIdCadastro($idCadastro);
+            } else {
+                jsonResponse(['message' => 'ID do cadastro é obrigatorio'], 400);
+            }
+        } else {
+            $id ? ProfissionalController::getById($id) : ProfissionalController::getAll();
+        }
         break;
 
     case 'POST':

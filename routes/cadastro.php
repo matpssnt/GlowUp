@@ -7,8 +7,6 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 switch ($method) {
     case 'GET':
-        $data = json_decode(file_get_contents('php://input'), true);
-        $id = $data['id'] ?? $id;
         $id ? CadastroController::getById($id) : CadastroController::getAll();
         break;
 

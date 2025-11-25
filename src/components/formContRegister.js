@@ -1,5 +1,6 @@
 import NavBar from "../components/NavBar.js";
 import CepAPI from "../utils/cepAPI.js";
+import ApiService from "../utils/api.js";
 
 export default function renderFormContRegister(container) {
     // Cria o formulário
@@ -277,9 +278,100 @@ export default function renderFormContRegister(container) {
     formulario.appendChild(containerBotoes);
 
     // Adiciona evento de submit
-    formulario.addEventListener('submit', (e) => {
+    formulario.addEventListener('submit', async (e) => {
         e.preventDefault();
-        alert('Cadastro finalizado com sucesso!');
+        console.log('Formulário submetido!');
+
+        // Desabilita o botão durante a requisição
+        btnFinalizar.disabled = true;
+        btnFinalizar.textContent = 'Finalizando...';
+
+        try {
+            
+            // Recupera dados básicos do localStorage
+            const dadosBasicosStr = localStorage.getItem('dadosBasicos');
+            if (!dadosBasicosStr) {
+                throw new Error('Dados básicos não encontrados. Por favor, refaça o cadastro inicial.');
+            }
+
+            const dadosBasicos = JSON.parse(dadosBasicosStr);
+            console.log('Dados básicos recuperados:', dadosBasicos);
+            
+            const idCadastro = dadosBasicos.idCadastro || dadosBasicos.id;
+
+            if (!idCadastro) {
+                throw new Error('ID do cadastro não encontrado. Por favor, refaça o cadastro inicial.');
+            }
+
+            // Importa e usa a API
+            const api = new ApiService();
+
+            // Busca o profissional pelo id_cadastro
+            const profissional = await api.buscarProfissionalPorCadastro(idCadastro);
+            
+            if (!profissional || !profissional.id) {
+                throw new Error('Profissional não encontrado. Por favor, refaça o cadastro inicial.');
+            }
+            const idProfissional = profissional.id;
+
+            // Coleta todos os dados do formulário
+            const descricao = document.getElementById('descricao').value.trim();
+            const cidade = document.getElementById('cidade').value.trim();
+            const bairro = document.getElementById('bairro').value.trim();
+            const rua = document.getElementById('rua').value.trim();
+            const numero = document.getElementById('numero').value.trim();
+            const cep = document.getElementById('cep').value.replace(/\D/g, '');
+            const complemento = document.getElementById('complemento').value.trim();
+            const estado = document.getElementById('estado').value.trim();
+            const tipoPessoa = document.getElementById('tipo-pessoa').value;
+            const cpf = document.getElementById('cpf')?.value.replace(/\D/g, '') || '';
+            const cnpj = document.getElementById('cnpj')?.value.replace(/\D/g, '') || '';
+            // Atualiza o profissional com os dados coletados
+            const dadosProfissional = {
+                nome: dadosBasicos.nome,
+                email: dadosBasicos.email,
+                descricao: descricao,
+                acessibilidade: 0, // Valor padrão
+                isJuridica: tipoPessoa === 'juridica' ? 1 : 0,
+                id_cadastro_fk: idCadastro
+            };
+
+            // Se tiver CPF/CNPJ, adiciona aos dados
+            if (tipoPessoa === 'fisica' && cpf) {
+                dadosProfissional.cpf = cpf;
+            } else if (tipoPessoa === 'juridica' && cnpj) {
+                dadosProfissional.cnpj = cnpj;
+            }
+
+
+            // Cria o endereço
+            const dadosEndereco = {
+                rua: rua,
+                numero: numero,
+                cep: cep,
+                bairro: bairro,
+                cidade: cidade,
+                estado: estado,
+                complemento: complemento || '',
+                id_profissional_fk: idProfissional
+            };
+
+            // Limpa o localStorage
+            localStorage.removeItem('dadosBasicos');
+            
+            // Redireciona para login
+            window.location.href = 'login';
+
+        } catch (error) {
+            // Erro
+            console.error('Erro completo no cadastro:', error);
+            const mensagemErro = error.message || 'Erro desconhecido ao finalizar cadastro';
+            alert('Erro ao finalizar cadastro: ' + mensagemErro);
+        } finally {
+            // Reabilita o botão
+            btnFinalizar.disabled = false;
+            btnFinalizar.textContent = 'Finalizar Cadastro Profissional';
+        }
     });
 
     container.appendChild(formulario);

@@ -1,3 +1,4 @@
+import ApiService from "../utils/api.js";
 export default function renderFormCliente(container) {
 
     // Formulário
@@ -83,7 +84,8 @@ export default function renderFormCliente(container) {
     });
 
     // VALIDAÇÃO FINAL NO SUBMIT
-    formulario.addEventListener("submit", (e) => {
+    formulario.addEventListener("submit", async (e) => {
+        e.preventDefault();
         let invalido = false;
 
         // senha curta
@@ -100,7 +102,40 @@ export default function renderFormCliente(container) {
             passwordConfirm.classList.remove("is-valid");
         }
 
-        if (invalido) e.preventDefault();
+        if (invalido) return;
+
+        // Desabilita o botão durante a requisição
+        btnSubmit.disabled = true;
+        btnSubmit.textContent = 'Cadastrando...';
+
+        try {
+            // Importa e usa a API
+            const api = new ApiService();
+
+            // Faz a requisição de cadastro
+            const response = await api.cadastrarCliente(
+                nome.value.trim(),
+                email.value.trim(),
+                password.value
+            );
+
+            // Sucesso
+            alert('Cadastro realizado com sucesso!');
+            
+            // Limpa o formulário
+            formulario.reset();
+            
+            // Redireciona para login
+            window.location.href = 'login';
+        } catch (error) {
+            // Erro
+            alert('Erro ao cadastrar: ' + error.message);
+            console.error('Erro no cadastro:', error);
+        } finally {
+            // Reabilita o botão
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = 'Cadastrar';
+        }
     });
 
     // Coloca o form no container
