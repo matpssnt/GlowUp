@@ -38,6 +38,11 @@ class AuthState {
         this.notifyListeners();
     }
 
+    // Retorna o ID do cadastro do usuário
+    getCadastroId() {
+        return this.user?.id || this.user?.idCadastro || null;
+    }
+
     // Remove os dados do usuário (logout)
     clearUser() {
         this.user = null;

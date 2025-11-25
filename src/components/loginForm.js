@@ -92,13 +92,27 @@ export default function loginForm() {
             // Verifica se o token foi retornado
             if (response && response.token) {
                 // Prepara dados do usuário para salvar no estado
+                // O ID será buscado depois se necessário (no PerfilForm)
                 const userData = {
                     tipoUsuario: response.tipoUsuario || 'cliente',
                     nome: response.nome || emailValue,
                     email: emailValue
                 };
                 
-                // Salva no estado global
+                // Tenta buscar ID do cadastro (opcional, não bloqueia o login)
+                try {
+                    const cadastros = await apiService.listarCadastros();
+                    if (Array.isArray(cadastros)) {
+                        const cadastro = cadastros.find(c => c.email === emailValue);
+                        if (cadastro) {
+                            userData.id = cadastro.id;
+                            userData.nome = cadastro.nome || userData.nome;
+                        }
+                    }
+                } catch (error) {
+                    // Ignora erro, continua com dados básicos
+                }
+                
                 authState.setUser(userData, response.token);
                 
                 // Redireciona para a página home
