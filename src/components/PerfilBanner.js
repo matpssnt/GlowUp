@@ -41,10 +41,6 @@ export default function PerfilBanner(dadosProfissional = null, endereco = null, 
         <div class="foto-perfil">
           <img src="public/assets/images/fotoDePerfil.png" alt="Foto de perfil">
         </div>
-        <div class="info-perfil">
-          <h5 class="perfil-nome">${nomeProfissional}</h5>
-          <p class="perfil-bio">${bioProfissional}</p>
-        </div>
       </div>
 
       <div class="perfil-content">

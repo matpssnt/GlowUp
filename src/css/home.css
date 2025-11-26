@@ -93,8 +93,21 @@
     display: flex;
     flex-wrap: wrap;
     flex-direction: row;
-    gap: 70px;
+    gap: 20px;
     padding: 20px;
+}
+
+/* Responsividade dos cards */
+@media (min-width: 768px) {
+    .cards {
+        gap: 40px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .cards {
+        gap: 70px;
+    }
 }
 
 .btn-conhecer {

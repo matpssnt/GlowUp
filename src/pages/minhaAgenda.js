@@ -4,6 +4,8 @@ import PerfilSidebar from "../components/PerfilSidebar.js";
 import AgendamentoCard from "../components/AgendamentoCard.js";
 import ApiService from "../utils/api.js";
 import authState from "../utils/AuthState.js";
+import { notify } from "../components/Notification.js";
+import { handleError } from "../utils/errorHandler.js";
 
 export default function renderMinhaAgendaPage() {
     // Verifica se está autenticado
@@ -145,10 +147,10 @@ export default function renderMinhaAgendaPage() {
         try {
             const api = new ApiService();
             await api.cancelarAgendamento(id);
-            alert('Agendamento cancelado com sucesso!');
+            notify.success('Agendamento cancelado com sucesso!');
             carregarAgendamentos(); // Recarrega lista
         } catch (error) {
-            alert('Erro ao cancelar agendamento: ' + error.message);
+            handleError(error, 'MinhaAgenda - cancelarAgendamento');
         }
     }
     

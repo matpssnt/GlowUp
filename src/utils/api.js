@@ -308,4 +308,22 @@ export default class ApiService {
         // Atualiza status para 'Cancelado'
         return await this.atualizarAgendamento(id, { status: 'Cancelado' });
     }
+
+    // Métodos para Escala
+    async listarEscalas() {
+        return await this.request('/escala', 'GET');
+    }
+
+    async buscarEscala(id) {
+        return await this.request(`/escala/${id}`, 'GET');
+    }
+
+    async buscarEscalasProfissional(idProfissional) {
+        // Busca todas as escalas e filtra por profissional
+        const escalas = await this.listarEscalas();
+        if (Array.isArray(escalas)) {
+            return escalas.filter(e => e.id_profissional_fk == idProfissional);
+        }
+        return [];
+    }
 } 

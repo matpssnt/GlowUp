@@ -3,6 +3,8 @@ import Footer from "../components/Footer.js";
 import PerfilBanner from "../components/PerfilBanner.js";
 import ServiceCard from "../components/ServiceCard.js";
 import ApiService from "../utils/api.js";
+import { notify } from "../components/Notification.js";
+import { handleError } from "../utils/errorHandler.js";
 
 export default function renderAgendamentoPage() {
 	const root = document.getElementById('root');
@@ -20,9 +22,10 @@ export default function renderAgendamentoPage() {
 	nav.appendChild(navbar);
 
 	const agendamento = document.createElement('div');
+	agendamento.className = 'agendamento';
 	agendamento.innerHTML = '';
 
-	// Container para loading
+	// Loading
 	const loadingContainer = document.createElement('div');
 	loadingContainer.className = 'text-center my-5';
 	loadingContainer.innerHTML = '<div class="spinner-border" role="status"><span class="visually-hidden">Carregando...</span></div>';
@@ -31,30 +34,28 @@ export default function renderAgendamentoPage() {
 	const divCards = document.createElement('div');
 	divCards.className = 'cards';
 
-	// Anexa os elementos ao root
 	root.appendChild(agendamento);
 	root.appendChild(divCards);
 
+	// Footer
 	const footerContainer = document.getElementById('footer');
 	footerContainer.innerHTML = '';
 	footerContainer.style.marginTop = '60px';
-
 	const footer = Footer();
 	footerContainer.appendChild(footer);
 
-	// Função para obter parâmetro da URL
+	// Obtém parâmetro da URL
 	function getUrlParameter(name) {
 		const urlParams = new URLSearchParams(window.location.search);
 		return urlParams.get(name);
 	}
 
-	// Função para carregar dados do profissional
+	// Carrega dados do profissional
 	async function carregarDadosProfissional() {
 		try {
 			const profissionalId = getUrlParameter('profissional');
 			
 			if (!profissionalId) {
-				// Se não tiver ID, mostra dados padrão
 				const agnd = PerfilBanner();
 				loadingContainer.remove();
 				agendamento.appendChild(agnd);
@@ -63,13 +64,13 @@ export default function renderAgendamentoPage() {
 
 			const api = new ApiService();
 			
-			// Busca dados do profissional
+			// Busca profissional
 			const profissional = await api.buscarProfissional(profissionalId);
 			if (!profissional || !profissional.id) {
 				throw new Error('Profissional não encontrado');
 			}
 
-			// Busca endereço do profissional
+			// Busca endereço
 			let endereco = null;
 			try {
 				endereco = await api.buscarEnderecoPorProfissional(profissional.id);
@@ -77,7 +78,7 @@ export default function renderAgendamentoPage() {
 				console.error('Erro ao buscar endereço:', error);
 			}
 
-			// Busca telefone do profissional
+			// Busca telefone
 			let telefone = null;
 			try {
 				telefone = await api.buscarTelefonePorProfissional(profissional.id);
@@ -90,29 +91,39 @@ export default function renderAgendamentoPage() {
 			try {
 				const todosServicos = await api.listarServicos();
 				if (Array.isArray(todosServicos)) {
-					servicos = todosServicos.filter(s => s.id_profissional_fk === profissional.id);
+					servicos = todosServicos.filter(s => {
+						const servicoProfId = s.id_profissional_fk || s.id_profissional;
+						const profId = profissional.id;
+						return servicoProfId == profId || 
+						       parseInt(servicoProfId) === parseInt(profId) ||
+						       String(servicoProfId) === String(profId);
+					});
+					console.log(`Encontrados ${servicos.length} serviços para o profissional ${profissional.id}`);
+				} else {
+					console.warn('API retornou serviços em formato inválido:', todosServicos);
 				}
 			} catch (error) {
 				console.error('Erro ao buscar serviços:', error);
+				handleError(error, 'AgendamentoPage - buscarServicos');
 			}
 
-			// Remove loading e adiciona banner com dados reais
+			// Renderiza banner e serviços
 			loadingContainer.remove();
 			const agnd = PerfilBanner(profissional, endereco, telefone);
 			agendamento.appendChild(agnd);
 
-			// Adiciona cards de serviços
 			if (servicos.length > 0) {
 				servicos.forEach(servico => {
 					const card = ServiceCard({
+						id: servico.id,
 						nome: servico.nome,
 						descricao: servico.descricao,
-						imagem: servico.imagem || "public/assets/images/botox.jpg"
-					});
+						imagem: servico.imagem || "public/assets/images/botox.jpg",
+						preco: servico.preco || servico.valor
+					}, profissional);
 					divCards.appendChild(card);
 				});
 			} else {
-				// Se não houver serviços, mostra mensagem ou serviços padrão
 				const mensagem = document.createElement('div');
 				mensagem.className = 'alert alert-info text-center';
 				mensagem.textContent = 'Nenhum serviço disponível no momento.';
@@ -120,20 +131,12 @@ export default function renderAgendamentoPage() {
 			}
 
 		} catch (error) {
-			console.error('Erro ao carregar dados do profissional:', error);
 			loadingContainer.remove();
-			
-			const erro = document.createElement('div');
-			erro.className = 'alert alert-danger text-center';
-			erro.textContent = 'Erro ao carregar dados do profissional: ' + error.message;
-			agendamento.appendChild(erro);
-
-			// Mostra banner padrão em caso de erro
+			handleError(error, 'AgendamentoPage - carregarDadosProfissional');
 			const agnd = PerfilBanner();
 			agendamento.appendChild(agnd);
 		}
 	}
 
-	// Carrega dados do profissional
 	carregarDadosProfissional();
 }

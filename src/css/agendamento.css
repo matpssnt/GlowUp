@@ -1,110 +1,107 @@
-/* Estilos específicos da página de Agendamento */
+/* Estilos da página de Agendamento */
 
-/* A página de agendamento usa PerfilBanner e cards de serviços */
-/* Estilos compartilhados com perfil */
-.perfil-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 30px;
-    padding: 20px 20px;
-}
-
-.description-profissional {
-    flex: 1;
-    max-width: 50%;
-}
-
-.mini-carrossel-section {
-    flex: 1;
-    max-width: 50%;
-}
-
-.titulo-principal {
-    color: #444;
-    font-size: 1.3rem;
-    margin-bottom: 10px;
-    font-family: Arial, Helvetica, sans-serif;
-    font-weight: bold;
-}
-
-.titulo-estab {
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: #222;
-    font-family: Arial, Helvetica, sans-serif;
-    margin-bottom: 10px;
-}
-
-.telefone p {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 1.1rem;
-    color: #333;
-}
-
-.whatsapp-icon {
-    color: #25D366;
-    font-size: 1.5rem;
-}
-
-.description p,
-.location p,
-.telefone p {
-    color: #555;
-    font-size: 1rem;
-    margin: 5px 0;
-}
-
-.description-profissional {
-    margin-left: 25px;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    width: 40%;
-}
-
-#miniCarousel {
-    margin-right: 25px;
-}
-
-.mini-carrossel-section {
-    width: 100%;
-    max-width: 520px;
-    margin: 30px 0 30px auto;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-    background: var(--white-color);
-}
-
-.mini-carrossel-section .carousel,
-.mini-carrossel-section .carousel-inner,
-.mini-carrossel-section .carousel-item,
-.mini-carrossel-section img {
-    border-radius: 16px;
-}
-
-.mini-carrossel-section img {
-    height: 500px;
-    object-fit: cover;
-}
-
-.mini-carrossel-section .carousel-indicators [data-bs-target] {
-    background-color: transparent;
-}
-
-.mini-carrossel-section .carousel-indicators .active {
-    background-color: transparent;
-}
-
-/* Cards de serviços na página de agendamento */
-.cards {
+/* Cards de serviços */
+.agendamento .cards {
     justify-content: center;
     display: flex;
     flex-wrap: wrap;
-    flex-direction: row;
-    gap: 70px;
+    gap: 20px;
     padding: 20px;
+    margin-top: 20px;
+}
+
+/* Modal de Agendamento */
+#agendamentoModal .modal-dialog {
+    max-width: 600px;
+}
+
+#agendamentoModal .horario-btn {
+    min-width: 80px;
+    padding: 8px 16px;
+    margin: 4px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background-color: white;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+#agendamentoModal .horario-btn:hover {
+    background-color: #f8f9fa;
+    border-color: #3b5a40;
+}
+
+#agendamentoModal .horario-btn.active {
+    background-color: #3b5a40;
+    border-color: #3b5a40;
+    color: white;
+}
+
+#agendamentoModal #horariosContainer {
+    min-height: 60px;
+    padding: 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+}
+
+#agendamentoModal #dataFormatada {
+    font-style: italic;
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+/* Alinhamento dos botões do modal */
+#agendamentoModal .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    padding: 1rem;
+    border-top: 1px solid #dee2e6;
+}
+
+#agendamentoModal .modal-footer .btn {
+    min-width: 160px;
+    padding: 0.5rem 1rem;
+    font-size: 0.95rem;
+    height: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Responsividade */
+@media (min-width: 768px) {
+    .agendamento .cards {
+        gap: 40px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .agendamento .cards {
+        gap: 70px;
+    }
+}
+
+@media (max-width: 768px) {
+    #agendamentoModal .modal-dialog {
+        margin: 10px;
+    }
+
+    #agendamentoModal .horario-btn {
+        min-width: 70px;
+        font-size: 0.9rem;
+        padding: 6px 12px;
+    }
+
+    #agendamentoModal .modal-footer {
+        flex-direction: column;
+    }
+
+    #agendamentoModal .modal-footer .btn {
+        width: 100%;
+        min-width: auto;
+    }
 }

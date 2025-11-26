@@ -1,11 +1,14 @@
 import authState from '../utils/AuthState.js';
 import ApiService from '../utils/api.js';
 import CepAPI from '../utils/cepAPI.js';
+import { notify } from './Notification.js';
+import { handleError } from '../utils/errorHandler.js';
+import { createPersonalFields, createAddressFields, createContactFields } from './PerfilFormFields.js';
+import { setupCepSearch, setupFieldMasksAndValidation, validateFormBeforeSubmit } from './PerfilFormLogic.js';
 
 export default function PerfilForm() {
     const content = document.createElement('div');
-    content.className = 'bg-white rounded shadow-sm flex-grow-1';
-    content.style.padding = '30px';
+    content.className = 'bg-white rounded shadow-sm flex-grow-1 perfil-form-container';
 
     const api = new ApiService();
     let cadastroCompleto = null;
@@ -83,6 +86,7 @@ export default function PerfilForm() {
         if (estadoInput) estadoInput.value = enderecoCompleto.estado || '';
     }
 
+    // Renderiza o formulário usando componentes
     content.innerHTML = `
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="mb-0">Editar perfil</h2>
@@ -90,84 +94,9 @@ export default function PerfilForm() {
         </div>
         
         <form id="perfilForm">
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label for="nome" class="form-label">Nome</label>
-                    <input type="text" class="form-control" id="nome" value="${nome}" required>
-                </div>
-                <div class="col-md-6">
-                    <label for="sobrenome" class="form-label">Sobrenome</label>
-                    <input type="text" class="form-control" id="sobrenome" value="${sobrenome}" required>
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <div class="input-group">
-                    <input type="email" class="form-control" id="email" value="${user?.email || ''}" required>
-                    <span class="input-group-text bg-success text-white">
-                        <i class="bi bi-check-circle"></i>
-                    </span>
-                </div>
-            </div>
-
-            <div class="mb-4">
-                <h4 class="cont-register-section-title">Endereço</h4>
-                
-                <div class="cont-register-row-1 mb-3">
-                    <div class="cont-register-field">
-                        <label for="cidade" class="form-label">Cidade</label>
-                        <input type="text" class="form-control" id="cidade" placeholder="Nome da cidade" value="">
-                    </div>
-                    <div class="cont-register-field">
-                        <label for="bairro" class="form-label">Bairro</label>
-                        <input type="text" class="form-control" id="bairro" placeholder="Nome do bairro" value="">
-                    </div>
-                </div>
-
-                <div class="cont-register-row-2 mb-3">
-                    <div class="cont-register-field">
-                        <label for="rua" class="form-label">Rua</label>
-                        <input type="text" class="form-control" id="rua" placeholder="Nome da rua" value="">
-                    </div>
-                </div>
-
-                <div class="cont-register-row-3 mb-3">
-                    <div class="cont-register-field">
-                        <label for="numero" class="form-label">Número</label>
-                        <input type="text" class="form-control" id="numero" placeholder="Número do endereço" value="">
-                    </div>
-                    <div class="cont-register-field">
-                        <label for="cep" class="form-label">CEP</label>
-                        <input type="text" class="form-control" id="cep" placeholder="00000-000" value="">
-                    </div>
-                    <div class="cont-register-field">
-                        <label for="complemento" class="form-label">Complemento</label>
-                        <input type="text" class="form-control" id="complemento" placeholder="Apartamento, casa, etc." value="">
-                    </div>
-                </div>
-
-                <div class="cont-register-field">
-                    <label for="estado" class="form-label">Estado</label>
-                    <input type="text" class="form-control" id="estado" placeholder="Estado" readonly style="background-color: #f8f9fa;">
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label for="telefone" class="form-label">Número para contato</label>
-                <input type="tel" class="form-control" id="telefone" placeholder="(00) 0000-0000" value="">
-            </div>
-
-            <div class="mb-3">
-                <label for="senha" class="form-label">Senha</label>
-                <div class="input-group">
-                    <input type="password" class="form-control" id="senha" placeholder="Deixe em branco para manter a senha atual">
-                    <span class="input-group-text bg-success text-white">
-                        <i class="bi bi-check-circle"></i>
-                    </span>
-                </div>
-                <small class="form-text text-muted">Deixe em branco para manter a senha atual</small>
-            </div>
+            ${createPersonalFields(nome, sobrenome, user?.email || '')}
+            ${authState.getUserType() === 'profissional' ? createAddressFields() : ''}
+            ${createContactFields()}
 
             <div class="d-flex justify-content-end gap-2 mt-4">
                 <button type="button" class="btn btn-outline-secondary" id="btnCancelar">Cancelar</button>
@@ -176,93 +105,39 @@ export default function PerfilForm() {
         </form>
     `;
 
-    // Função para adicionar busca de CEP
-    function adicionarBuscaCep(inputCep) {
-        let timeoutId = null;
+    // Configura máscaras e validações
+    setupFieldMasksAndValidation(content);
 
-        const buscarCep = async () => {
-            const cep = inputCep.value.trim();
-
-            if (!cep || cep.length < 8) {
-                CepAPI.removerErro();
-                return;
-            }
-
-            try {
-                const campos = {
-                    cidade: 'cidade',
-                    bairro: 'bairro',
-                    street: 'rua',
-                    state: 'estado'
-                };
-
-                await CepAPI.buscarEPreencher(cep, campos, {
-                    success: (dados) => {
-                        inputCep.value = CepAPI.formatarCep(cep);
-                        const campoNumero = content.querySelector('#numero');
-                        if (campoNumero) {
-                            campoNumero.focus();
-                        }
-                    },
-                    error: (error) => {
-                        console.error('Erro ao buscar CEP:', error);
-                        alert('Erro ao buscar CEP: ' + error.message);
-                    }
-                });
-            } catch (error) {
-                console.error('Erro na busca do CEP:', error);
-            }
-        };
-
-        inputCep.addEventListener('input', (e) => {
-            let valor = e.target.value.replace(/\D/g, '');
-            if (valor.length > 8) {
-                valor = valor.substring(0, 8);
-            }
-            if (valor.length > 5) {
-                valor = valor.replace(/(\d{5})(\d{3})/, '$1-$2');
-            }
-            e.target.value = valor;
-
-            CepAPI.removerErro();
-
-            if (timeoutId) {
-                clearTimeout(timeoutId);
-            }
-
-            if (valor.replace(/\D/g, '').length === 8) {
-                timeoutId = setTimeout(buscarCep, 800);
-            }
-        });
-
-        inputCep.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                buscarCep();
-            }
-        });
-
-        inputCep.addEventListener('paste', (e) => {
-            setTimeout(() => {
-                const valor = e.target.value.replace(/\D/g, '');
-                if (valor.length === 8) {
-                    buscarCep();
+    // Configura busca de CEP (se for profissional)
+    const cepInput = content.querySelector('#cep');
+    const btnBuscarCep = content.querySelector('#btnBuscarCep');
+    if (cepInput) {
+        setupCepSearch(cepInput, content);
+        
+        // Configura botão de buscar CEP
+        if (btnBuscarCep) {
+            btnBuscarCep.addEventListener('click', () => {
+                const cep = cepInput.value.replace(/\D/g, '');
+                if (cep.length === 8) {
+                    cepInput.dispatchEvent(new Event('input'));
+                } else {
+                    notify.warning('CEP deve ter 8 dígitos');
                 }
-            }, 100);
-        });
+            });
+        }
     }
 
-    // Event listeners
+    // Event listener do formulário
     const form = content.querySelector('#perfilForm');
     
-    // Adiciona busca de CEP
-    const cepInput = content.querySelector('#cep');
-    if (cepInput) {
-        adicionarBuscaCep(cepInput);
-    }
-
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        // Valida formulário antes de enviar
+        if (!validateFormBeforeSubmit(content)) {
+            notify.warning('Por favor, corrija os erros no formulário');
+            return;
+        }
         
         // Desabilita botão durante requisição
         const btnSalvar = content.querySelector('#btnSalvar');
@@ -287,11 +162,6 @@ export default function PerfilForm() {
             const email = content.querySelector('#email').value.trim();
             const senha = content.querySelector('#senha').value.trim();
             
-            // Validações básicas
-            if (!nomeCompleto || !email) {
-                throw new Error('Nome e email são obrigatórios.');
-            }
-            
             // Busca tipo de usuário do authState
             const userType = authState.getUserType();
             const isProfissional = userType === 'profissional' ? 1 : 0;
@@ -307,13 +177,13 @@ export default function PerfilForm() {
             
             // Se for profissional, atualiza ou cria endereço
             if (isProfissional && profissionalCompleto && profissionalCompleto.id) {
-                const cidade = content.querySelector('#cidade').value.trim();
-                const bairro = content.querySelector('#bairro').value.trim();
-                const rua = content.querySelector('#rua').value.trim();
-                const numero = content.querySelector('#numero').value.trim();
-                const cep = content.querySelector('#cep').value.replace(/\D/g, '');
-                const complemento = content.querySelector('#complemento').value.trim();
-                const estado = content.querySelector('#estado').value.trim();
+                const cidade = content.querySelector('#cidade')?.value.trim() || '';
+                const bairro = content.querySelector('#bairro')?.value.trim() || '';
+                const rua = content.querySelector('#rua')?.value.trim() || '';
+                const numero = content.querySelector('#numero')?.value.trim() || '';
+                const cep = content.querySelector('#cep')?.value.replace(/\D/g, '') || '';
+                const complemento = content.querySelector('#complemento')?.value.trim() || '';
+                const estado = content.querySelector('#estado')?.value.trim() || '';
 
                 // Se todos os campos obrigatórios estiverem preenchidos
                 if (cidade && bairro && rua && numero && cep && estado) {
@@ -348,21 +218,10 @@ export default function PerfilForm() {
             await carregarDadosCompletos();
             
             // Mostra mensagem de sucesso
-            const alertas = content.querySelectorAll('.alert');
-            alertas.forEach(a => a.remove());
-            
-            const successAlert = document.createElement('div');
-            successAlert.className = 'alert alert-success alert-dismissible fade show mt-3';
-            successAlert.innerHTML = `
-                <strong>Sucesso!</strong> Alterações salvas com sucesso!
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            form.insertAdjacentElement('afterend', successAlert);
-            setTimeout(() => successAlert.remove(), 3000);
+            notify.success('Alterações salvas com sucesso!');
             
         } catch (error) {
-            alert('Erro ao salvar: ' + error.message);
-            console.error('Erro ao salvar perfil:', error);
+            handleError(error, 'PerfilForm - submit');
         } finally {
             // Reabilita botão
             btnSalvar.disabled = false;
@@ -380,4 +239,3 @@ export default function PerfilForm() {
 
     return content;
 }
-
