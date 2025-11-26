@@ -1,6 +1,38 @@
-export default function PerfilBanner() {
+export default function PerfilBanner(dadosProfissional = null, endereco = null, telefone = null) {
   const containerPerfil = document.createElement("div");
   containerPerfil.className = "perfilContainer-frame";
+  
+  // Dados padrão ou do profissional
+  const nomeProfissional = dadosProfissional?.nome || dadosProfissional?.razao_social || 'Profissional';
+  const descricaoProfissional = dadosProfissional?.descricao || 'Especialista em estética e beleza';
+  const nomeEstabelecimento = dadosProfissional?.nome || dadosProfissional?.razao_social || 'Estabelecimento';
+  const bioProfissional = dadosProfissional?.descricao ? dadosProfissional.descricao.substring(0, 50) + '...' : 'Especialista em estética e beleza';
+  
+  // Formata endereço
+  let enderecoFormatado = 'Endereço não informado';
+  if (endereco) {
+    const partes = [];
+    if (endereco.rua) partes.push(endereco.rua);
+    if (endereco.numero) partes.push(endereco.numero);
+    if (endereco.bairro) partes.push(endereco.bairro);
+    if (partes.length > 0) {
+      enderecoFormatado = partes.join(', ');
+      if (endereco.cidade) enderecoFormatado += ` - ${endereco.cidade}`;
+    }
+  }
+  
+  // Formata telefone
+  let telefoneFormatado = 'Telefone não informado';
+  let whatsappLink = '#';
+  if (telefone) {
+    const ddd = telefone.ddd || '';
+    const numero = telefone.digitos || telefone.numero || '';
+    if (ddd && numero) {
+      telefoneFormatado = `(${ddd}) ${numero}`;
+      whatsappLink = `https://wa.me/55${ddd}${numero.replace(/\D/g, '')}`;
+    }
+  }
+  
   containerPerfil.innerHTML = `
     <div class="perfil-banner-card">
       <img src="public/assets/images/background-primary.avif" class="banner-img" alt="Imagem de capa">
@@ -10,25 +42,24 @@ export default function PerfilBanner() {
           <img src="public/assets/images/fotoDePerfil.png" alt="Foto de perfil">
         </div>
         <div class="info-perfil">
-          <h5 class="perfil-nome">Daiana Oliveira</h5>
-          <p class="perfil-bio">Especialista em estética e beleza</p>
+          <h5 class="perfil-nome">${nomeProfissional}</h5>
+          <p class="perfil-bio">${bioProfissional}</p>
         </div>
       </div>
 
       <div class="perfil-content">
         <div class="description-profissional">
           <div class="sobre-prof">
-            <h2 class="titulo-principal">Sobre O:</h2>
+            <h2 class="titulo-principal">Sobre:</h2>
           </div>
 
           <div class="titulo-estabelecimento">
-            <h1 class="titulo-estab">Glow-Up Studio</h1>
+            <h1 class="titulo-estab">${nomeEstabelecimento}</h1>
           </div>
 
           <div class="description">
             <p>
-              Transformando beleza e autoestima com técnicas modernas e cuidado personalizado.  
-              Aqui, cada cliente é única — e sai se sentindo ainda mais incrível!
+              ${descricaoProfissional}
             </p>
           </div>
 
@@ -37,7 +68,7 @@ export default function PerfilBanner() {
               <i class="bi bi-geo-alt-fill icon"></i>
               <div>
                 <h3>Localização</h3>
-                <p>Rua das Flores, 120 - Centro</p>
+                <p>${enderecoFormatado}</p>
               </div>
             </div>
 
@@ -46,8 +77,8 @@ export default function PerfilBanner() {
               <div>
                 <h3>WhatsApp</h3>
                 <p>
-                  <a href="https://wa.me/5515555555" class="whatsapp-link">
-                    (15) 555555
+                  <a href="${whatsappLink}" class="whatsapp-link" target="_blank">
+                    ${telefoneFormatado}
                   </a>
                 </p>
               </div>

@@ -12,15 +12,15 @@ export default function PerfilSidebar() {
     const userType = authState.getUserType();
     const currentPath = window.location.pathname;
     const isPerfilPage = currentPath.includes('/perfil');
-    const isAgendamentosPage = currentPath.includes('/agendamentos');
+    const isMinhaAgendaPage = currentPath.includes('/minhaAgenda');
     const estiloAtivo = 'd-flex align-items-center p-2 rounded bg-light text-dark text-decoration-none';
     const estiloInativo = 'd-flex align-items-center p-2 rounded text-dark text-decoration-none';
     
     const menuAgendamentos = userType === 'cliente' ? `
         <li class="mb-2">
-            <a href="agendamentos" class="${isAgendamentosPage ? estiloAtivo : estiloInativo}">
+            <a href="minhaAgenda" class="${isMinhaAgendaPage ? estiloAtivo : estiloInativo}">
                 <i class="bi bi-calendar me-2"></i>
-                <span>Meus Agendamentos</span>
+                <span>Minha Agenda</span>
             </a>
         </li>
     ` : '';

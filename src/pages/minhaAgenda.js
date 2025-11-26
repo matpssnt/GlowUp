@@ -5,7 +5,7 @@ import AgendamentoCard from "../components/AgendamentoCard.js";
 import ApiService from "../utils/api.js";
 import authState from "../utils/AuthState.js";
 
-export default function renderAgendamentosPage() {
+export default function renderMinhaAgendaPage() {
     // Verifica se está autenticado
     if (!authState.isAuth()) {
         window.location.href = '/login';
@@ -52,7 +52,7 @@ export default function renderAgendamentosPage() {
     // Título
     const titulo = document.createElement('h1');
     titulo.className = 'mb-4';
-    titulo.textContent = 'Meus Agendamentos';
+    titulo.textContent = 'Minha Agenda';
 
     // Container para lista de agendamentos
     const listaContainer = document.createElement('div');

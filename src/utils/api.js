@@ -235,6 +235,45 @@ export default class ApiService {
         return await this.request(`/profissional/${id}`, 'GET');
     }
 
+    async buscarProfissionalPorCadastro(idCadastro) {
+        return await this.request(`/profissional/cadastro/${idCadastro}`, 'GET');
+    }
+
+    async buscarEndereco(id) {
+        return await this.request(`/endereco/${id}`, 'GET');
+    }
+
+    async buscarEnderecoPorProfissional(idProfissional) {
+        // Busca todos os endereços e filtra por profissional
+        const enderecos = await this.request('/endereco', 'GET');
+        if (Array.isArray(enderecos)) {
+            return enderecos.find(e => e.id_profissional_fk == idProfissional) || null;
+        }
+        return null;
+    }
+
+    async buscarTelefonePorProfissional(idProfissional) {
+        try {
+            // Busca relação tel_prof
+            const telProfs = await this.request('/telProf', 'GET');
+            if (Array.isArray(telProfs)) {
+                const relacao = telProfs.find(tp => tp.id_profissional_fk == idProfissional);
+                if (relacao && relacao.id_telefone_fk) {
+                    // Busca o telefone
+                    return await this.buscarTelefone(relacao.id_telefone_fk);
+                }
+            }
+            return null;
+        } catch (error) {
+            console.error('Erro ao buscar telefone do profissional:', error);
+            return null;
+        }
+    }
+
+    async listarTelProfs() {
+        return await this.request('/telProf', 'GET');
+    }
+
     // Métodos para Serviços
     async listarServicos() {
         return await this.request('/services', 'GET');
