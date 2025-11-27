@@ -1,6 +1,24 @@
-export default function RoomCard(index) {
+export default function RoomCard(indexOuProfissional) {
   const containerCards = document.createElement("div");
   containerCards.className = "heroContainer-frame";
+  
+  // Se for número (compatibilidade com código antigo), usa valores padrão
+  let index, nome, descricao, profissionalId;
+  
+  if (typeof indexOuProfissional === 'number') {
+    index = indexOuProfissional;
+    nome = 'Card title';
+    descricao = 'Some quick example text to build on the card title and make up the bulk of the card\'s content.';
+    profissionalId = null;
+  } else {
+    // É um objeto com dados do profissional
+    const profissional = indexOuProfissional;
+    index = profissional.id || 0;
+    nome = profissional.nome || profissional.razao_social || 'Profissional';
+    descricao = profissional.descricao || profissional.sobre || 'Profissional de estética e beleza';
+    profissionalId = profissional.id || profissional.idProfissional || null;
+  }
+  
   containerCards.innerHTML = `
     <div class="card card-base rounded-card card-partner" style="width: 17rem;">
 
@@ -39,10 +57,10 @@ export default function RoomCard(index) {
         </div>
 
             <div class="card-body">
-                <h5 class="card-title">Card title</h5>
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                <h5 class="card-title">${nome}</h5>
+                <p class="card-text">${descricao.substring(0, 100)}${descricao.length > 100 ? '...' : ''}</p>
                 <div class="d-flex justify-content-end align-items-center">
-                  <a href="#" class="btn-conhecer">Conhecer</a>
+                  <a href="${profissionalId ? `agendamento?profissional=${profissionalId}` : '#'}" class="btn-conhecer">Conhecer</a>
                 </div>
              </div>
         </div>

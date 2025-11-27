@@ -209,6 +209,23 @@ export default class ApiService {
         return await this.request('/endereco', 'PUT', data);
     }
 
+    // Métodos para Telefone
+    async criarTelefone(ddd, digitos) {
+        return await this.request('/telefone', 'POST', { ddd, digitos });
+    }
+
+    async atualizarTelefone(id, ddd, digitos) {
+        return await this.request('/telefone', 'PUT', { id, ddd, digitos });
+    }
+
+    async buscarTelefone(id) {
+        return await this.request(`/telefone/${id}`, 'GET');
+    }
+
+    async listarTelefones() {
+        return await this.request('/telefone', 'GET');
+    }
+
     // Métodos para Profissional
     async listarProfissionais() {
         return await this.request('/profissional', 'GET');
@@ -225,5 +242,31 @@ export default class ApiService {
 
     async buscarServico(id) {
         return await this.request(`/services/${id}`, 'GET');
+    }
+
+    // Métodos para Agendamento
+    async listarAgendamentos() {
+        return await this.request('/agendamento', 'GET');
+    }
+
+    async buscarAgendamento(id) {
+        return await this.request(`/agendamento/${id}`, 'GET');
+    }
+
+    async criarAgendamento(dados) {
+        return await this.request('/agendamento', 'POST', dados);
+    }
+
+    async atualizarAgendamento(id, dados) {
+        const data = {
+            id,
+            ...dados
+        };
+        return await this.request('/agendamento', 'PUT', data);
+    }
+
+    async cancelarAgendamento(id) {
+        // Atualiza status para 'Cancelado'
+        return await this.atualizarAgendamento(id, { status: 'Cancelado' });
     }
 } 
