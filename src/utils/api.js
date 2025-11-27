@@ -235,6 +235,74 @@ export default class ApiService {
         return await this.request(`/profissional/${id}`, 'GET');
     }
 
+    async buscarProfissionalPorCadastro(idCadastro) {
+        return await this.request(`/profissional/cadastro/${idCadastro}`, 'GET');
+    }
+
+    async buscarEndereco(id) {
+        return await this.request(`/endereco/${id}`, 'GET');
+    }
+
+    async buscarEnderecoPorProfissional(idProfissional) {
+        // Busca todos os endereços e filtra por profissional
+        const enderecos = await this.request('/endereco', 'GET');
+        if (Array.isArray(enderecos)) {
+            return enderecos.find(e => e.id_profissional_fk == idProfissional) || null;
+        }
+        return null;
+    }
+
+    async buscarEnderecoPorCadastro(idCadastro) {
+        // Busca endereço por cadastro (pode ser profissional ou cliente)
+        // Primeiro tenta buscar como profissional
+        try {
+            const profissional = await this.buscarProfissionalPorCadastro(idCadastro);
+            if (profissional && profissional.id) {
+                return await this.buscarEnderecoPorProfissional(profissional.id);
+            }
+        } catch (error) {
+            // Se não for profissional, continua
+        }
+        
+        // Se não encontrou como profissional, busca todos os endereços
+        // e tenta encontrar por id_cadastro_fk ou id_cliente_fk (se existir no backend)
+        try {
+            const enderecos = await this.request('/endereco', 'GET');
+            if (Array.isArray(enderecos)) {
+                return enderecos.find(e => 
+                    e.id_cadastro_fk == idCadastro || 
+                    e.id_cliente_fk == idCadastro
+                ) || null;
+            }
+        } catch (error) {
+            console.error('Erro ao buscar endereço por cadastro:', error);
+        }
+        
+        return null;
+    }
+
+    async buscarTelefonePorProfissional(idProfissional) {
+        try {
+            // Busca relação tel_prof
+            const telProfs = await this.request('/telProf', 'GET');
+            if (Array.isArray(telProfs)) {
+                const relacao = telProfs.find(tp => tp.id_profissional_fk == idProfissional);
+                if (relacao && relacao.id_telefone_fk) {
+                    // Busca o telefone
+                    return await this.buscarTelefone(relacao.id_telefone_fk);
+                }
+            }
+            return null;
+        } catch (error) {
+            console.error('Erro ao buscar telefone do profissional:', error);
+            return null;
+        }
+    }
+
+    async listarTelProfs() {
+        return await this.request('/telProf', 'GET');
+    }
+
     // Métodos para Serviços
     async listarServicos() {
         return await this.request('/services', 'GET');
@@ -268,5 +336,23 @@ export default class ApiService {
     async cancelarAgendamento(id) {
         // Atualiza status para 'Cancelado'
         return await this.atualizarAgendamento(id, { status: 'Cancelado' });
+    }
+
+    // Métodos para Escala
+    async listarEscalas() {
+        return await this.request('/escala', 'GET');
+    }
+
+    async buscarEscala(id) {
+        return await this.request(`/escala/${id}`, 'GET');
+    }
+
+    async buscarEscalasProfissional(idProfissional) {
+        // Busca todas as escalas e filtra por profissional
+        const escalas = await this.listarEscalas();
+        if (Array.isArray(escalas)) {
+            return escalas.filter(e => e.id_profissional_fk == idProfissional);
+        }
+        return [];
     }
 } 

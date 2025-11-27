@@ -4,8 +4,10 @@ import PerfilSidebar from "../components/PerfilSidebar.js";
 import AgendamentoCard from "../components/AgendamentoCard.js";
 import ApiService from "../utils/api.js";
 import authState from "../utils/AuthState.js";
+import { notify } from "../components/Notification.js";
+import { handleError } from "../utils/errorHandler.js";
 
-export default function renderAgendamentosPage() {
+export default function renderMinhaAgendaPage() {
     // Verifica se está autenticado
     if (!authState.isAuth()) {
         window.location.href = '/login';
@@ -52,7 +54,7 @@ export default function renderAgendamentosPage() {
     // Título
     const titulo = document.createElement('h1');
     titulo.className = 'mb-4';
-    titulo.textContent = 'Meus Agendamentos';
+    titulo.textContent = 'Minha Agenda';
 
     // Container para lista de agendamentos
     const listaContainer = document.createElement('div');
@@ -145,10 +147,10 @@ export default function renderAgendamentosPage() {
         try {
             const api = new ApiService();
             await api.cancelarAgendamento(id);
-            alert('Agendamento cancelado com sucesso!');
+            notify.success('Agendamento cancelado com sucesso!');
             carregarAgendamentos(); // Recarrega lista
         } catch (error) {
-            alert('Erro ao cancelar agendamento: ' + error.message);
+            handleError(error, 'MinhaAgenda - cancelarAgendamento');
         }
     }
     

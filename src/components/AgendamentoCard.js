@@ -52,6 +52,8 @@ export default function AgendamentoCard(agendamento) {
     const btnCancelar = card.querySelector('button[data-agendamento-id]');
     if (btnCancelar) {
         btnCancelar.addEventListener('click', () => {
+            /* Usa confirm nativo para confirmação rápida
+            (pode ser substituído por modal customizado no futuro)*/
             if (confirm('Deseja realmente cancelar este agendamento?')) {
                 btnCancelar.dispatchEvent(new CustomEvent('cancelarAgendamento', {
                     detail: { id: agendamentoId },

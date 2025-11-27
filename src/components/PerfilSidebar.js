@@ -2,25 +2,30 @@ import authState from '../utils/AuthState.js';
 
 export default function PerfilSidebar() {
     const sidebar = document.createElement('div');
-    sidebar.className = 'bg-white rounded shadow-sm';
-    sidebar.style.width = '250px';
-    sidebar.style.height = 'fit-content';
-    sidebar.style.padding = '20px';
-    sidebar.style.position = 'sticky';
-    sidebar.style.top = '20px';
+    sidebar.className = 'bg-white rounded shadow-sm sidebar';
 
     const userType = authState.getUserType();
     const currentPath = window.location.pathname;
     const isPerfilPage = currentPath.includes('/perfil');
-    const isAgendamentosPage = currentPath.includes('/agendamentos');
+    const isMinhaAgendaPage = currentPath.includes('/minhaAgenda');
+    const isDashboardPage = currentPath.includes('/dashboard');
     const estiloAtivo = 'd-flex align-items-center p-2 rounded bg-light text-dark text-decoration-none';
     const estiloInativo = 'd-flex align-items-center p-2 rounded text-dark text-decoration-none';
     
     const menuAgendamentos = userType === 'cliente' ? `
         <li class="mb-2">
-            <a href="agendamentos" class="${isAgendamentosPage ? estiloAtivo : estiloInativo}">
+            <a href="minhaAgenda" class="${isMinhaAgendaPage ? estiloAtivo : estiloInativo}">
                 <i class="bi bi-calendar me-2"></i>
-                <span>Meus Agendamentos</span>
+                <span>Minha Agenda</span>
+            </a>
+        </li>
+    ` : '';
+    
+    const menuDashboard = userType === 'profissional' ? `
+        <li class="mb-2">
+            <a href="dashboard" class="${isDashboardPage ? estiloAtivo : estiloInativo}">
+                <i class="bi bi-speedometer2 me-2"></i>
+                <span>Dashboard</span>
             </a>
         </li>
     ` : '';
@@ -40,6 +45,7 @@ export default function PerfilSidebar() {
                 </a>
             </li>
             ${menuAgendamentos}
+            ${menuDashboard}
             <li class="mb-2">
                 <a href="#" class="d-flex align-items-center p-2 rounded text-dark text-decoration-none">
                     <i class="bi bi-bell me-2"></i>

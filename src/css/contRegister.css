@@ -1,0 +1,199 @@
+/* Formulário de continuar cadastro */
+.cont-register-form {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.cont-register-section {
+    margin-bottom: 30px;
+    width: 100%;
+}
+
+.cont-register-section-horizontal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.cont-register-section-title {
+    width: 100%;
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.cont-register-textarea {
+    resize: vertical;
+}
+
+.cont-register-counter {
+    display: block;
+    margin-top: 5px;
+    color: #666;
+}
+
+.cont-register-counter.warning {
+    color: var(--cont-register);
+}
+
+.cont-register-counter.danger {
+    color: var(--cont-register-counter);
+}
+
+.cont-register-submit {
+    width: 100%;
+    max-width: 300px;
+    margin: 20px auto;
+    padding: 10px;
+    font-size: 1.1rem;
+}
+
+.cont-register-dynamic.show {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+/* Layout específico para campos de endereço */
+.cont-register-row-1 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.cont-register-row-2 {
+    width: 100%;
+}
+
+.cont-register-row-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+}
+
+.cont-register-field {
+    margin-bottom: 1rem;
+    position: relative;
+    width: 100%;
+}
+
+.cont-register-field label {
+    font-weight: 500;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+    display: block;
+    font-size: 0.9rem;
+    font-family: "Inter", sans-serif;
+}
+
+.cont-register-field .form-control {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 12px 15px;
+    transition: all 0.3s ease;
+    background-color: #f9f9f9;
+    font-size: 0.95rem;
+    width: 100%;
+    font-family: "Inter", sans-serif;
+}
+
+.cont-register-field .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(139, 107, 75, 0.15);
+    background-color: white;
+    outline: none;
+}
+
+.cont-register-field input[readonly] {
+    background-color: var(--light-color) !important;
+    color: var(--dark-color);
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+/* Estilos específicos para busca de CEP */
+.cep-container {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+}
+
+.cep-container .form-control {
+    flex: 1;
+    border-radius: 8px;
+    border: none;
+    padding: 14px 16px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-buscar-cep {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    color: var(--primary-color);
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    min-width: 50px;
+    font-weight: 600;
+}
+
+.btn-buscar-cep:hover {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+.btn-buscar-cep i {
+    font-size: 14px;
+}
+
+/* Mensagem de erro do CEP */
+#cep-erro {
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    border: 1px solid #dc3545;
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+#cep-erro.show {
+    display: block !important;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .cont-register-section-horizontal {
+        flex-direction: column;
+    }
+
+    .cont-register-field {
+        max-width: 100%;
+    }
+
+    .cont-register-dynamic.show {
+        flex-direction: column;
+    }
+
+    .cont-register-row-1,
+    .cont-register-row-3 {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .cep-container {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .btn-buscar-cep {
+        width: 100%;
+        justify-content: center;
+        padding: 12px 16px;
+    }
+}
+
