@@ -252,6 +252,35 @@ export default class ApiService {
         return null;
     }
 
+    async buscarEnderecoPorCadastro(idCadastro) {
+        // Busca endereço por cadastro (pode ser profissional ou cliente)
+        // Primeiro tenta buscar como profissional
+        try {
+            const profissional = await this.buscarProfissionalPorCadastro(idCadastro);
+            if (profissional && profissional.id) {
+                return await this.buscarEnderecoPorProfissional(profissional.id);
+            }
+        } catch (error) {
+            // Se não for profissional, continua
+        }
+        
+        // Se não encontrou como profissional, busca todos os endereços
+        // e tenta encontrar por id_cadastro_fk ou id_cliente_fk (se existir no backend)
+        try {
+            const enderecos = await this.request('/endereco', 'GET');
+            if (Array.isArray(enderecos)) {
+                return enderecos.find(e => 
+                    e.id_cadastro_fk == idCadastro || 
+                    e.id_cliente_fk == idCadastro
+                ) || null;
+            }
+        } catch (error) {
+            console.error('Erro ao buscar endereço por cadastro:', error);
+        }
+        
+        return null;
+    }
+
     async buscarTelefonePorProfissional(idProfissional) {
         try {
             // Busca relação tel_prof

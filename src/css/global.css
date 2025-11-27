@@ -279,17 +279,23 @@ a.btn.btn-outline-primary.register-btn:hover {
 }
 
 /* Formulários */
-.form-control {
-    border: 1px solid var(--white-color);
+.form-control,
+input.form-control,
+select.form-control,
+textarea.form-control {
+    border: 1px solid #000 !important;
     border-radius: 8px;
     padding: 12px 15px;
     transition: all 0.3s ease;
     background-color: var(--white-color);
 }
 
-.form-control:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(139, 107, 75, 0.15);
+.form-control:focus,
+input.form-control:focus,
+select.form-control:focus,
+textarea.form-control:focus {
+    border-color: #000 !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.15);
 }
 
 .form-label {

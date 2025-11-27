@@ -47,18 +47,26 @@ export default function PerfilForm() {
                 emailInput.value = cadastro.email;
             }
 
-            // Se for profissional, busca o profissional e o endereço
-            const userType = authState.getUserType();
-            if (userType === 'profissional') {
-                try {
+            // Busca endereço (para profissionais e clientes)
+            try {
+                // Primeiro tenta buscar como profissional
+                const ehProfissional = await verificarSeEhProfissional();
+                if (ehProfissional) {
                     profissionalCompleto = await api.buscarProfissionalPorCadastro(cadastroId);
                     if (profissionalCompleto && profissionalCompleto.id) {
                         enderecoCompleto = await api.buscarEnderecoPorProfissional(profissionalCompleto.id);
-                        preencherCamposEndereco();
                     }
-                } catch (error) {
-                    console.error('Erro ao carregar dados do profissional:', error);
+                } else {
+                    // Se não for profissional, tenta buscar endereço por cadastro
+                    enderecoCompleto = await api.buscarEnderecoPorCadastro(cadastroId);
                 }
+                
+                // Preenche campos de endereço se encontrou
+                if (enderecoCompleto) {
+                    preencherCamposEndereco();
+                }
+            } catch (error) {
+                console.error('Erro ao carregar endereço:', error);
             }
         } catch (error) {
             console.error('Erro ao carregar dados:', error);
@@ -86,97 +94,109 @@ export default function PerfilForm() {
         if (estadoInput) estadoInput.value = enderecoCompleto.estado || '';
     }
 
-    // Renderiza o formulário usando componentes
-    content.innerHTML = `
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="mb-0">Editar perfil</h2>
-            <i class="bi bi-person-circle" style="font-size: 3rem; color: #ccc;"></i>
-        </div>
+    // Função para verificar se é profissional (verifica tipo e se tem profissional associado)
+    async function verificarSeEhProfissional() {
+        const userType = authState.getUserType();
+        if (userType === 'profissional') return true;
         
-        <form id="perfilForm">
-            ${createPersonalFields(nome, sobrenome, user?.email || '')}
-            ${authState.getUserType() === 'profissional' ? createAddressFields() : ''}
-            ${createContactFields()}
-
-            <div class="d-flex justify-content-end gap-2 mt-4">
-                <button type="button" class="btn btn-outline-secondary" id="btnCancelar">Cancelar</button>
-                <button type="submit" class="btn btn-dark" id="btnSalvar">Salvar alterações</button>
-            </div>
-        </form>
-    `;
-
-    // Configura máscaras e validações
-    setupFieldMasksAndValidation(content);
-
-    // Configura busca de CEP (se for profissional)
-    const cepInput = content.querySelector('#cep');
-    const btnBuscarCep = content.querySelector('#btnBuscarCep');
-    if (cepInput) {
-        setupCepSearch(cepInput, content);
-        
-        // Configura botão de buscar CEP
-        if (btnBuscarCep) {
-            btnBuscarCep.addEventListener('click', () => {
-                const cep = cepInput.value.replace(/\D/g, '');
-                if (cep.length === 8) {
-                    cepInput.dispatchEvent(new Event('input'));
-                } else {
-                    notify.warning('CEP deve ter 8 dígitos');
-                }
-            });
+        // Se não tiver tipo definido, tenta buscar profissional associado
+        try {
+            const cadastroId = authState.getCadastroId() || authState.getUser()?.id;
+            if (!cadastroId) return false;
+            
+            const profissional = await api.buscarProfissionalPorCadastro(cadastroId);
+            return !!profissional;
+        } catch (error) {
+            return false;
         }
     }
 
-    // Event listener do formulário
-    const form = content.querySelector('#perfilForm');
-    
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+    // Renderiza o formulário usando componentes
+    // Sempre mostra campos de endereço para profissionais e clientes
+    const renderizarFormulario = async () => {
+        content.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Editar perfil</h2>
+                <i class="bi bi-person-circle" style="font-size: 3rem; color: #ccc;"></i>
+            </div>
+            
+            <form id="perfilForm">
+                ${createPersonalFields(nome, sobrenome, user?.email || '')}
+                ${createAddressFields()}
+                ${createContactFields()}
+
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <button type="button" class="btn btn-outline-secondary" id="btnCancelar">Cancelar</button>
+                    <button type="submit" class="btn btn-dark" id="btnSalvar">Salvar alterações</button>
+                </div>
+            </form>
+        `;
         
-        // Valida formulário antes de enviar
-        if (!validateFormBeforeSubmit(content)) {
-            notify.warning('Por favor, corrija os erros no formulário');
-            return;
+        // Configura máscaras e validações após renderizar
+        setupFieldMasksAndValidation(content);
+        
+        // Configura busca de CEP (automática ao digitar)
+        const cepInput = content.querySelector('#cep');
+        if (cepInput) {
+            setupCepSearch(cepInput, content);
         }
         
-        // Desabilita botão durante requisição
-        const btnSalvar = content.querySelector('#btnSalvar');
-        const textoOriginal = btnSalvar.textContent;
-        btnSalvar.disabled = true;
-        btnSalvar.textContent = 'Salvando...';
+        // Configura event listeners após renderizar
+        configurarEventListeners();
+    };
+    
+    // Função para configurar event listeners
+    const configurarEventListeners = () => {
+        // Event listener do formulário
+        const form = content.querySelector('#perfilForm');
+        if (!form) return;
         
-        try {
-            // Se não tiver cadastro completo ainda, tenta carregar
-            if (!cadastroCompleto) {
-                await carregarDadosCompletos();
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Valida formulário antes de enviar
+            if (!validateFormBeforeSubmit(content)) {
+                notify.warning('Por favor, corrija os erros no formulário');
+                return;
             }
             
-            // Verifica se tem ID do cadastro
-            const cadastroId = cadastroCompleto?.id || authState.getCadastroId();
-            if (!cadastroId) {
-                throw new Error('ID do cadastro não encontrado. Faça login novamente.');
-            }
+            // Desabilita botão durante requisição
+            const btnSalvar = content.querySelector('#btnSalvar');
+            const textoOriginal = btnSalvar.textContent;
+            btnSalvar.disabled = true;
+            btnSalvar.textContent = 'Salvando...';
             
-            // Coleta dados do formulário
-            const nomeCompleto = `${content.querySelector('#nome').value.trim()} ${content.querySelector('#sobrenome').value.trim()}`.trim();
-            const email = content.querySelector('#email').value.trim();
-            const senha = content.querySelector('#senha').value.trim();
-            
-            // Busca tipo de usuário do authState
-            const userType = authState.getUserType();
-            const isProfissional = userType === 'profissional' ? 1 : 0;
-            
-            // Chama API para atualizar (senha é opcional - se vazia, mantém a atual)
-            await api.atualizarCadastro(
-                cadastroId,
-                nomeCompleto,
-                email,
-                senha || '', // Envia string vazia se não preenchida
-                isProfissional
-            );
-            
-            // Se for profissional, atualiza ou cria endereço
-            if (isProfissional && profissionalCompleto && profissionalCompleto.id) {
+            try {
+                // Se não tiver cadastro completo ainda, tenta carregar
+                if (!cadastroCompleto) {
+                    await carregarDadosCompletos();
+                }
+                
+                // Verifica se tem ID do cadastro
+                const cadastroId = cadastroCompleto?.id || authState.getCadastroId();
+                if (!cadastroId) {
+                    throw new Error('ID do cadastro não encontrado. Faça login novamente.');
+                }
+                
+                // Coleta dados do formulário
+                const nomeCompleto = `${content.querySelector('#nome').value.trim()} ${content.querySelector('#sobrenome').value.trim()}`.trim();
+                const email = content.querySelector('#email').value.trim();
+                const senha = content.querySelector('#senha').value.trim();
+                
+                // Verifica se é profissional
+                const ehProfissional = await verificarSeEhProfissional();
+                const isProfissional = ehProfissional ? 1 : 0;
+                
+                // Chama API para atualizar (senha é opcional - se vazia, mantém a atual)
+                await api.atualizarCadastro(
+                    cadastroId,
+                    nomeCompleto,
+                    email,
+                    senha || '', // Envia string vazia se não preenchida
+                    isProfissional
+                );
+                
+                // Atualiza ou cria endereço (para profissionais e clientes)
                 const cidade = content.querySelector('#cidade')?.value.trim() || '';
                 const bairro = content.querySelector('#bairro')?.value.trim() || '';
                 const rua = content.querySelector('#rua')?.value.trim() || '';
@@ -187,6 +207,11 @@ export default function PerfilForm() {
 
                 // Se todos os campos obrigatórios estiverem preenchidos
                 if (cidade && bairro && rua && numero && cep && estado) {
+                    // Garante que tem profissional completo se for profissional
+                    if (ehProfissional && !profissionalCompleto) {
+                        profissionalCompleto = await api.buscarProfissionalPorCadastro(cadastroId);
+                    }
+                    
                     const dadosEndereco = {
                         rua,
                         numero,
@@ -194,9 +219,17 @@ export default function PerfilForm() {
                         bairro,
                         cidade,
                         estado,
-                        complemento: complemento || '',
-                        id_profissional_fk: profissionalCompleto.id
+                        complemento: complemento || ''
                     };
+                    
+                    // Se for profissional, adiciona id_profissional_fk
+                    if (ehProfissional && profissionalCompleto && profissionalCompleto.id) {
+                        dadosEndereco.id_profissional_fk = profissionalCompleto.id;
+                    } else {
+                        // Para clientes, tenta usar id_cadastro_fk ou deixa null
+                        // (depende de como o backend está configurado)
+                        dadosEndereco.id_cadastro_fk = cadastroId;
+                    }
 
                     try {
                         if (enderecoCompleto && enderecoCompleto.id) {
@@ -211,31 +244,38 @@ export default function PerfilForm() {
                         // Não bloqueia o salvamento do perfil se o endereço falhar
                     }
                 }
+                
+                // Atualiza authState e recarrega dados
+                authState.setUser({ ...authState.getUser(), id: cadastroId, nome: nomeCompleto, email }, authState.getToken());
+                await carregarDadosCompletos();
+                
+                // Mostra mensagem de sucesso
+                notify.success('Alterações salvas com sucesso!');
+                
+            } catch (error) {
+                handleError(error, 'PerfilForm - submit');
+            } finally {
+                // Reabilita botão
+                btnSalvar.disabled = false;
+                btnSalvar.textContent = textoOriginal;
             }
-            
-            // Atualiza authState e recarrega dados
-            authState.setUser({ ...authState.getUser(), id: cadastroId, nome: nomeCompleto, email }, authState.getToken());
-            await carregarDadosCompletos();
-            
-            // Mostra mensagem de sucesso
-            notify.success('Alterações salvas com sucesso!');
-            
-        } catch (error) {
-            handleError(error, 'PerfilForm - submit');
-        } finally {
-            // Reabilita botão
-            btnSalvar.disabled = false;
-            btnSalvar.textContent = textoOriginal;
+        });
+        
+        const btnCancelar = content.querySelector('#btnCancelar');
+        if (btnCancelar) {
+            btnCancelar.addEventListener('click', () => {
+                window.location.href = '/home';
+            });
         }
-    });
+    };
     
-    // Carrega dados completos do usuário quando o formulário é criado
-    carregarDadosCompletos();
-
-    const btnCancelar = content.querySelector('#btnCancelar');
-    btnCancelar.addEventListener('click', () => {
-        window.location.href = '/home';
-    });
+    // Renderiza o formulário e carrega dados
+    renderizarFormulario();
+    
+    // Carrega dados completos do usuário após renderizar
+    setTimeout(async () => {
+        await carregarDadosCompletos();
+    }, 100);
 
     return content;
 }

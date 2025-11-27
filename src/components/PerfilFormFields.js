@@ -65,24 +65,15 @@ export function createAddressFields() {
             <div class="row">
                 <div class="col-md-4 mb-3">
                     <label for="cep" class="form-label">CEP *</label>
-                    <div class="input-group">
-                        <input 
-                            type="text" 
-                            class="form-control" 
-                            id="cep" 
-                            name="cep" 
-                            placeholder="00000-000"
-                            maxlength="9"
-                            required
-                        >
-                        <button 
-                            type="button" 
-                            class="btn btn-outline-secondary" 
-                            id="btnBuscarCep"
-                        >
-                            <i class="bi bi-search"></i> Buscar
-                        </button>
-                    </div>
+                    <input 
+                        type="text" 
+                        class="form-control" 
+                        id="cep" 
+                        name="cep" 
+                        placeholder="00000-000"
+                        maxlength="9"
+                        required
+                    >
                 </div>
                 <div class="col-md-4 mb-3">
                     <label for="estado" class="form-label">Estado *</label>
@@ -201,3 +192,4 @@ export function createContactFields() {
         </div>
     `;
 }
+
