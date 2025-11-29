@@ -1,4 +1,5 @@
 import ApiService from '../utils/api.js';
+import authState from '../utils/AuthState.js';
 
 export default function loginForm() {
 
@@ -85,18 +86,34 @@ export default function loginForm() {
         btn.textContent = 'Entrando...';
 
         try {
-            console.log('Iniciando login:', { email: emailValue });
-            
             // O método login tenta automaticamente como cliente primeiro, depois como profissional
             const response = await apiService.login(emailValue, senhaValue);
 
-            console.log('Resposta do login:', response);
-
             // Verifica se o token foi retornado
             if (response && response.token) {
-                // Salva o token no localStorage
-                localStorage.setItem('authToken', response.token);
-                console.log('Token salvo no localStorage:', response.token.substring(0, 20) + '...');
+                // Prepara dados do usuário para salvar no estado
+                // O ID será buscado depois se necessário (no PerfilForm)
+                const userData = {
+                    tipoUsuario: response.tipoUsuario || 'cliente',
+                    nome: response.nome || emailValue,
+                    email: emailValue
+                };
+                
+                // Tenta buscar ID do cadastro (opcional, não bloqueia o login)
+                try {
+                    const cadastros = await apiService.listarCadastros();
+                    if (Array.isArray(cadastros)) {
+                        const cadastro = cadastros.find(c => c.email === emailValue);
+                        if (cadastro) {
+                            userData.id = cadastro.id;
+                            userData.nome = cadastro.nome || userData.nome;
+                        }
+                    }
+                } catch (error) {
+                    // Ignora erro, continua com dados básicos
+                }
+                
+                authState.setUser(userData, response.token);
                 
                 // Redireciona para a página home
                 // Usa window.location para garantir que o router processe a rota corretamente
@@ -104,13 +121,10 @@ export default function loginForm() {
                 const basePath = currentPath.split('/').slice(0, 2).join('/'); // Pega /GlowUp
                 window.location.href = basePath + '/home';
             } else {
-                console.error('Token não encontrado na resposta:', response);
                 showError('Erro ao fazer login. Tente novamente.');
             }
         } catch (error) {
-            console.error('Erro no login:', error);
-            console.error('Stack trace:', error.stack);
-            // Mostra mensagem de erro
+            // Mostra mensagem de erro 
             let errorMessage = 'Erro ao fazer login. Verifique suas credenciais.';
             if (error.message) {
                 errorMessage = error.message;

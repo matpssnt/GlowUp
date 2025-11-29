@@ -1,0 +1,9 @@
+/* Estilos específicos da página Minha Agenda */
+
+/* Container de lista de agendamentos */
+#listaAgendamentos {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
