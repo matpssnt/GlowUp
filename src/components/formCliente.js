@@ -8,7 +8,7 @@ export default function renderFormCliente(container) {
     const nome = document.createElement('input');
     nome.type = 'text';
     nome.placeholder = "Seu nome completo";
-    nome.className = 'form-control mb-3'; 
+    nome.className = 'form-control mb-3';
     nome.required = true;
     formulario.appendChild(nome);
 
@@ -44,4 +44,6 @@ export default function renderFormCliente(container) {
     formulario.appendChild(btnSubmit);
 
     container.appendChild(formulario);
+
+    
 }
