@@ -25,7 +25,7 @@ export default function NavBar({hidelogin = false} = {}) {
                         <li><h6 class="dropdown-header">${userType === 'profissional' ? 'Profissional' : 'Cliente'}</h6></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="perfil">Meu Perfil</a></li>
-                        ${userType === 'cliente' ? '<li><a class="dropdown-item" href="agendamentos">Meus Agendamentos</a></li>' : ''}
+                        ${userType === 'cliente' ? '<li><a class="dropdown-item" href="minhaAgenda">Minha Agenda</a></li>' : ''}
                         ${userType === 'profissional' ? '<li><a class="dropdown-item" href="dashboard">Dashboard</a></li>' : ''}
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="#" id="logoutBtn">Sair</a></li>
@@ -57,9 +57,6 @@ export default function NavBar({hidelogin = false} = {}) {
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="sobre">Sobre nós</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="agendamento">Agendamento</a>
                 </li>
                 <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
