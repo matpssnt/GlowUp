@@ -20,9 +20,9 @@ export default function Footer() {
           <div class="col-md-2 col-lg-2 col-xl-2 mb-4">
             <h6 class="fw-bold mb-3" style="color: #bd9f78;">Links</h6>
             <ul class="list-unstyled">
-              <li class="mb-2"><a href="#!" class="text-reset footer-link">Estabelecimentos</a></li>
-              <li class="mb-2"><a href="#!" class="text-reset footer-link">Profissionais</a></li>
-              <li class="mb-2"><a href="#!" class="text-reset footer-link">Ajuda</a></li>
+              <li class="mb-2"><a href="agendamento" class="text-reset footer-link">Estabelecimentos</a></li>
+              <li class="mb-2"><a href="home" class="text-reset footer-link">Profissionais</a></li>
+              <!--<li class="mb-2"><a href="#!" class="text-reset footer-link">Ajuda</a></li>--!>
             </ul>
           </div>
 
@@ -33,7 +33,7 @@ export default function Footer() {
               <li class="mb-2"><i class="fas fa-envelope me-2"></i> projetointegrador@gmail.com</li>
               <li class="mb-2"><i class="fas fa-phone me-2"></i> (15) 0000-0000</li>
               <li class="mb-2">
-                <a href="https://instagram.com" target="_blank" class="text-reset footer-link">
+                <a href="https://www.instagram.com/senacspsorocaba/" target="_blank" class="text-reset footer-link">
                   <i class="fab fa-instagram me-2"></i>@glowup
                 </a>
               </li>
