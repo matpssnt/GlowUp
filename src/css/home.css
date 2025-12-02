@@ -142,6 +142,8 @@
     border: none;
     overflow: hidden;
     background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+    width: 300px; /* Defina a largura ideal do card */
+    height: 370px; /* Altura fixa para todos os cards */
 }
 
 .card-partner:hover {
@@ -150,6 +152,8 @@
 }
 
 .card-partner .card-body {
+    height: 140px; /* Ajuste conforme o conteúdo */
+    overflow: hidden; /* Evita que o texto “estoure” o card */
     padding: 1rem;
     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
 }
