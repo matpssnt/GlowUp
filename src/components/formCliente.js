@@ -140,4 +140,10 @@ export default function renderFormCliente(container) {
 
     // Coloca o form no container
     container.appendChild(formulario);
+<<<<<<< HEAD
+
+    
 }
+=======
+}
+>>>>>>> upstream/main
