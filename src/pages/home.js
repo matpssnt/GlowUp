@@ -55,12 +55,12 @@ export default function renderHomePage() {
                 divCards.appendChild(RoomCard(i));
             }
         };
-        
+
         try {
             const api = new ApiService();
             const profissionais = await api.listarProfissionais();
             loading.remove();
-            
+
             // Se retornou array válido com dados, usa profissionais reais
             if (Array.isArray(profissionais) && profissionais.length > 0) {
                 profissionais.slice(0, 4).forEach(prof => {
@@ -74,12 +74,55 @@ export default function renderHomePage() {
         }
     }
 
+    const secaoDeInformacao = document.createElement('div');
+    secaoDeInformacao.innerHTML =
+    `
+    <div class="container mt-4">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Sobre a Plataforma</h5>
+                        <p class="card-text">
+                            A plataforma conecta clientes e profissionais de forma simples, rápida e segura,
+                            oferecendo uma experiência moderna e confiável.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Como Funciona</h5>
+                        <p class="card-text">
+                        O cliente pesquisa um profissional, visualiza os serviços oferecidos e
+                         realiza um agendamento de forma fácil e prática, com apenas alguns cliques.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Benefícios</h5>
+                        <p class="card-text">
+                            Profissionais de confiança, suporte ágil e praticidade total no uso da plataforma.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+
     // Carrega profissionais
     carregarProfissionais();
+
 
     divRoot.appendChild(fundoPrincipal);
     divRoot.appendChild(informacoes);
     divRoot.appendChild(divCards);
+    divRoot.appendChild(secaoDeInformacao);
 
     const footerContainer = document.getElementById('footer');
     footerContainer.innerHTML = '';
@@ -92,14 +135,14 @@ export default function renderHomePage() {
     if (!document.querySelector('.whatsapp-float')) {
         const whatsappFloat = document.createElement('div');
         whatsappFloat.className = 'whatsapp-float';
-    
+
         const whatsappLink = document.createElement('a');
         whatsappLink.href = 'https://wa.me/5515000000000';
         whatsappLink.target = '_blank';
-    
+
         const whatsappIcon = document.createElement('i');
         whatsappIcon.className = 'fab fa-whatsapp';
-    
+
         whatsappLink.appendChild(whatsappIcon);
         whatsappFloat.appendChild(whatsappLink);
         document.body.appendChild(whatsappFloat);
