@@ -35,7 +35,6 @@ export default function renderAgendamentoPage() {
 	divCards.className = 'cards';
 
 	root.appendChild(agendamento);
-	root.appendChild(divCards);
 
 	// Footer
 	const footerContainer = document.getElementById('footer');
@@ -59,6 +58,21 @@ export default function renderAgendamentoPage() {
 				const agnd = PerfilBanner();
 				loadingContainer.remove();
 				agendamento.appendChild(agnd);
+				
+				// Busca o elemento perfil-content onde está o minicarrosel
+				const perfilContent = agnd.querySelector('.perfil-content');
+				
+				if (perfilContent) {
+					// Título "Nossos Serviços"
+					const tituloServicos = document.createElement('h2');
+					tituloServicos.className = 'titulo-servicos text-center my-5';
+					tituloServicos.textContent = 'Nossos Serviços';
+					perfilContent.appendChild(tituloServicos);
+					
+					// Adiciona divCards dentro de perfil-content (mesma div do minicarrosel)
+					perfilContent.appendChild(divCards);
+				}
+				
 				return;
 			}
 
@@ -112,22 +126,36 @@ export default function renderAgendamentoPage() {
 			const agnd = PerfilBanner(profissional, endereco, telefone);
 			agendamento.appendChild(agnd);
 
-			if (servicos.length > 0) {
-				servicos.forEach(servico => {
-					const card = ServiceCard({
-						id: servico.id,
-						nome: servico.nome,
-						descricao: servico.descricao,
-						imagem: servico.imagem || "public/assets/images/botox.jpg",
-						preco: servico.preco || servico.valor
-					}, profissional);
-					divCards.appendChild(card);
-				});
-			} else {
-				const mensagem = document.createElement('div');
-				mensagem.className = 'alert alert-info text-center';
-				mensagem.textContent = 'Nenhum serviço disponível no momento.';
-				divCards.appendChild(mensagem);
+			// Busca o elemento perfil-content onde está o minicarrosel
+			const perfilContent = agnd.querySelector('.perfil-content');
+			
+			if (perfilContent) {
+				// Título "Nossos Serviços"
+				const tituloServicos = document.createElement('h2');
+				tituloServicos.className = 'titulo-servicos text-center my-5';
+				tituloServicos.textContent = 'Nossos Serviços';
+				perfilContent.appendChild(tituloServicos);
+
+				// Adiciona divCards dentro de perfil-content (mesma div do minicarrosel)
+				perfilContent.appendChild(divCards);
+
+				if (servicos.length > 0) {
+					servicos.forEach(servico => {
+						const card = ServiceCard({
+							id: servico.id,
+							nome: servico.nome,
+							descricao: servico.descricao,
+							imagem: servico.imagem || "public/assets/images/botox.jpg",
+							preco: servico.preco || servico.valor
+						}, profissional);
+						divCards.appendChild(card);
+					});
+				} else {
+					const mensagem = document.createElement('div');
+					mensagem.className = 'alert alert-info text-center';
+					mensagem.textContent = 'Nenhum serviço disponível no momento.';
+					divCards.appendChild(mensagem);
+				}
 			}
 
 		} catch (error) {
@@ -135,6 +163,20 @@ export default function renderAgendamentoPage() {
 			handleError(error, 'AgendamentoPage - carregarDadosProfissional');
 			const agnd = PerfilBanner();
 			agendamento.appendChild(agnd);
+			
+			// Busca o elemento perfil-content onde está o minicarrosel
+			const perfilContent = agnd.querySelector('.perfil-content');
+			
+			if (perfilContent) {
+				// Título "Nossos Serviços"
+				const tituloServicos = document.createElement('h2');
+				tituloServicos.className = 'titulo-servicos text-center my-5';
+				tituloServicos.textContent = 'Nossos Serviços';
+				perfilContent.appendChild(tituloServicos);
+				
+				// Adiciona divCards dentro de perfil-content (mesma div do minicarrosel)
+				perfilContent.appendChild(divCards);
+			}
 		}
 	}
 

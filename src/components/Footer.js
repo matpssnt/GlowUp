@@ -8,7 +8,7 @@ export default function Footer() {
           <!-- Sobre -->
           <div class="col-md-3 col-lg-3 col-xl-3 mb-4">
             <h6 class="fw-bold mb-3" style="color: #bd9f78;">
-              <i class="fas fa-gem me-2"></i> Glow Up
+              Glow Up
             </h6>
             <p>
               Desde 2025, inspirando <strong>beleza, confiança e bem-estar</strong>.  
@@ -18,34 +18,42 @@ export default function Footer() {
 
           <!-- Links úteis -->
           <div class="col-md-2 col-lg-2 col-xl-2 mb-4">
-            <h6 class="fw-bold mb-3" style="color: #bd9f78;">Links</h6>
+            <h6 class="fw-bold mb-3" style="color: #bd9f78;">Links Úteis</h6>
             <ul class="list-unstyled">
               <li class="mb-2"><a href="agendamento" class="text-reset footer-link">Estabelecimentos</a></li>
               <li class="mb-2"><a href="home" class="text-reset footer-link">Profissionais</a></li>
-              <!--<li class="mb-2"><a href="#!" class="text-reset footer-link">Ajuda</a></li>--!>
+              <li class="mb-2"><a href="sobre" class="text-reset footer-link">Sobre Nós</a></li>
+              <li class="mb-2"><a href="#" class="text-reset footer-link" data-bs-toggle="modal" data-bs-target="#faqModal">FAQ</a></li>
+              <li class="mb-2"><a href="#" class="text-reset footer-link" data-bs-toggle="modal" data-bs-target="#termsModal">Termos de Uso</a></li>
+              <li class="mb-2"><a href="#" class="text-reset footer-link" data-bs-toggle="modal" data-bs-target="#privacyModal">Política de Privacidade</a></li>
             </ul>
           </div>
 
-          <!-- Contato -->
+          <!-- Contato e Redes Sociais -->
           <div class="col-md-3 col-lg-3 col-xl-3 mb-4">
             <h6 class="fw-bold mb-3" style="color: #bd9f78;">Contato</h6>
             <ul class="list-unstyled">
               <li class="mb-2"><i class="fas fa-envelope me-2"></i> projetointegrador@gmail.com</li>
               <li class="mb-2"><i class="fas fa-phone me-2"></i> (15) 0000-0000</li>
-              <li class="mb-2">
-                <a href="https://www.instagram.com/senacspsorocaba/" target="_blank" class="text-reset footer-link">
-                  <i class="fab fa-instagram me-2"></i>@glowup
-                </a>
-              </li>
-              <li class="mb-2">
-                <a href="https://wa.me/5515000000000" target="_blank" class="text-reset footer-link">
-                  <i class="fab fa-whatsapp me-2"></i>WhatsApp
-                </a>
-              </li>
             </ul>
+            <h6 class="fw-bold mb-3 mt-4" style="color: #bd9f78;">Redes Sociais</h6>
+            <div class="social-links">
+              <a href="https://www.instagram.com/senacspsorocaba/" target="_blank" class="social-link social-instagram" aria-label="Instagram">
+                <i class="fab fa-instagram"></i>
+              </a>
+              <a href="https://wa.me/5515000000000" target="_blank" class="social-link social-whatsapp" aria-label="WhatsApp">
+                <i class="fab fa-whatsapp"></i>
+              </a>
+              <a href="#" target="_blank" class="social-link social-facebook" aria-label="Facebook">
+                <i class="fab fa-facebook"></i>
+              </a>
+              <a href="#" target="_blank" class="social-link social-twitter" aria-label="Twitter">
+                <i class="fab fa-twitter"></i>
+              </a>
+            </div>
           </div>
 
-          <!-- Mapa -->
+          <!-- Depoimentos e Mapa -->
           <div class="col-md-4 col-lg-4 col-xl-4 mb-4">
             <h6 class="fw-bold mb-3" style="color: #bd9f78;">Onde estamos</h6>
             <div class="map-responsive">
@@ -74,5 +82,6 @@ export default function Footer() {
       </div>
     </footer>
   `;
+  
   return footer;
 }

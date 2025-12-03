@@ -1,0 +1,280 @@
+/* ============================================
+   COMPONENTE DE LOADING
+   ============================================ */
+
+/* Container base */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+/* Tamanhos */
+.loading-small {
+    padding: 0.5rem;
+}
+
+.loading-medium {
+    padding: 1rem;
+}
+
+.loading-large {
+    padding: 2rem;
+}
+
+/* Contextos */
+.loading-default {
+    margin: 1rem 0;
+}
+
+.loading-page {
+    min-height: 200px;
+    margin: 2rem 0;
+}
+
+.loading-card {
+    padding: 1rem;
+    min-height: 150px;
+}
+
+.loading-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.loading-modal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    z-index: 1000;
+}
+
+.loading-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Fullscreen */
+.loading-fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.95);
+    z-index: 9999;
+    backdrop-filter: blur(5px);
+}
+
+/* Spinner */
+.loading-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Skeleton */
+.loading-skeleton {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.skeleton-line {
+    height: 1rem;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+    border-radius: 4px;
+}
+
+.skeleton-line-small {
+    height: 0.75rem;
+    width: 60%;
+}
+
+.skeleton-line-medium {
+    height: 1rem;
+    width: 80%;
+}
+
+.skeleton-line-large {
+    height: 1.5rem;
+    width: 100%;
+}
+
+.skeleton-line-short {
+    width: 40%;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Skeleton Cards */
+.skeleton-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem;
+}
+
+.skeleton-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.skeleton-card-image {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+.skeleton-card-body {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Progress */
+.loading-progress {
+    width: 100%;
+    max-width: 300px;
+}
+
+.loading-progress-text {
+    display: block;
+    text-align: center;
+    margin-top: 0.5rem;
+    color: #666;
+    font-size: 0.875rem;
+}
+
+/* Dots */
+.loading-dots {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading-dots span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    animation: loading-dots 1.4s ease-in-out infinite both;
+}
+
+.loading-dots-small span {
+    width: 6px;
+    height: 6px;
+}
+
+.loading-dots-large span {
+    width: 12px;
+    height: 12px;
+}
+
+.loading-dots span:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.loading-dots span:nth-child(2) {
+    animation-delay: -0.16s;
+}
+
+@keyframes loading-dots {
+    0%, 80%, 100% {
+        transform: scale(0);
+        opacity: 0.5;
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Mensagem */
+.loading-message {
+    color: #666;
+    font-size: 0.9rem;
+    text-align: center;
+    margin: 0;
+}
+
+.loading-message-small {
+    font-size: 0.75rem;
+}
+
+.loading-message-large {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* Overlay */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(3px);
+}
+
+.loading-overlay-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .skeleton-cards-container {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    
+    .loading-page {
+        min-height: 150px;
+    }
+    
+    .loading-message {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .skeleton-cards-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .loading-container {
+        gap: 0.75rem;
+    }
+}
+

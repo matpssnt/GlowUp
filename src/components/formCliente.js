@@ -1,53 +1,85 @@
 import ApiService from "../utils/api.js";
+import { applyVisualValidation, friendlyMessages } from "../utils/formValidation.js";
+import { validators } from "../utils/validation.js";
+
 export default function renderFormCliente(container) {
 
     // Formulário
     const formulario = document.createElement('form');
     formulario.className = 'd-flex flex-column';
+    formulario.id = 'formCliente';
 
-    // NOME
+    // Container para nome
+    const nomeContainer = document.createElement('div');
+    nomeContainer.className = 'mb-3';
+    const nomeLabel = document.createElement('label');
+    nomeLabel.textContent = 'Nome completo *';
+    nomeLabel.className = 'form-label';
+    nomeLabel.setAttribute('for', 'nomeCliente');
     const nome = document.createElement('input');
     nome.type = 'text';
+    nome.id = 'nomeCliente';
+    nome.name = 'nome';
     nome.placeholder = "Seu nome completo";
-    nome.className = 'form-control mb-3';
+    nome.className = 'form-control';
     nome.required = true;
-    formulario.appendChild(nome);
+    nomeContainer.appendChild(nomeLabel);
+    nomeContainer.appendChild(nome);
+    formulario.appendChild(nomeContainer);
 
-    // EMAIL
+    // Container para email
+    const emailContainer = document.createElement('div');
+    emailContainer.className = 'mb-3';
+    const emailLabel = document.createElement('label');
+    emailLabel.textContent = 'E-mail *';
+    emailLabel.className = 'form-label';
+    emailLabel.setAttribute('for', 'emailCliente');
     const email = document.createElement('input');
     email.type = 'email';
+    email.id = 'emailCliente';
+    email.name = 'email';
     email.placeholder = "Seu e-mail";
-    email.className = 'form-control mb-3';
+    email.className = 'form-control';
     email.required = true;
-    formulario.appendChild(email);
+    emailContainer.appendChild(emailLabel);
+    emailContainer.appendChild(email);
+    formulario.appendChild(emailContainer);
 
-    // SENHA
+    // Container para senha
+    const passwordContainer = document.createElement('div');
+    passwordContainer.className = 'mb-3';
+    const passwordLabel = document.createElement('label');
+    passwordLabel.textContent = 'Senha *';
+    passwordLabel.className = 'form-label';
+    passwordLabel.setAttribute('for', 'senhaCliente');
     const password = document.createElement('input');
     password.type = 'password';
+    password.id = 'senhaCliente';
+    password.name = 'senha';
     password.placeholder = "Sua senha (mínimo 6 caracteres)";
-    password.className = 'form-control mb-1';
+    password.className = 'form-control';
     password.required = true;
-    formulario.appendChild(password);
+    passwordContainer.appendChild(passwordLabel);
+    passwordContainer.appendChild(password);
+    formulario.appendChild(passwordContainer);
 
-    // Mensagem de erro da senha
-    const passwordError = document.createElement('div');
-    passwordError.className = 'invalid-feedback';
-    passwordError.textContent = 'A senha deve ter no mínimo 6 caracteres.';
-    formulario.appendChild(passwordError);
-
-    // CONFIRMAÇÃO DE SENHA
+    // Container para confirmação de senha
+    const passwordConfirmContainer = document.createElement('div');
+    passwordConfirmContainer.className = 'mb-3';
+    const passwordConfirmLabel = document.createElement('label');
+    passwordConfirmLabel.textContent = 'Confirmar senha *';
+    passwordConfirmLabel.className = 'form-label';
+    passwordConfirmLabel.setAttribute('for', 'senhaConfirmCliente');
     const passwordConfirm = document.createElement('input');
     passwordConfirm.type = 'password';
+    passwordConfirm.id = 'senhaConfirmCliente';
+    passwordConfirm.name = 'senhaConfirm';
     passwordConfirm.placeholder = "Confirme sua senha";
-    passwordConfirm.className = 'form-control mb-1';
+    passwordConfirm.className = 'form-control';
     passwordConfirm.required = true;
-    formulario.appendChild(passwordConfirm);
-
-    // Mensagem senha diferente
-    const errorMsg = document.createElement("div");
-    errorMsg.className = "invalid-feedback";
-    errorMsg.textContent = "As senhas são diferentes.";
-    formulario.appendChild(errorMsg);
+    passwordConfirmContainer.appendChild(passwordConfirmLabel);
+    passwordConfirmContainer.appendChild(passwordConfirm);
+    formulario.appendChild(passwordConfirmContainer);
 
     // BOTÃO
     const btnSubmit = document.createElement('button');
@@ -56,30 +88,43 @@ export default function renderFormCliente(container) {
     btnSubmit.className = 'btn btn-primary mt-2';
     formulario.appendChild(btnSubmit);
 
-    // Função validar senha
-    function validarSenha(s) {
-        return s.length >= 6;
-    }
-
-    // VALIDAÇÃO DA SENHA
-    password.addEventListener("input", () => {
-        if (!validarSenha(password.value)) {
-            password.classList.add("is-invalid");
-            password.classList.remove("is-valid");
-        } else {
-            password.classList.remove("is-invalid");
-            password.classList.add("is-valid");
+    // Aplica validação visual aos campos
+    applyVisualValidation(nome, ['required'], {
+        helpText: 'Digite seu nome completo',
+        customMessage: friendlyMessages.required
+    });
+    
+    applyVisualValidation(email, ['required', 'email'], {
+        helpText: 'Digite um e-mail válido',
+        customMessage: friendlyMessages.email
+    });
+    
+    applyVisualValidation(password, ['required', ['minLength', 6]], {
+        helpText: 'A senha deve ter no mínimo 6 caracteres',
+        customMessage: friendlyMessages.password
+    });
+    
+    // Validação customizada para confirmação de senha
+    passwordConfirm.addEventListener('blur', () => {
+        if (passwordConfirm.value !== password.value) {
+            passwordConfirm.classList.add('is-invalid');
+            passwordConfirm.classList.remove('is-valid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback';
+            errorDiv.textContent = friendlyMessages.passwordMatch;
+            passwordConfirm.parentElement.appendChild(errorDiv);
+        } else if (passwordConfirm.value.length > 0) {
+            passwordConfirm.classList.remove('is-invalid');
+            passwordConfirm.classList.add('is-valid');
+            const existingError = passwordConfirm.parentElement.querySelector('.invalid-feedback');
+            if (existingError) existingError.remove();
         }
     });
-
-    // VALIDAÇÃO CONFIRMAR SENHA
-    passwordConfirm.addEventListener("input", () => {
-        if (passwordConfirm.value !== password.value) {
-            passwordConfirm.classList.add("is-invalid");
-            passwordConfirm.classList.remove("is-valid");
-        } else {
-            passwordConfirm.classList.remove("is-invalid");
-            passwordConfirm.classList.add("is-valid");
+    
+    password.addEventListener('input', () => {
+        if (passwordConfirm.value && passwordConfirm.value !== password.value) {
+            passwordConfirm.classList.add('is-invalid');
+            passwordConfirm.classList.remove('is-valid');
         }
     });
 
