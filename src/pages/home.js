@@ -75,40 +75,51 @@ export default function renderHomePage() {
     }
 
     const secaoDeInformacao = document.createElement('div');
+    secaoDeInformacao.className = 'info-section';
     secaoDeInformacao.innerHTML =
     `
-    <div class="container mt-4">
+    <div class="container py-5">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="info-section-title">Por que escolher a Glow Up?</h2>
+                <p class="info-section-subtitle">Descubra como facilitamos sua jornada de beleza e bem-estar</p>
+            </div>
+        </div>
         <div class="row g-4">
             <div class="col-md-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title fw-bold">Sobre a Plataforma</h5>
-                        <p class="card-text">
-                            A plataforma conecta clientes e profissionais de forma simples, rápida e segura,
-                            oferecendo uma experiência moderna e confiável.
-                        </p>
+                <div class="info-card">
+                    <div class="info-card-icon">
+                        <i class="fas fa-shield-alt"></i>
                     </div>
+                    <h5 class="info-card-title">Segurança e Confiança</h5>
+                    <p class="info-card-text">
+                        Conectamos você apenas com profissionais verificados e estabelecimentos confiáveis,
+                        garantindo uma experiência segura e tranquila.
+                    </p>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title fw-bold">Como Funciona</h5>
-                        <p class="card-text">
-                        O cliente pesquisa um profissional, visualiza os serviços oferecidos e
-                         realiza um agendamento de forma fácil e prática, com apenas alguns cliques.
-                        </p>
+                <div class="info-card">
+                    <div class="info-card-icon">
+                        <i class="fas fa-clock"></i>
                     </div>
+                    <h5 class="info-card-title">Agendamento Fácil</h5>
+                    <p class="info-card-text">
+                        Encontre o profissional ideal, visualize serviços e horários disponíveis,
+                        e agende tudo em poucos cliques, de forma rápida e prática.
+                    </p>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title fw-bold">Benefícios</h5>
-                        <p class="card-text">
-                            Profissionais de confiança, suporte ágil e praticidade total no uso da plataforma.
-                        </p>
+                <div class="info-card">
+                    <div class="info-card-icon">
+                        <i class="fas fa-heart"></i>
                     </div>
+                    <h5 class="info-card-title">Cuidado Personalizado</h5>
+                    <p class="info-card-text">
+                        Oferecemos uma experiência única e personalizada, conectando você
+                        aos melhores profissionais do mercado para cuidar de você.
+                    </p>
                 </div>
             </div>
         </div>

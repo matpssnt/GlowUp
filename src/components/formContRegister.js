@@ -390,7 +390,7 @@ export default function renderFormContRegister(container) {
             
             // Aguarda um pouco antes de redirecionar
             setTimeout(() => {
-                window.location.href = 'login';
+            window.location.href = 'login';
             }, 1500);
 
         } catch (error) {
