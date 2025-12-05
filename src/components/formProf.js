@@ -1,51 +1,82 @@
+import { applyVisualValidation, friendlyMessages } from "../utils/formValidation.js";
+
 export default function renderFormProf(container) {
 
     const formulario = document.createElement('form');
     formulario.className = 'd-flex flex-column';
+    formulario.id = 'formProf';
 
-    // NOME
+    // Container para nome
+    const nomeContainer = document.createElement('div');
+    nomeContainer.className = 'mb-3';
+    const nomeLabel = document.createElement('label');
+    nomeLabel.textContent = 'Nome do Estabelecimento *';
+    nomeLabel.className = 'form-label';
+    nomeLabel.setAttribute('for', 'nomeProf');
     const nome = document.createElement('input');
     nome.type = 'text';
+    nome.id = 'nomeProf';
+    nome.name = 'nome';
     nome.placeholder = "Nome do Estabelecimento";
-    nome.className = 'form-control mb-3';
+    nome.className = 'form-control';
     nome.required = true;
-    formulario.appendChild(nome);
+    nomeContainer.appendChild(nomeLabel);
+    nomeContainer.appendChild(nome);
+    formulario.appendChild(nomeContainer);
 
-    // EMAIL
+    // Container para email
+    const emailContainer = document.createElement('div');
+    emailContainer.className = 'mb-3';
+    const emailLabel = document.createElement('label');
+    emailLabel.textContent = 'E-mail *';
+    emailLabel.className = 'form-label';
+    emailLabel.setAttribute('for', 'emailProf');
     const email = document.createElement('input');
     email.type = 'email';
+    email.id = 'emailProf';
+    email.name = 'email';
     email.placeholder = "Seu e-mail";
-    email.className = 'form-control mb-3';
+    email.className = 'form-control';
     email.required = true;
-    formulario.appendChild(email);
+    emailContainer.appendChild(emailLabel);
+    emailContainer.appendChild(email);
+    formulario.appendChild(emailContainer);
 
-    // SENHA
+    // Container para senha
+    const passwordContainer = document.createElement('div');
+    passwordContainer.className = 'mb-3';
+    const passwordLabel = document.createElement('label');
+    passwordLabel.textContent = 'Senha *';
+    passwordLabel.className = 'form-label';
+    passwordLabel.setAttribute('for', 'senhaProf');
     const password = document.createElement('input');
     password.type = 'password';
+    password.id = 'senhaProf';
+    password.name = 'senha';
     password.placeholder = "Sua senha (mínimo 6 caracteres)";
-    password.className = 'form-control mb-1';
+    password.className = 'form-control';
     password.required = true;
-    formulario.appendChild(password);
+    passwordContainer.appendChild(passwordLabel);
+    passwordContainer.appendChild(password);
+    formulario.appendChild(passwordContainer);
 
-    // MENSAGEM ERRO SENHA
-    const passwordError = document.createElement('div');
-    passwordError.className = 'invalid-feedback';
-    passwordError.textContent = 'A senha deve ter no mínimo 6 caracteres.';
-    formulario.appendChild(passwordError);
-
-    // CONFIRMAR SENHA
+    // Container para confirmação de senha
+    const passwordConfirmContainer = document.createElement('div');
+    passwordConfirmContainer.className = 'mb-3';
+    const passwordConfirmLabel = document.createElement('label');
+    passwordConfirmLabel.textContent = 'Confirmar senha *';
+    passwordConfirmLabel.className = 'form-label';
+    passwordConfirmLabel.setAttribute('for', 'senhaConfirmProf');
     const passwordConfirm = document.createElement('input');
     passwordConfirm.type = 'password';
+    passwordConfirm.id = 'senhaConfirmProf';
+    passwordConfirm.name = 'senhaConfirm';
     passwordConfirm.placeholder = "Confirme sua senha";
-    passwordConfirm.className = 'form-control mb-1';
+    passwordConfirm.className = 'form-control';
     passwordConfirm.required = true;
-    formulario.appendChild(passwordConfirm);
-
-    // MENSAGEM ERRO CONFIRMAÇÃO
-    const errorMsg = document.createElement("div");
-    errorMsg.className = "invalid-feedback";
-    errorMsg.textContent = "As senhas são diferentes.";
-    formulario.appendChild(errorMsg);
+    passwordConfirmContainer.appendChild(passwordConfirmLabel);
+    passwordConfirmContainer.appendChild(passwordConfirm);
+    formulario.appendChild(passwordConfirmContainer);
 
     // BOTÃO
     const btnSubmit = document.createElement('button');
@@ -54,30 +85,43 @@ export default function renderFormProf(container) {
     btnSubmit.className = 'btn btn-primary mt-2';
     formulario.appendChild(btnSubmit);
 
-    // Função validar senha
-    function validarSenha(s) {
-        return s.length >= 6;
-    }
-
-    // VALIDAÇÃO SENHA
-    password.addEventListener("input", () => {
-        if (!validarSenha(password.value)) {
-            password.classList.add("is-invalid");
-            password.classList.remove("is-valid");
-        } else {
-            password.classList.remove("is-invalid");
-            password.classList.add("is-valid");
+    // Aplica validação visual aos campos
+    applyVisualValidation(nome, ['required'], {
+        helpText: 'Digite o nome do seu estabelecimento',
+        customMessage: friendlyMessages.required
+    });
+    
+    applyVisualValidation(email, ['required', 'email'], {
+        helpText: 'Digite um e-mail válido',
+        customMessage: friendlyMessages.email
+    });
+    
+    applyVisualValidation(password, ['required', ['minLength', 6]], {
+        helpText: 'A senha deve ter no mínimo 6 caracteres',
+        customMessage: friendlyMessages.password
+    });
+    
+    // Validação customizada para confirmação de senha
+    passwordConfirm.addEventListener('blur', () => {
+        if (passwordConfirm.value !== password.value) {
+            passwordConfirm.classList.add('is-invalid');
+            passwordConfirm.classList.remove('is-valid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback';
+            errorDiv.textContent = friendlyMessages.passwordMatch;
+            passwordConfirm.parentElement.appendChild(errorDiv);
+        } else if (passwordConfirm.value.length > 0) {
+            passwordConfirm.classList.remove('is-invalid');
+            passwordConfirm.classList.add('is-valid');
+            const existingError = passwordConfirm.parentElement.querySelector('.invalid-feedback');
+            if (existingError) existingError.remove();
         }
     });
-
-    // VALIDAÇÃO CONFIRMAR SENHA
-    passwordConfirm.addEventListener("input", () => {
-        if (passwordConfirm.value !== password.value || !validarSenha(password.value)) {
-            passwordConfirm.classList.add("is-invalid");
-            passwordConfirm.classList.remove("is-valid");
-        } else {
-            passwordConfirm.classList.remove("is-invalid");
-            passwordConfirm.classList.add("is-valid");
+    
+    password.addEventListener('input', () => {
+        if (passwordConfirm.value && passwordConfirm.value !== password.value) {
+            passwordConfirm.classList.add('is-invalid');
+            passwordConfirm.classList.remove('is-valid');
         }
     });
 
@@ -87,15 +131,27 @@ export default function renderFormProf(container) {
         let invalido = false;
 
         // senha curta
-        if (!validarSenha(password.value)) {
+        if (password.value.length < 6) {
             invalido = true;
             password.classList.add("is-invalid");
+            if (!password.parentElement.querySelector('.invalid-feedback')) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback';
+                errorDiv.textContent = friendlyMessages.password;
+                password.parentElement.appendChild(errorDiv);
+            }
         }
 
         // senhas diferentes
         if (passwordConfirm.value !== password.value) {
             invalido = true;
             passwordConfirm.classList.add("is-invalid");
+            if (!passwordConfirm.parentElement.querySelector('.invalid-feedback')) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback';
+                errorDiv.textContent = friendlyMessages.passwordMatch;
+                passwordConfirm.parentElement.appendChild(errorDiv);
+            }
         }
 
         if (invalido) {
@@ -117,53 +173,26 @@ export default function renderFormProf(container) {
             let idCadastro = null;
             let idProfissional = null;
             
-            // Tenta criar cadastro (vai falhar na criação do profissional por falta de CPF)
-            const responseCadastro = await api.cadastrarProfissional(
-                nome.value.trim(),
-                email.value.trim(),
-                password.value
-            );
-            
-            console.log('Resposta do cadastro:', responseCadastro);
-            
-            // Se retornou erro de CPF, o cadastro foi criado mas o profissional não
-            if (responseCadastro.erroCPF) {
-                console.log('Erro de CPF detectado. Cadastro foi criado mas profissional não.');
-                // O cadastro foi criado, precisamos buscar o ID
-                // O cadastro foi criado mas o profissional não. Buscamos o cadastro pelo email
-                try {
-                    console.log('Buscando cadastro criado pelo email:', email.value.trim());
-                    const cadastros = await api.listarCadastros();
-                    console.log('Lista de cadastros:', cadastros);
-                    
-                    if (Array.isArray(cadastros)) {
-                        const cadastroEncontrado = cadastros.find(c => c.email === email.value.trim());
-                        if (cadastroEncontrado) {
-                            idCadastro = cadastroEncontrado.id;
-                            console.log('Cadastro encontrado pelo email:', idCadastro);
-                        } else {
-                            console.warn('Cadastro não encontrado na lista. Tentando buscar novamente...');
-                            // Tenta novamente após um pequeno delay (caso o banco ainda esteja processando)
-                            await new Promise(resolve => setTimeout(resolve, 500));
-                            const cadastrosRetry = await api.listarCadastros();
-                            if (Array.isArray(cadastrosRetry)) {
-                                const cadastroRetry = cadastrosRetry.find(c => c.email === email.value.trim());
-                                if (cadastroRetry) {
-                                    idCadastro = cadastroRetry.id;
-                                    console.log('Cadastro encontrado na segunda tentativa:', idCadastro);
-                                }
-                            }
-                        }
-                    }
-                } catch (e) {
-                    console.error('Erro ao buscar cadastro:', e);
-                    // Mesmo com erro, continua - pode ser que o cadastro tenha sido criado
+            // Cria cadastro de profissional (sem criar profissional ainda)
+            let responseCadastro;
+            try {
+                responseCadastro = await api.cadastrarProfissional(
+                    nome.value.trim(),
+                    email.value.trim(),
+                    password.value
+                );
+                console.log('Resposta do cadastro:', responseCadastro);
+                
+                // Pega o ID do cadastro
+                if (responseCadastro.idCadastro || responseCadastro.id) {
+                    idCadastro = responseCadastro.idCadastro || responseCadastro.id;
+                    console.log('Cadastro criado com sucesso, ID:', idCadastro);
+                } else {
+                    throw new Error('Não foi possível obter o ID do cadastro criado.');
                 }
-            } else {
-                // Sucesso normal (raro, pois normalmente falha por CPF)
-                idCadastro = responseCadastro.idCadastro || responseCadastro.id;
-                idProfissional = responseCadastro.idProfissional;
-                console.log('Cadastro criado com sucesso completo:', { idCadastro, idProfissional });
+            } catch (error) {
+                console.error('Erro ao criar cadastro:', error);
+                throw error;
             }
             
             // Se ainda não temos o ID do cadastro, houve um problema real
@@ -171,99 +200,76 @@ export default function renderFormProf(container) {
                 throw new Error('Não foi possível criar ou encontrar o cadastro. Por favor, verifique se o email já está em uso e tente novamente.');
             }
             
-            console.log('ID do cadastro:', idCadastro);
+            console.log('ID do cadastro confirmado:', idCadastro);
             
-            // Verifica se profissional já existe (pode ter sido criado antes do erro)
+            // Cria profissional
+            console.log('Criando profissional...');
+            
+            const profissionalData = {
+                nome: nome.value.trim(),
+                email: email.value.trim(),
+                descricao: 'Cadastro em andamento', // Descrição temporária 
+                acessibilidade: 0,
+                isJuridica: 0,
+                id_cadastro_fk: idCadastro
+                // CPF não é enviado aqui, pois, será preenchido na etapa 2
+            };
+            
+            console.log('Dados do profissional a criar:', profissionalData);
+            
             try {
-                const profExistente = await api.buscarProfissionalPorCadastro(idCadastro);
-                if (profExistente && profExistente.id) {
-                    idProfissional = profExistente.id;
-                    console.log('Profissional já existe:', idProfissional);
+                const responseProf = await api.criarProfissional(profissionalData);
+                console.log('Resposta da criação do profissional:', responseProf);
+                
+                // Aguarda um pouco para o banco processar
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Busca o profissional criado
+                let tentativas = 0;
+                const maxTentativas = 5;
+                
+                while (tentativas < maxTentativas && !idProfissional) {
+                    try {
+                        await new Promise(resolve => setTimeout(resolve, 300 * (tentativas + 1)));
+                        const profCriado = await api.buscarProfissionalPorCadastro(idCadastro);
+                        if (profCriado && profCriado.id) {
+                            idProfissional = profCriado.id;
+                            console.log(`ID do profissional encontrado na tentativa ${tentativas + 1}:`, idProfissional);
+                            break;
+                        }
+                    } catch (e) {
+                        console.log(`Tentativa ${tentativas + 1} falhou:`, e.message);
+                    }
+                    tentativas++;
                 }
-            } catch (e) {
-                console.log('Profissional não encontrado, será criado agora');
-            }
-            
-            // Se o profissional não foi criado, cria com CPF temporário único
-            if (!idProfissional) {
-                console.log('Criando profissional com CPF temporário...');
                 
-                //cria um cpf temporario que vai ser substituido na segunda etapa
-                const idStr = String(idCadastro).padStart(8, '0');
-                const cpfTemporario = '999' + idStr;
-                
-                const profissionalData = {
-                    nome: nome.value.trim(),
-                    email: email.value.trim(),
-                    descricao: 'Cadastro em andamento', // Descrição temporária - será atualizada na etapa 2
-                    acessibilidade: 0,
-                    isJuridica: 0,
-                    id_cadastro_fk: idCadastro,
-                    cpf: cpfTemporario // CPF temporário único - será atualizado na etapa 2
-                };
-                
-                console.log('CPF temporário gerado:', cpfTemporario);
-                
-                try {
-                    const responseProf = await api.criarProfissional(profissionalData);
-                    console.log('Profissional criado com sucesso:', responseProf);
-                    
-                    // Tenta buscar o profissional criado para obter o ID
-                    // Pode haver um pequeno delay para o banco processar
-                    let tentativas = 0;
-                    const maxTentativas = 3;
-                    
-                    while (tentativas < maxTentativas && !idProfissional) {
-                        try {
-                            await new Promise(resolve => setTimeout(resolve, 300 * (tentativas + 1))); // Delay crescente
-                            const profCriado = await api.buscarProfissionalPorCadastro(idCadastro);
-                            if (profCriado && profCriado.id) {
-                                idProfissional = profCriado.id;
-                                console.log(`ID do profissional encontrado na tentativa ${tentativas + 1}:`, idProfissional);
-                                break;
+                // Se ainda não encontrou, tenta listar todos e buscar pelo id_cadastro_fk
+                if (!idProfissional) {
+                    console.log('Tentando buscar profissional listando todos...');
+                    try {
+                        const todosProfissionais = await api.listarProfissionais();
+                        if (Array.isArray(todosProfissionais)) {
+                            const profEncontrado = todosProfissionais.find(p => 
+                                p.id_cadastro_fk == idCadastro || 
+                                parseInt(p.id_cadastro_fk) === parseInt(idCadastro)
+                            );
+                            if (profEncontrado && profEncontrado.id) {
+                                idProfissional = profEncontrado.id;
+                                console.log('Profissional encontrado na lista:', idProfissional);
                             }
-                        } catch (e) {
-                            console.log(`Tentativa ${tentativas + 1} falhou, tentando novamente...`);
                         }
-                        tentativas++;
-                    }
-                    
-                    // Se ainda não encontrou, tenta listar todos e buscar pelo id_cadastro_fk
-                    if (!idProfissional) {
-                        console.log('Tentando buscar profissional listando todos...');
-                        try {
-                            const todosProfissionais = await api.request('/profissional', 'GET');
-                            if (Array.isArray(todosProfissionais)) {
-                                const profEncontrado = todosProfissionais.find(p => p.id_cadastro_fk == idCadastro);
-                                if (profEncontrado && profEncontrado.id) {
-                                    idProfissional = profEncontrado.id;
-                                    console.log('Profissional encontrado na lista:', idProfissional);
-                                }
-                            }
-                        } catch (e) {
-                            console.error('Erro ao listar profissionais:', e);
-                        }
-                    }
-                    
-                    if (!idProfissional) {
-                        console.warn('Profissional criado mas não conseguimos obter o ID. Continuando mesmo assim...');
-                        // Continua sem o ID - será buscado na etapa 2
-                    }
-                } catch (profError) {
-                    console.error('Erro ao criar profissional:', profError);
-                    // Se o erro for que não encontrou, pode ser que já foi criado
-                    if (profError.message.includes('não encontrada')) {
-                        console.log('Profissional pode ter sido criado. Continuando...');
-                        // Continua sem o ID - será buscado na etapa 2
-                    } else {
-                        throw new Error('Não foi possível criar o profissional: ' + profError.message);
+                    } catch (e) {
+                        console.error('Erro ao listar profissionais:', e);
                     }
                 }
-            }
-            
-            // Se não temos o ID do profissional, não é crítico - será buscado na etapa 2
-            if (!idProfissional) {
-                console.warn('Aviso: ID do profissional não obtido na etapa 1. Será buscado na etapa 2.');
+                
+                if (!idProfissional) {
+                    console.warn('Profissional criado mas não conseguimos obter o ID. Continuando mesmo assim...');
+                    // Continua sem o ID - será buscado na etapa 2
+                }
+            } catch (profError) {
+                console.error('Erro ao criar profissional:', profError);
+                throw new Error('Não foi possível criar o profissional: ' + (profError.message || 'Erro desconhecido'));
             }
 
             // Salva no localStorage para o próximo passo do cadastro
@@ -278,12 +284,34 @@ export default function renderFormProf(container) {
             console.log('Salvando dados no localStorage:', dadosBasicos);
             localStorage.setItem('dadosBasicos', JSON.stringify(dadosBasicos));
 
-            // Redireciona para continuar o cadastro profissional
-            window.location.href = 'cont-register';
+            // Notifica sucesso
+            const { notify } = await import('../components/Notification.js');
+            notify.success('Cadastro inicial realizado! Complete seus dados na próxima etapa...');
+            
+            // Aguarda um pouco antes de redirecionar
+            setTimeout(() => {
+                window.location.href = 'cont-register';
+            }, 1000);
         } catch (error) {
             // Erro
-            alert('Erro ao cadastrar: ' + error.message);
             console.error('Erro no cadastro:', error);
+            
+            // Importa notificação para mostrar erro amigável
+            const { notify } = await import('../components/Notification.js');
+            
+            let mensagemErro = 'Erro ao cadastrar. Por favor, tente novamente.';
+            
+            if (error.message) {
+                if (error.message.includes('email') || error.message.includes('Email')) {
+                    mensagemErro = 'Este e-mail já está em uso. Por favor, use outro e-mail ou faça login.';
+                } else if (error.message.includes('cadastro')) {
+                    mensagemErro = 'Não foi possível criar o cadastro. Verifique os dados e tente novamente.';
+                } else {
+                    mensagemErro = error.message;
+                }
+            }
+            
+            notify.error(mensagemErro);
         } finally {
             // Reabilita o botão
             btnSubmit.disabled = false;

@@ -2,7 +2,7 @@ export default function RoomCard(indexOuProfissional) {
   const containerCards = document.createElement("div");
   containerCards.className = "heroContainer-frame";
   
-  // Se for número (compatibilidade com código antigo), usa valores padrão
+  // Se for número, usa valores padrão
   let index, nome, descricao, profissionalId;
   
   if (typeof indexOuProfissional === 'number') {

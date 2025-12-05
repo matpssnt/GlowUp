@@ -269,10 +269,7 @@ export default function renderFormContRegister(container) {
     const btnVoltar = document.createElement('a');
     btnVoltar.innerHTML = "Voltar ao cadastro";
     btnVoltar.href = "register";
-    btnVoltar.className = 'cont-register-nav-link mt-3';
-    btnVoltar.style.textAlign = 'center';
-    containerBotoes.appendChild(btnVoltar);
-
+    btnVoltar.className = 'cont-register-nav-link';
     containerBotoes.appendChild(btnFinalizar);
     containerBotoes.appendChild(btnVoltar);
     formulario.appendChild(containerBotoes);
@@ -336,13 +333,29 @@ export default function renderFormContRegister(container) {
                 id_cadastro_fk: idCadastro
             };
 
-            // Se tiver CPF/CNPJ, adiciona aos dados
-            if (tipoPessoa === 'fisica' && cpf) {
+            // CPF/CNPJ são obrigatórios na atualização
+            if (tipoPessoa === 'fisica') {
+                if (!cpf) {
+                    throw new Error('CPF é obrigatório para pessoa física');
+                }
                 dadosProfissional.cpf = cpf;
-            } else if (tipoPessoa === 'juridica' && cnpj) {
+            } else if (tipoPessoa === 'juridica') {
+                if (!cnpj) {
+                    throw new Error('CNPJ é obrigatório para pessoa jurídica');
+                }
                 dadosProfissional.cnpj = cnpj;
             }
 
+            console.log('Atualizando profissional com dados:', dadosProfissional);
+            
+            // Atualiza o profissional
+            try {
+                await api.atualizarProfissional(idProfissional, dadosProfissional);
+                console.log('Profissional atualizado com sucesso');
+            } catch (error) {
+                console.error('Erro ao atualizar profissional:', error);
+                throw new Error('Erro ao atualizar dados do profissional: ' + error.message);
+            }
 
             // Cria o endereço
             const dadosEndereco = {
@@ -356,11 +369,29 @@ export default function renderFormContRegister(container) {
                 id_profissional_fk: idProfissional
             };
 
+            console.log('Criando endereço com dados:', dadosEndereco);
+            
+            // Cria o endereço
+            try {
+                await api.criarEndereco(dadosEndereco);
+                console.log('Endereço criado com sucesso');
+            } catch (error) {
+                console.error('Erro ao criar endereço:', error);
+                // Não bloqueia o cadastro se o endereço falhar
+                console.warn('Endereço não foi criado, mas o cadastro continua');
+            }
+
             // Limpa o localStorage
             localStorage.removeItem('dadosBasicos');
             
-            // Redireciona para login
+            // Notifica sucesso
+            const { notify } = await import('../components/Notification.js');
+            notify.success('Cadastro finalizado com sucesso! Redirecionando para login...');
+            
+            // Aguarda um pouco antes de redirecionar
+            setTimeout(() => {
             window.location.href = 'login';
+            }, 1500);
 
         } catch (error) {
             // Erro

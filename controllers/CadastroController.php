@@ -19,27 +19,22 @@ class CadastroController
         $idCadastro = CadastroModel::create($data);
 
         if ($idCadastro) {
-            // Criando o relacionamento com a tabela profissionais..
-            if ($data['isProfissional'] == 1) {
-                $profData = [
-                    'nome' =>   $data['nome'],
-                    'email' => $data['email'],
-                    'descricao' => '',
-                    'acessibilidade' => 0,
-                    'isJuridica' => 0,
-                    'id_cadastro_fk' => $idCadastro 
-                ];
-                ProfissionalModel::create($profData);
-            } else {
-                // Criando o relacionamento com a tabela clientes..
+            // Criando o relacionamento com a tabela clientes (profissional será criado depois com CPF)
+            if ($data['isProfissional'] == 0) {
                 $clienteData = [
                     'nome' => $data['nome'],
                     'id_cadastro_fk' => $idCadastro
                 ];
                 ClientModel::create($clienteData);
             }
+            // Para profissionais, não criamos aqui porque precisa de CPF
+            // O profissional será criado separadamente via API /profissional
 
-            return jsonResponse(['message' => 'Cadastro criado com sucesso!', 'idCadastro'=> $idCadastro], 201);
+            return jsonResponse([
+                'message' => 'Cadastro criado com sucesso!', 
+                'idCadastro' => $idCadastro,
+                'isProfissional' => $data['isProfissional']
+            ], 201);
         } else {
             return jsonResponse(['message' => 'Erro ao criar cadastro'], 400);
         }

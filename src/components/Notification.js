@@ -1,5 +1,12 @@
+// Função auxiliar para escapar HTML
+function escapeHTML(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 // Mostra notificação
-export function showNotification(message, type = 'info', duration = 3000) {
+export function showNotification(message, type = 'info', duration = 3000, position = 'top-right') {
     // Remove notificações antigas se houver muitas
     const existing = document.querySelectorAll('.notification');
     if (existing.length > 3) {
@@ -7,7 +14,7 @@ export function showNotification(message, type = 'info', duration = 3000) {
     }
     
     const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
+    notification.className = `notification notification-${type} notification-${position}`;
     
     const iconMap = {
         success: 'bi-check-circle-fill',
@@ -25,15 +32,16 @@ export function showNotification(message, type = 'info', duration = 3000) {
     `;
     
     // Cria container se não existir
-    if (!document.querySelector('.notifications-container')) {
-        const container = document.createElement('div');
+    let container = document.querySelector('.notifications-container');
+    if (!container) {
+        container = document.createElement('div');
         container.className = 'notifications-container';
         document.body.appendChild(container);
     }
     
-    const container = document.querySelector('.notifications-container');
     container.appendChild(notification);
     
+    // Força reflow para animação
     notification.offsetHeight;
     notification.classList.add('show');
     
@@ -58,6 +66,7 @@ export function showNotification(message, type = 'info', duration = 3000) {
 // Remove notificação
 function removeNotification(notification) {
     notification.classList.remove('show');
+    notification.classList.add('hide');
     setTimeout(() => {
         if (notification.parentNode) {
             notification.remove();

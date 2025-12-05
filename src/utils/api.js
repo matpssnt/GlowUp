@@ -146,29 +146,34 @@ export default class ApiService {
             senha,
             isProfissional: 1
         };
-        try {
-            return await this.request('/cadastro', 'POST', data);
-        } catch (error) {
-            // Se o erro for sobre CPF, o cadastro pode ter sido criado mesmo assim
-            // Retorna um objeto especial para indicar que precisamos verificar
-            if (error.message && error.message.includes('CPF')) {
-                return {
-                    erro: true,
-                    erroCPF: true,
-                    message: error.message,
-                    email: email // Para buscar o cadastro depois
-                };
-            }
-            throw error;
-        }
+        return await this.request('/cadastro', 'POST', data);
     }
     
     async buscarCadastroPorEmail(email) {
         // Busca todos os cadastros e filtra por email
         // Nota: Isso só funciona se o backend permitir
-        const cadastros = await this.listarCadastros();
-        if (Array.isArray(cadastros)) {
-            return cadastros.find(c => c.email === email) || null;
+        try {
+            const cadastros = await this.listarCadastros();
+            if (Array.isArray(cadastros)) {
+                return cadastros.find(c => c.email === email) || null;
+            }
+        } catch (error) {
+            console.error('Erro ao buscar cadastro por email:', error);
+        }
+        return null;
+    }
+    
+    async buscarOuCriarCadastroPorEmail(email, maxTentativas = 3) {
+        // Tenta buscar o cadastro várias vezes (útil após criação)
+        for (let i = 0; i < maxTentativas; i++) {
+            const cadastro = await this.buscarCadastroPorEmail(email);
+            if (cadastro) {
+                return cadastro;
+            }
+            // Aguarda antes de tentar novamente
+            if (i < maxTentativas - 1) {
+                await new Promise(resolve => setTimeout(resolve, 500 * (i + 1)));
+            }
         }
         return null;
     }
@@ -237,6 +242,18 @@ export default class ApiService {
 
     async buscarProfissionalPorCadastro(idCadastro) {
         return await this.request(`/profissional/cadastro/${idCadastro}`, 'GET');
+    }
+
+    async criarProfissional(dados) {
+        return await this.request('/profissional', 'POST', dados);
+    }
+
+    async atualizarProfissional(id, dados) {
+        const data = {
+            id,
+            ...dados
+        };
+        return await this.request('/profissional', 'PUT', data);
     }
 
     async buscarEndereco(id) {

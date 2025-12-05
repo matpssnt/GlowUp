@@ -9,6 +9,7 @@
 @import url('./minhaAgenda.css');
 @import url('./sobre.css');
 @import url('./dashboard.css');
+@import url('./loading.css');
 
 /* Variáveis CSS Globais */
 :root {
@@ -147,18 +148,212 @@ html {
     transition: background 0.2s, color 0.2s;
 }
 
+/* Indicador de página ativa */
+.nav-link.active {
+    color: var(--primary-color) !important;
+    font-weight: 700;
+}
+
+.nav-link.active::after {
+    width: 100%;
+}
+
+
+
+/* Menu mobile melhorado */
+.navbar-toggler {
+    border: none;
+    padding: 0.25rem 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.navbar-toggler:focus {
+    box-shadow: none;
+}
+
+.navbar-toggler.active .navbar-toggler-icon {
+    transform: rotate(90deg);
+}
+
+.navbar-toggler-icon {
+    transition: transform 0.3s ease;
+}
+
+/* Ações da navbar */
+.navbar-actions {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* Responsividade navbar */
+@media (max-width: 991px) {
+    .navbar-actions {
+        width: 100%;
+        justify-content: flex-start;
+        margin-top: 0.5rem;
+    }
+    
+    .navbar-actions .btn {
+        margin: 0.25rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .navbar-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .navbar-actions .btn {
+        width: 100%;
+        margin: 0.25rem 0;
+    }
+}
+
 /* Footer Global */
 .footer-link {
-    transition: color 0.3s ease;
+    transition: color 0.3s ease, transform 0.2s ease;
+    display: inline-block;
 }
 
 .footer-link:hover {
     color: #bd9f78 !important;
     text-decoration: none;
+    transform: translateX(5px);
 }
 
 footer.bg-body-tertiary {
     background-color: var(--white-color) !important;
+}
+
+/* Redes Sociais Animadas */
+.social-links {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.social-link {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.social-link:hover {
+    transform: translateY(-5px) scale(1.1);
+    color: white;
+    text-decoration: none;
+}
+
+.social-instagram:hover {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    box-shadow: 0 5px 15px rgba(225, 48, 108, 0.4);
+}
+
+.social-whatsapp:hover {
+    background: #25D366;
+    box-shadow: 0 5px 15px rgba(37, 211, 102, 0.4);
+}
+
+.social-facebook:hover {
+    background: #1877F2;
+    box-shadow: 0 5px 15px rgba(24, 119, 242, 0.4);
+}
+
+.social-twitter:hover {
+    background: #1DA1F2;
+    box-shadow: 0 5px 15px rgba(29, 161, 242, 0.4);
+}
+
+/* Depoimentos */
+.testimonials-section {
+    margin-top: 1.5rem;
+}
+
+.testimonial-item {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 3px solid #bd9f78;
+}
+
+.testimonial-text {
+    font-style: italic;
+    color: #ddd;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.testimonial-author {
+    color: #bd9f78;
+    font-weight: 500;
+}
+
+/* Newsletter */
+.newsletter-section {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.newsletter-input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.newsletter-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.newsletter-input:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #bd9f78;
+    color: white;
+}
+
+.newsletter-btn {
+    border-color: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+.newsletter-btn:hover {
+    background: #bd9f78;
+    border-color: #bd9f78;
+    color: white;
+}
+
+/* Responsividade Footer */
+@media (max-width: 768px) {
+    .social-links {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .newsletter-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .newsletter-input {
+        max-width: 100% !important;
+        margin-bottom: 0.5rem;
+    }
+    
+    .newsletter-btn {
+        width: 100%;
+    }
+    
+    .testimonial-item {
+        margin-top: 1rem;
+    }
 }
 
 /* ============================================
@@ -549,7 +744,58 @@ textarea.form-control:focus {
     .notifications-container {
         right: 10px;
         left: 10px;
+        top: 70px;
         max-width: none;
+        width: calc(100% - 20px);
+    }
+    
+    .notification {
+        width: 100%;
+        padding: 12px;
+        font-size: 0.9rem;
+        transform: translateY(-20px);
+    }
+    
+    .notification.show {
+        transform: translateY(0);
+    }
+    
+    .notification.hide {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    
+    .notification-icon {
+        font-size: 1.2rem;
+    }
+    
+    .notification-message {
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+    
+    .notification-close {
+        font-size: 1.2rem;
+        width: 20px;
+        height: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .notifications-container {
+        top: 60px;
+        right: 5px;
+        left: 5px;
+        width: calc(100% - 10px);
+    }
+    
+    .notification {
+        padding: 10px;
+        font-size: 0.85rem;
+    }
+    
+    .notification-content {
+        gap: 8px;
     }
 }
 
@@ -588,6 +834,172 @@ textarea.form-control:focus {
     margin-top: 0.25rem;
     font-size: 0.875rem;
     color: #28a745;
+}
+
+/* ============================================
+   VALIDAÇÃO VISUAL DE FORMULÁRIOS
+   ============================================ */
+
+/* Container de ícones de validação */
+.validation-icon-container {
+    position: relative;
+}
+
+.validation-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.form-control.has-visual-validation {
+    padding-right: 40px;
+}
+
+/* Tooltip de ajuda */
+.help-tooltip-container {
+    position: relative;
+    display: inline-block;
+    margin-left: 0.5rem;
+}
+
+.help-tooltip-icon {
+    color: #6c757d;
+    cursor: help;
+    font-size: 1rem;
+    transition: color 0.2s;
+}
+
+.help-tooltip-icon:hover {
+    color: var(--primary-color);
+}
+
+/* Progress Indicator */
+.form-progress-indicator {
+    margin-bottom: 2rem;
+}
+
+.form-steps-indicator {
+    margin-top: 1rem;
+}
+
+.form-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+}
+
+.form-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 60%;
+    width: 80%;
+    height: 2px;
+    background: #e0e0e0;
+    z-index: 0;
+}
+
+.form-step.completed:not(:last-child)::after {
+    background: var(--primary-color);
+}
+
+.step-circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #e0e0e0;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+}
+
+.form-step.active .step-circle {
+    background: var(--primary-color);
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 0 0 4px rgba(41, 95, 28, 0.2);
+}
+
+.form-step.completed .step-circle {
+    background: var(--primary-color);
+    color: white;
+}
+
+.step-label {
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: #666;
+    text-align: center;
+}
+
+.form-step.active .step-label {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.form-step.completed .step-label {
+    color: var(--primary-color);
+}
+
+/* Mensagens de erro amigáveis */
+.invalid-feedback {
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Melhorias visuais para campos validados */
+.form-control.is-valid {
+    border-color: #28a745;
+    background-image: none;
+    padding-right: 40px;
+}
+
+.form-control.is-invalid {
+    border-color: #dc3545;
+    background-image: none;
+    padding-right: 40px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .form-steps-indicator {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .form-step {
+        flex: 0 0 calc(50% - 0.5rem);
+    }
+    
+    .form-step:not(:last-child)::after {
+        display: none;
+    }
+    
+    .step-label {
+        font-size: 0.7rem;
+    }
 }
 
 
