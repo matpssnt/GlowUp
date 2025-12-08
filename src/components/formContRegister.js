@@ -1,6 +1,7 @@
 import NavBar from "../components/NavBar.js";
 import CepAPI from "../utils/cepAPI.js";
 import ApiService from "../utils/api.js";
+import { notify } from "./Notification.js";
 
 export default function renderFormContRegister(container) {
     // Cria o formulário
@@ -397,7 +398,7 @@ export default function renderFormContRegister(container) {
             // Erro
             console.error('Erro completo no cadastro:', error);
             const mensagemErro = error.message || 'Erro desconhecido ao finalizar cadastro';
-            alert('Erro ao finalizar cadastro: ' + mensagemErro);
+            notify.error('Erro ao finalizar cadastro: ' + mensagemErro);
         } finally {
             // Reabilita o botão
             btnFinalizar.disabled = false;
@@ -496,7 +497,7 @@ function adicionarBuscaCep(inputCep) {
                 },
                 error: (error) => {
                     console.error('Erro ao buscar CEP:', error);
-                    alert('Erro ao buscar CEP: ' + error.message);
+                    notify.error('Erro ao buscar CEP: ' + error.message);
                 }
             });
 
@@ -504,7 +505,7 @@ function adicionarBuscaCep(inputCep) {
 
         } catch (error) {
             console.error('Erro na busca do CEP:', error);
-            alert('Erro na busca do CEP: ' + error.message);
+            notify.error('Erro na busca do CEP: ' + error.message);
         }
     };
 

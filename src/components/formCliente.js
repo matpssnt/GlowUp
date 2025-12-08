@@ -1,6 +1,8 @@
 import ApiService from "../utils/api.js";
 import { applyVisualValidation, friendlyMessages } from "../utils/formValidation.js";
 import { validators } from "../utils/validation.js";
+import { notify } from "./Notification.js";
+import Loading from "./Loading.js";
 
 export default function renderFormCliente(container) {
 
@@ -128,30 +130,68 @@ export default function renderFormCliente(container) {
         }
     });
 
+    // Função auxiliar para validar senha
+    const validarSenha = (senha) => {
+        const resultado = validators.senha(senha);
+        return resultado === true; // Retorna true se válido, false se houver erro
+    };
+
     // VALIDAÇÃO FINAL NO SUBMIT
     formulario.addEventListener("submit", async (e) => {
         e.preventDefault();
         let invalido = false;
 
-        // senha curta
-        if (!validarSenha(password.value)) {
+        // Valida senha curta usando validators
+        const resultadoSenha = validators.senha(password.value);
+        if (resultadoSenha !== true) {
             invalido = true;
             password.classList.add("is-invalid");
             password.classList.remove("is-valid");
+            // Mostra mensagem de erro
+            const errorDiv = password.parentElement.querySelector('.invalid-feedback');
+            if (!errorDiv) {
+                const div = document.createElement('div');
+                div.className = 'invalid-feedback';
+                div.textContent = resultadoSenha;
+                password.parentElement.appendChild(div);
+            }
+        } else {
+            password.classList.remove("is-invalid");
+            password.classList.add("is-valid");
         }
 
-        // senhas diferentes
+        // Valida senhas diferentes
         if (passwordConfirm.value !== password.value) {
             invalido = true;
             passwordConfirm.classList.add("is-invalid");
             passwordConfirm.classList.remove("is-valid");
+            const errorDiv = passwordConfirm.parentElement.querySelector('.invalid-feedback');
+            if (!errorDiv) {
+                const div = document.createElement('div');
+                div.className = 'invalid-feedback';
+                div.textContent = friendlyMessages.passwordMatch || 'As senhas não coincidem';
+                passwordConfirm.parentElement.appendChild(div);
+            }
+        } else if (passwordConfirm.value.length > 0) {
+            passwordConfirm.classList.remove("is-invalid");
+            passwordConfirm.classList.add("is-valid");
         }
 
         if (invalido) return;
 
-        // Desabilita o botão durante a requisição
+        // Desabilita o botão e mostra loading durante a requisição
         btnSubmit.disabled = true;
-        btnSubmit.textContent = 'Cadastrando...';
+        const textoOriginal = btnSubmit.textContent;
+        btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Cadastrando...';
+        
+        // Adiciona loading no container do formulário
+        const loadingElement = Loading({ 
+            size: 'small', 
+            variant: 'spinner', 
+            context: 'inline',
+            message: 'Processando cadastro...'
+        });
+        formulario.insertAdjacentElement('afterend', loadingElement);
 
         try {
             // Importa e usa a API
@@ -164,22 +204,27 @@ export default function renderFormCliente(container) {
                 password.value
             );
 
-            // Sucesso
-            alert('Cadastro realizado com sucesso!');
+            // Sucesso - mostra notificação e redireciona
+            notify.success('Cadastro realizado com sucesso!');
             
             // Limpa o formulário
             formulario.reset();
             
-            // Redireciona para login
-            window.location.href = 'login';
+            // Aguarda um pouco para o usuário ver a notificação antes de redirecionar
+            setTimeout(() => {
+                window.location.href = 'login';
+            }, 1500);
         } catch (error) {
-            // Erro
-            alert('Erro ao cadastrar: ' + error.message);
+            // Erro - mostra notificação de erro
+            notify.error('Erro ao cadastrar: ' + error.message);
             console.error('Erro no cadastro:', error);
         } finally {
-            // Reabilita o botão
+            // Remove loading e reabilita o botão
+            if (loadingElement && loadingElement.parentElement) {
+                loadingElement.remove();
+            }
             btnSubmit.disabled = false;
-            btnSubmit.textContent = 'Cadastrar';
+            btnSubmit.textContent = textoOriginal;
         }
     });
 
