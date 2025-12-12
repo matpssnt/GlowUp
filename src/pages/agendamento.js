@@ -112,7 +112,6 @@ export default function renderAgendamentoPage() {
 						       parseInt(servicoProfId) === parseInt(profId) ||
 						       String(servicoProfId) === String(profId);
 					});
-					console.log(`Encontrados ${servicos.length} serviços para o profissional ${profissional.id}`);
 				} else {
 					console.warn('API retornou serviços em formato inválido:', todosServicos);
 				}
