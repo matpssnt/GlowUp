@@ -278,7 +278,6 @@ export default function renderFormContRegister(container) {
     // Adiciona evento de submit
     formulario.addEventListener('submit', async (e) => {
         e.preventDefault();
-        console.log('Formulário submetido!');
 
         // Desabilita o botão durante a requisição
         btnFinalizar.disabled = true;
@@ -293,7 +292,6 @@ export default function renderFormContRegister(container) {
             }
 
             const dadosBasicos = JSON.parse(dadosBasicosStr);
-            console.log('Dados básicos recuperados:', dadosBasicos);
             
             const idCadastro = dadosBasicos.idCadastro || dadosBasicos.id;
 
@@ -347,12 +345,9 @@ export default function renderFormContRegister(container) {
                 dadosProfissional.cnpj = cnpj;
             }
 
-            console.log('Atualizando profissional com dados:', dadosProfissional);
-            
             // Atualiza o profissional
             try {
                 await api.atualizarProfissional(idProfissional, dadosProfissional);
-                console.log('Profissional atualizado com sucesso');
             } catch (error) {
                 console.error('Erro ao atualizar profissional:', error);
                 throw new Error('Erro ao atualizar dados do profissional: ' + error.message);
@@ -370,12 +365,9 @@ export default function renderFormContRegister(container) {
                 id_profissional_fk: idProfissional
             };
 
-            console.log('Criando endereço com dados:', dadosEndereco);
-            
             // Cria o endereço
             try {
                 await api.criarEndereco(dadosEndereco);
-                console.log('Endereço criado com sucesso');
             } catch (error) {
                 console.error('Erro ao criar endereço:', error);
                 // Não bloqueia o cadastro se o endereço falhar
@@ -469,8 +461,6 @@ function adicionarBuscaCep(inputCep) {
         }
 
         try {
-            console.log('Iniciando busca do CEP:', cep);
-
             // Mapeamento dos campos
             const campos = {
                 cidade: 'cidade',
@@ -479,13 +469,9 @@ function adicionarBuscaCep(inputCep) {
                 state: 'estado'
             };
 
-            console.log('Mapeamento de campos:', campos);
-
             // Busca e preenche automaticamente
             const dados = await CepAPI.buscarEPreencher(cep, campos, {
                 success: (dados) => {
-                    console.log('CEP encontrado:', dados);
-
                     // Formata o CEP no campo
                     inputCep.value = CepAPI.formatarCep(cep);
 
@@ -500,8 +486,6 @@ function adicionarBuscaCep(inputCep) {
                     notify.error('Erro ao buscar CEP: ' + error.message);
                 }
             });
-
-            console.log('Dados retornados:', dados);
 
         } catch (error) {
             console.error('Erro na busca do CEP:', error);

@@ -163,13 +163,10 @@ export default function renderFormProf(container) {
         btnSubmit.textContent = 'Cadastrando...';
 
         try {
-            console.log('Iniciando cadastro de profissional - Etapa 1');
-            
             // Importa e usa a API
             const ApiService = (await import('../utils/api.js')).default;
             const api = new ApiService();
 
-            console.log('Criando cadastro básico...');
             let idCadastro = null;
             let idProfissional = null;
             
@@ -181,12 +178,10 @@ export default function renderFormProf(container) {
                     email.value.trim(),
                     password.value
                 );
-                console.log('Resposta do cadastro:', responseCadastro);
                 
                 // Pega o ID do cadastro
                 if (responseCadastro.idCadastro || responseCadastro.id) {
                     idCadastro = responseCadastro.idCadastro || responseCadastro.id;
-                    console.log('Cadastro criado com sucesso, ID:', idCadastro);
                 } else {
                     throw new Error('Não foi possível obter o ID do cadastro criado.');
                 }
@@ -200,11 +195,7 @@ export default function renderFormProf(container) {
                 throw new Error('Não foi possível criar ou encontrar o cadastro. Por favor, verifique se o email já está em uso e tente novamente.');
             }
             
-            console.log('ID do cadastro confirmado:', idCadastro);
-            
             // Cria profissional
-            console.log('Criando profissional...');
-            
             const profissionalData = {
                 nome: nome.value.trim(),
                 email: email.value.trim(),
@@ -215,11 +206,8 @@ export default function renderFormProf(container) {
                 // CPF não é enviado aqui, pois, será preenchido na etapa 2
             };
             
-            console.log('Dados do profissional a criar:', profissionalData);
-            
             try {
                 const responseProf = await api.criarProfissional(profissionalData);
-                console.log('Resposta da criação do profissional:', responseProf);
                 
                 // Aguarda um pouco para o banco processar
                 await new Promise(resolve => setTimeout(resolve, 500));
@@ -234,18 +222,15 @@ export default function renderFormProf(container) {
                         const profCriado = await api.buscarProfissionalPorCadastro(idCadastro);
                         if (profCriado && profCriado.id) {
                             idProfissional = profCriado.id;
-                            console.log(`ID do profissional encontrado na tentativa ${tentativas + 1}:`, idProfissional);
                             break;
                         }
                     } catch (e) {
-                        console.log(`Tentativa ${tentativas + 1} falhou:`, e.message);
                     }
                     tentativas++;
                 }
                 
                 // Se ainda não encontrou, tenta listar todos e buscar pelo id_cadastro_fk
                 if (!idProfissional) {
-                    console.log('Tentando buscar profissional listando todos...');
                     try {
                         const todosProfissionais = await api.listarProfissionais();
                         if (Array.isArray(todosProfissionais)) {
@@ -255,7 +240,6 @@ export default function renderFormProf(container) {
                             );
                             if (profEncontrado && profEncontrado.id) {
                                 idProfissional = profEncontrado.id;
-                                console.log('Profissional encontrado na lista:', idProfissional);
                             }
                         }
                     } catch (e) {
@@ -281,7 +265,6 @@ export default function renderFormProf(container) {
                 idCadastro: idCadastro,
                 idProfissional: idProfissional
             };
-            console.log('Salvando dados no localStorage:', dadosBasicos);
             localStorage.setItem('dadosBasicos', JSON.stringify(dadosBasicos));
 
             // Notifica sucesso
