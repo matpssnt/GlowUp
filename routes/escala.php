@@ -2,40 +2,46 @@
 require_once __DIR__ . '/../controllers/EscalaController.php';
 require_once __DIR__ . '/../helpers/response.php';
 
-$id = $seguimentos[2] ?? null;
-$method = $_SERVER['REQUEST_METHOD'];
+if ($_SERVER['REQUEST_METHOD'] === "GET") {
 
-switch ($method) {
-    case 'GET':
-        $id ? EscalaController::getById($id) : EscalaController::getAll();
-        break;
+    $id = $seguimentos[2] ?? null;
 
-    case 'POST':
-        $data = json_decode(file_get_contents('php://input'), true);
-        EscalaController::create($data);
-        break;
-
-    case 'PUT':
-        $data = json_decode(file_get_contents('php://input'), true);
-        $id = $data['id'] ?? $id;
-        if (!$id) {
-            jsonResponse(['message' => 'ID da escala é obrigatório'], 400);
-            break;
-        }
-        EscalaController::update($data, $id);
-        break;
-
-    case 'DELETE':
-        $data = json_decode(file_get_contents('php://input'), true);
-        $id = $data['id'] ?? $id;
-        if (!$id) {
-            jsonResponse(['message' => 'ID da escala é obrigatório'], 400);
-            break;
-        }
-        EscalaController::delete($id);
-        break;
-
-    default:
-        jsonResponse(['status' => 'erro', 'message' => 'Método não permitido'], 405);
+    if (isset($id)) {
+        EscalaController::getById($id);
+    } else {
+        EscalaController::getAll();
+    }
 }
-?>
+
+elseif ($_SERVER['REQUEST_METHOD'] === "POST") {
+
+    $data = json_decode(file_get_contents('php://input'), true);
+    EscalaController::create($data);
+}
+
+elseif ($_SERVER['REQUEST_METHOD'] === "PUT") {
+
+    $data = json_decode(file_get_contents('php://input'), true);
+    $id = $data['id'];
+
+    EscalaController::update($data, $id);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === "DELETE") {
+
+    $data = json_decode(file_get_contents('php://input'), true);
+    $id = $data['id'];
+
+    if (isset($id)) {
+        EscalaController::delete($id);
+    } else {
+        jsonResponse(['message' => 'ID da escala é obrigatório'], 404);
+    }
+}
+
+else {
+    jsonResponse([
+        'status'  => 'erro',
+        'message' => 'método não permitido'
+    ], 405);
+}
