@@ -12,15 +12,29 @@ class ProfissionalController
 
         $resultado = ProfissionalModel::create($data);
         if ($resultado) {
-            return jsonResponse(['message' => 'Profissional criado com sucesso'], 200);
+            return jsonResponse([
+                'message' => 'Profissional criado com sucesso',
+                'idProfissional' => $resultado
+            ], 201);
         } else {
-            return jsonResponse(['message' => 'Erro ao criar um profissional'], 400);
+            return jsonResponse(['message' => 'Erro ao criar profissional. Verifique os dados fornecidos.'], 400);
         }
     }
 
 
     public static function update($data, $id)
     {
+        // Valida CPF/CNPJ na atualização
+        if ($data['isJuridica'] == 1) {
+            if (empty($data['cnpj'])) {
+                return jsonResponse(['message' => 'CNPJ é obrigatório para pessoa jurídica'], 400);
+            }
+        } else {
+            if (empty($data['cpf'])) {
+                return jsonResponse(['message' => 'CPF é obrigatório para pessoa física'], 400);
+            }
+        }
+
         $resultado = ProfissionalModel::update($data, $id);
         if ($resultado) {
             return jsonResponse(['message' => 'Profissional atualizado com sucesso'], 200);

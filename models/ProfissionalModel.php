@@ -35,29 +35,28 @@ class ProfissionalModel
             $idProfissional = $stmt->insert_id;
             $stmt->close();
 
+            // CPF/CNPJ são opcionais na criação, mas obrigatórios na atualização
             if ($data['isJuridica'] == 1) {
-                if (empty($data['cnpj'])) {
-                    throw new Exception("CNPJ é obrigatório");
+                if (!empty($data['cnpj'])) {
+                    $stmt = $conn->prepare("INSERT INTO juridicos (cnpj, id_profissional_fk) VALUES (?, ?)");
+                    $stmt->bind_param("si", $data['cnpj'], $idProfissional);
+                    $stmt->execute();
+                    $stmt->close();
                 }
-                $stmt = $conn->prepare("INSERT INTO juridicos (cnpj, id_profissional_fk) VALUES (?, ?)");
-                $stmt->bind_param("si", $data['cnpj'], $idProfissional);
-                $stmt->execute();
-                $stmt->close();
             } else {
-                if (empty($data['cpf'])) {
-                    throw new Exception("CPF é obrigatório");
+                if (!empty($data['cpf'])) {
+                    $stmt = $conn->prepare("INSERT INTO fisicos (cpf, id_profissional_fk) VALUES (?, ?)");
+                    $stmt->bind_param("si", $data['cpf'], $idProfissional);
+                    $stmt->execute();
+                    $stmt->close();
                 }
-                $stmt = $conn->prepare("INSERT INTO fisicos (cpf, id_profissional_fk) VALUES (?, ?)");
-                $stmt->bind_param("si", $data['cpf'], $idProfissional);
-                $stmt->execute();
-                $stmt->close();
             }
 
             $conn->commit();
             return $idProfissional;
         } catch (Exception $error) {
             $conn->rollback();
-            jsonResponse(['message' => $error->getMessage()], 400);
+            error_log("Erro ao criar profissional: " . $error->getMessage());
             return false;
         }
     }

@@ -1,0 +1,158 @@
+/* Estilos da página de Agendamento */
+
+/* Título "Nossos Serviços" */
+.titulo-servicos {
+    font-family: "Inter", sans-serif;
+    font-weight: 700;
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin: 2rem 0;
+    position: relative;
+    padding-bottom: 1rem;
+}
+
+.titulo-servicos::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+    border-radius: 2px;
+}
+
+/* Cards de serviços */
+.agendamento .cards {
+    justify-content: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+    margin-top: 20px;
+    width: 100%;
+    clear: both;
+}
+
+/* Garantir que os cards fiquem abaixo do minicarrosel */
+.perfil-content .cards {
+    margin-top: 2rem;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px 0;
+    flex-basis: 100%;
+    order: 999;
+}
+
+/* Título dos serviços dentro do perfil-content */
+.perfil-content .titulo-servicos {
+    width: 100%;
+    flex-basis: 100%;
+    order: 998;
+    margin-top: 2rem;
+}
+
+/* Modal de Agendamento */
+#agendamentoModal .modal-dialog {
+    max-width: 600px;
+}
+
+#agendamentoModal .horario-btn {
+    min-width: 80px;
+    padding: 8px 16px;
+    margin: 4px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background-color: white;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+#agendamentoModal .horario-btn:hover {
+    background-color: #f8f9fa;
+    border-color: #3b5a40;
+}
+
+#agendamentoModal .horario-btn.active {
+    background-color: #3b5a40;
+    border-color: #3b5a40;
+    color: white;
+}
+
+#agendamentoModal #horariosContainer {
+    min-height: 60px;
+    padding: 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+}
+
+#agendamentoModal #dataFormatada {
+    font-style: italic;
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+/* Alinhamento dos botões do modal */
+#agendamentoModal .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    padding: 1rem;
+    border-top: 1px solid #dee2e6;
+}
+
+#agendamentoModal .modal-footer .btn {
+    min-width: 160px;
+    padding: 0.5rem 1rem;
+    font-size: 0.95rem;
+    height: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Responsividade */
+@media (min-width: 768px) {
+    .agendamento .cards {
+        gap: 40px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .agendamento .cards {
+        gap: 70px;
+    }
+}
+
+@media (max-width: 768px) {
+    .titulo-servicos {
+        font-size: 1.5rem;
+        margin: 1.5rem 0;
+    }
+
+    #agendamentoModal .modal-dialog {
+        margin: 10px;
+    }
+
+    #agendamentoModal .horario-btn {
+        min-width: 70px;
+        font-size: 0.9rem;
+        padding: 6px 12px;
+    }
+
+    #agendamentoModal .modal-footer {
+        flex-direction: column;
+    }
+
+    #agendamentoModal .modal-footer .btn {
+        width: 100%;
+        min-width: auto;
+    }
+}

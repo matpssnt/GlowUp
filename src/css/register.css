@@ -62,9 +62,13 @@
 
 /* Aba ativa */
 .nav-tabs .nav-link.active {
-    background: linear-gradient(to right, var(--primary-color), var(--accent-color));
-    color: white;
+    background: linear-gradient(to right, var(--primary-color), var(--accent-color)) !important;
+    color: white !important;
     box-shadow: 0 4px 10px rgba(139, 107, 75, 0.3);
+}
+
+.nav-tabs .nav-link.active:hover {
+    color: white !important;
 }
 
 /* Hover nas abas */
@@ -159,34 +163,55 @@
 
 
 .card-cont-register {
-    max-width: 700px;
+    max-width: 1200px;
     width: 100%;
-    padding: 2.5rem;
+    padding: 3rem;
     background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
     border: 1px solid rgba(139, 107, 75, 0.1);
     border-radius: 24px;
     box-shadow: 0 20px 40px rgba(139, 107, 75, 0.15);
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
-    margin: 1rem auto;
+    margin: 2rem auto;
 }
 
 /* Título específico para cont-register*/
 .cont-register-title {
     font-family: "Inter", sans-serif;
     font-weight: 700;
-    font-size: 2rem;
-    margin-bottom: 2rem;
+    font-size: 2.25rem;
+    margin-bottom: 2.5rem;
     text-align: center;
-    color: var(--dark-color);
+    color: var(--primary-color);
+    position: relative;
+    padding-bottom: 1rem;
+}
+
+.cont-register-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+    border-radius: 2px;
 }
 
 /* Seções do formulário */
 .cont-register-section {
-    background: transparent;
-    border: none;
-    padding: 0;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(139, 107, 75, 0.08);
+    border-radius: 16px;
+    padding: 2rem;
     margin-bottom: 2rem;
+    transition: all 0.3s ease;
+}
+
+.cont-register-section:hover {
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 4px 12px rgba(139, 107, 75, 0.1);
 }
 
 /* Layout específico para campos de endereço conforme imagem */
@@ -223,17 +248,19 @@
 
 /* Títulos das seções */
 .cont-register-section-title {
-    color: var(--dark-color);
-    font-weight: 600;
-    font-size: 1.2rem;
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 1.4rem;
     margin-bottom: 1.5rem;
     position: relative;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid rgba(41, 95, 28, 0.1);
 }
 
 
 /* Campos de formulários */
 .cont-register-field {
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
     position: relative;
     width: 100%;
 }
@@ -248,21 +275,23 @@
 }
 
 .cont-register-field .form-control {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 12px 15px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 14px 16px;
     transition: all 0.3s ease;
-    background-color: #f9f9f9;
+    background-color: #ffffff;
     font-size: 0.95rem;
     width: 100%;
     font-family: "Inter", sans-serif;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
 .cont-register-field .form-control:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(139, 107, 75, 0.15);
+    box-shadow: 0 0 0 0.25rem rgba(41, 95, 28, 0.15), 0 4px 8px rgba(0, 0, 0, 0.08);
     background-color: white;
     outline: none;
+    transform: translateY(-1px);
 }
 
 /* Labels gerais do formulário */
@@ -341,7 +370,9 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    margin-top: 2rem;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 2px solid rgba(139, 107, 75, 0.1);
 }
 
 /* Botão de submit */
@@ -370,7 +401,7 @@
 }
 
 
-/* Link de navegação*/
+/* Link de navegação (botão voltar) - igual ao botão finalizar */
 .cont-register-nav-link {
     background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
     color: white;
@@ -379,18 +410,26 @@
     padding: 16px 32px;
     font-weight: 600;
     font-size: 1rem;
-    text-decoration: none;
-    margin-left: 24%;
     transition: all 0.3s ease;
     box-shadow: 0 8px 20px rgba(139, 107, 75, 0.3);
-    width: 52%;
+    width: 300px;
+    align-self: center;
     cursor: pointer;
 }
 
-.cont-register-nav-link:hover{
+.cont-register-nav-link:hover {
     transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(139, 107, 75, 0.4);
     background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
+}
 
+.cont-register-nav-link:active {
+    transform: translateY(-1px);
+}
+
+.cont-register-nav-link:visited,
+.cont-register-nav-link:focus {
+    color: white !important;
 }
 
 
@@ -463,16 +502,21 @@
     .card-cont-register {
         padding: 1.5rem;
         margin: 10px;
-        border-radius: 12px;
+        border-radius: 16px;
     }
 
     .cont-register-title {
-        font-size: 20px;
+        font-size: 1.5rem;
         margin-bottom: 1.5rem;
     }
 
     .cont-register-section {
+        padding: 1.5rem;
         margin-bottom: 1.5rem;
+    }
+
+    .cont-register-section-title {
+        font-size: 1.2rem;
     }
 
     /* Layout responsivo para campos */
@@ -496,18 +540,29 @@
     .cont-register-field {
         margin-bottom: 1rem;
     }
+
+    .cont-register-buttons-container {
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+    }
 }
 
 @media (max-width: 500px){
     .cont-register-nav-link{
-        width: 66%;
-        margin-left: 16%;
+        width: 100%;
+        max-width: 100%;
+        margin-left: 0;
+        padding: 14px 24px;
     }
     .cont-register-submit{
-        padding: 10px 10px;
+        padding: 14px 24px;
     }
     .card-cont-register{
-        margin-top: 7% !important;
+        margin-top: 1rem !important;
+        padding: 1.25rem;
+    }
+    .cont-register-section {
+        padding: 1.25rem;
     }
 }
 
