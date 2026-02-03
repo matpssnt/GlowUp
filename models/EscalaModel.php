@@ -115,15 +115,13 @@ class EscalaModel
             SELECT 
                 e.id,
                 e.dia_semana,
-                e.hora_inicio,
-                e.hora_fim,
-                e.ativo,
+                e.inicio,
+                e.fim,
                 p.id AS profissional_id,
                 p.nome AS profissional_nome
             FROM escalas e
             JOIN profissionais p ON p.id = e.id_profissional_fk
-            WHERE e.ativo = 1
-            ORDER BY p.nome, e.dia_semana, e.hora_inicio
+            ORDER BY p.nome, e.dia_semana, e.inicio
         ";
 
         $result = $conn->query($sql);
@@ -142,7 +140,6 @@ class EscalaModel
             FROM escalas
             WHERE id_profissional_fk = ?
               AND dia_semana = ?
-              AND ativo = 1
         ";
 
         $stmt = $conn->prepare($sql);
