@@ -95,131 +95,148 @@ export default function renderFormCliente(container) {
         helpText: 'Digite seu nome completo',
         customMessage: friendlyMessages.required
     });
-    
+
     applyVisualValidation(email, ['required', 'email'], {
         helpText: 'Digite um e-mail válido',
         customMessage: friendlyMessages.email
     });
-    
+
     applyVisualValidation(password, ['required', ['minLength', 6]], {
         helpText: 'A senha deve ter no mínimo 6 caracteres',
         customMessage: friendlyMessages.password
     });
-    
-    // Validação customizada para confirmação de senha
-    passwordConfirm.addEventListener('blur', () => {
-        if (passwordConfirm.value !== password.value) {
-            passwordConfirm.classList.add('is-invalid');
-            passwordConfirm.classList.remove('is-valid');
-            const errorDiv = document.createElement('div');
+
+    // ===============================
+    // FUNÇÕES AUXILIARES
+    // ===============================
+    function setFieldError(input, message) {
+        let errorDiv = input.parentElement.querySelector('.invalid-feedback');
+
+        input.classList.add('is-invalid');
+        input.classList.remove('is-valid');
+
+        if (!errorDiv) {
+            errorDiv = document.createElement('div');
             errorDiv.className = 'invalid-feedback';
-            errorDiv.textContent = friendlyMessages.passwordMatch;
-            passwordConfirm.parentElement.appendChild(errorDiv);
-        } else if (passwordConfirm.value.length > 0) {
-            passwordConfirm.classList.remove('is-invalid');
-            passwordConfirm.classList.add('is-valid');
-            const existingError = passwordConfirm.parentElement.querySelector('.invalid-feedback');
-            if (existingError) existingError.remove();
+            input.parentElement.appendChild(errorDiv);
         }
-    });
-    
-    password.addEventListener('input', () => {
-        if (passwordConfirm.value && passwordConfirm.value !== password.value) {
-            passwordConfirm.classList.add('is-invalid');
-            passwordConfirm.classList.remove('is-valid');
+
+        errorDiv.textContent = message;
+    }
+
+    function clearFieldError(input) {
+        input.classList.remove('is-invalid');
+        input.classList.add('is-valid');
+
+        const errorDiv = input.parentElement.querySelector('.invalid-feedback');
+        if (errorDiv) errorDiv.remove();
+    }
+
+    // ===============================
+    // VALIDAÇÃO AO SAIR DO CAMPO (BLUR)
+    // ===============================
+    passwordConfirm.addEventListener('blur', () => {
+        if (
+            passwordConfirm.value.length > 0 &&
+            passwordConfirm.value !== password.value
+        ) {
+            setFieldError(
+                passwordConfirm,
+                friendlyMessages.passwordMatch || 'As senhas não coincidem'
+            );
+        } else if (passwordConfirm.value.length > 0) {
+            clearFieldError(passwordConfirm);
         }
     });
 
-    // Função auxiliar para validar senha
+    // ===============================
+    // REVALIDA CONFIRMAÇÃO AO DIGITAR A SENHA
+    // ===============================
+    password.addEventListener('input', () => {
+        if (
+            passwordConfirm.value.length > 0 &&
+            passwordConfirm.value !== password.value
+        ) {
+            setFieldError(
+                passwordConfirm,
+                friendlyMessages.passwordMatch || 'As senhas não coincidem'
+            );
+        } else if (passwordConfirm.value.length > 0) {
+            clearFieldError(passwordConfirm);
+        }
+    });
+
+    // ===============================
+    // FUNÇÃO AUXILIAR DE SENHA
+    // ===============================
     const validarSenha = (senha) => {
         const resultado = validators.senha(senha);
-        return resultado === true; // Retorna true se válido, false se houver erro
+        return resultado === true;
     };
 
+    // ===============================
     // VALIDAÇÃO FINAL NO SUBMIT
-    formulario.addEventListener("submit", async (e) => {
+    // ===============================
+    formulario.addEventListener('submit', async (e) => {
         e.preventDefault();
         let invalido = false;
 
-        // Valida senha curta usando validators
         const resultadoSenha = validators.senha(password.value);
         if (resultadoSenha !== true) {
             invalido = true;
-            password.classList.add("is-invalid");
-            password.classList.remove("is-valid");
-            // Mostra mensagem de erro
-            const errorDiv = password.parentElement.querySelector('.invalid-feedback');
-            if (!errorDiv) {
-                const div = document.createElement('div');
-                div.className = 'invalid-feedback';
-                div.textContent = resultadoSenha;
-                password.parentElement.appendChild(div);
-            }
+            setFieldError(password, resultadoSenha);
         } else {
-            password.classList.remove("is-invalid");
-            password.classList.add("is-valid");
+            clearFieldError(password);
         }
 
-        // Valida senhas diferentes
-        if (passwordConfirm.value !== password.value) {
+        if (
+            passwordConfirm.value.length > 0 &&
+            passwordConfirm.value !== password.value
+        ) {
             invalido = true;
-            passwordConfirm.classList.add("is-invalid");
-            passwordConfirm.classList.remove("is-valid");
-            const errorDiv = passwordConfirm.parentElement.querySelector('.invalid-feedback');
-            if (!errorDiv) {
-                const div = document.createElement('div');
-                div.className = 'invalid-feedback';
-                div.textContent = friendlyMessages.passwordMatch || 'As senhas não coincidem';
-                passwordConfirm.parentElement.appendChild(div);
-            }
+            setFieldError(
+                passwordConfirm,
+                friendlyMessages.passwordMatch || 'As senhas não coincidem'
+            );
         } else if (passwordConfirm.value.length > 0) {
-            passwordConfirm.classList.remove("is-invalid");
-            passwordConfirm.classList.add("is-valid");
+            clearFieldError(passwordConfirm);
         }
 
         if (invalido) return;
 
-        // Desabilita o botão e mostra loading durante a requisição
         btnSubmit.disabled = true;
         const textoOriginal = btnSubmit.textContent;
-        btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Cadastrando...';
-        
-        // Adiciona loading no container do formulário
-        const loadingElement = Loading({ 
-            size: 'small', 
-            variant: 'spinner', 
+        btnSubmit.innerHTML =
+            '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Cadastrando...';
+
+        const loadingElement = Loading({
+            size: 'small',
+            variant: 'spinner',
             context: 'inline',
             message: 'Processando cadastro...'
         });
         formulario.insertAdjacentElement('afterend', loadingElement);
 
         try {
-            // Importa e usa a API
             const api = new ApiService();
 
-            // Faz a requisição de cadastro
-            const response = await api.cadastrarCliente(
+            await api.cadastrarCliente(
                 nome.value.trim(),
                 email.value.trim(),
                 password.value
             );
 
-            // Sucesso - mostra notificação e redireciona
             notify.success('Cadastro realizado com sucesso!');
-            
-            // Limpa o formulário
             formulario.reset();
-            
-            // Aguarda um pouco para o usuário ver a notificação antes de redirecionar
+
             setTimeout(() => {
                 window.location.href = 'login';
             }, 1500);
+
         } catch (error) {
-            // Erro - mostra notificação de erro
             notify.error('Erro ao cadastrar: ' + error.message);
             console.error('Erro no cadastro:', error);
         } finally {
-            // Remove loading e reabilita o botão
             if (loadingElement && loadingElement.parentElement) {
                 loadingElement.remove();
             }

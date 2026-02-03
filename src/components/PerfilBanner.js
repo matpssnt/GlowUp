@@ -92,7 +92,7 @@ export default function PerfilBanner(dadosProfissional = null, endereco = null, 
 
           <div class="carousel-inner">
             <div class="carousel-item active">
-              <img src="public/assets/images/Cabelo.jpg" class="d-block w-100" alt="Serviço 1" loading="eager">
+              <img src="public/assets/images/Cabelo.jpg" class="d-block w-100" alt="Serviço 1" loading="lazy">
             </div>
             <div class="carousel-item">
               <img src="public/assets/images/botox.jpg" class="d-block w-100" alt="Serviço 2" loading="lazy">
