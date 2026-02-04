@@ -21,7 +21,7 @@ export default function renderHomePage() {
        <h1 class="hero-title">Bem-vindo à Glow Up</h1>
         <p class="hero-subtitle">Sua plataforma de beleza e bem-estar.</p>
         <div class="d-flex justify-content-center gap-3 mt-3">
-            <a href="login" class="btn btn-outline-primary register-btn">Começar</a>
+            <a href="login" class="btn btn-outline-primary register-btn">Cadastre=se</a>
             <a href="#" class="btn btn-outline-primary register-btn">Veja como funciona</a>
         </div>
     `;

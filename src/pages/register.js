@@ -21,7 +21,7 @@ export default function renderRegisterPage() {
     const navbar = NavBar();
     nav.appendChild(navbar);
 
-    const campo = document.getElementById('comecar');
+    const campo = document.getElementById('cadastre-se');
     if (campo) campo.remove();
 
     // Cria o container principal

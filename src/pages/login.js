@@ -19,7 +19,7 @@ export default function renderLoginPage() {
     const navbar = NavBar();
     nav.appendChild(navbar);
 
-    const campo = document.getElementById('comecar');
+    const campo = document.getElementById('castra-se');
     if (campo) campo.remove();
 
 
