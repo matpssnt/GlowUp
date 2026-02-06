@@ -66,9 +66,18 @@ class ServicesModel {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
 
+        // 1. Remove agendamentos vinculados (Cascade manual)
+        $sqlAgendamentos = "DELETE FROM agendamentos WHERE id_servico_fk = ?";
+        $stmtA = $conn->prepare($sqlAgendamentos);
+        $stmtA->bind_param("i", $id);
+        $stmtA->execute();
+        $stmtA->close();
+
+        // 2. Remove o serviço
         $sql = "DELETE FROM servicos WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id);
+        
         return $stmt->execute();
     }
 }

@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../controllers/ServicesController.php';
 require_once __DIR__ . '/../helpers/response.php';
 
-$id = $seguimentos[2] ?? null;
+$id = $seguimentos[2] ?? $_GET['id'] ?? null;
 
 if ($_SERVER['REQUEST_METHOD'] === "GET") {
     if (isset($id)) {

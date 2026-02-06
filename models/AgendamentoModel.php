@@ -195,6 +195,7 @@ class AgendamentoModel
                 a.status,
                 a.id_cliente_fk,
                 a.id_servico_fk,
+                s.id_profissional_fk,
                 s.nome AS nome_servico,
                 s.preco,
                 s.duracao,
