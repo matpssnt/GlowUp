@@ -2,31 +2,34 @@
 require_once __DIR__ . '/../controllers/AgendamentoController.php';
 require_once __DIR__ . '/../helpers/response.php';
 
-if ($_SERVER['REQUEST_METHOD'] === "GET") {
-    $id = $seguimentos[2] ?? null;
-    if (isset($id)) {
-        AgendamentoController::getById($id);
+$method = $_SERVER['REQUEST_METHOD'];
+$path   = explode('/', trim($_SERVER['PATH_INFO'] ?? '', '/'));
+
+if ($method === 'GET') {
+    if (isset($path[1]) && is_numeric($path[1])) {
+        AgendamentoController::getById((int)$path[1]);
     } else {
         AgendamentoController::getAll();
     }
-} elseif ($_SERVER['REQUEST_METHOD'] === "POST") {
-    $data = json_decode(file_get_contents('php://input'), true);
+} elseif ($method === 'POST') {
+    $data = json_decode(file_get_contents('php://input'), true) ?? [];
     AgendamentoController::create($data);
-} elseif ($_SERVER['REQUEST_METHOD'] === "PUT") {
-    $data = json_decode(file_get_contents('php://input'), true);
+} elseif ($method === 'PUT') {
+    $data = json_decode(file_get_contents('php://input'), true) ?? [];
     $id = $data['id'] ?? $_GET['id'] ?? null;
-    if (!$id) {
+    if (!$id || !is_numeric($id)) {
         jsonResponse(['message' => 'ID do agendamento é obrigatório'], 400);
+        exit;
     }
-    AgendamentoController::update($data, $id);
-} elseif ($_SERVER['REQUEST_METHOD'] === "DELETE") {
-    $data = json_decode(file_get_contents('php://input'), true);
+    AgendamentoController::update($data, (int)$id);
+} elseif ($method === 'DELETE') {
+    $data = json_decode(file_get_contents('php://input'), true) ?? [];
     $id = $data['id'] ?? $_GET['id'] ?? null;
-    if (!$id) {
+    if (!$id || !is_numeric($id)) {
         jsonResponse(['message' => 'ID do agendamento é obrigatório'], 400);
+        exit;
     }
-    AgendamentoController::cancelar($id);
+    AgendamentoController::cancelar((int)$id);
 } else {
-    jsonResponse(['status' => 'erro', 'message' => 'Método não permitido'], 405);
+    jsonResponse(['message' => 'Método não permitido'], 405);
 }
-?>
