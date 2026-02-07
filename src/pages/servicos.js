@@ -95,8 +95,8 @@ export default function renderServicosPage() {
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Duração</label>
-                        <input type="text" name="duracao" class="form-control" placeholder="00:30:00" >
-                        <div class="form-text">Ex: 00:30:00</div>
+                        <input type="text" name="duracao" class="form-control" placeholder="00:30" >
+                        <div class="form-text">Ex: 00:30</div>
                     </div>
                     
                     <div class="col-12 d-flex gap-2 justify-content-end mt-4">
@@ -189,10 +189,10 @@ export default function renderServicosPage() {
             });
         }
 
-        // Máscara Duração (HH:MM:SS)
+        // Máscara Duração (HH:MM)
         if (inputDuracao && !maskDuracao) {
             maskDuracao = IMask(inputDuracao, {
-                mask: '00:00:00',
+                mask: '00:00',
                 lazy: false // Mostra os placeholders
             });
         }
@@ -222,15 +222,26 @@ export default function renderServicosPage() {
 
     // Helper: Formata duração para exibição
     function formatarDuracaoExibicao(duracaoStr) {
-        if (!duracaoStr) return '00:30:00';
+        if (!duracaoStr) return '00:30';
         // Se vier como DATETIME (YYYY-MM-DD HH:MM:SS), pega só o tempo
         if (duracaoStr.includes(' ')) {
             const parts = duracaoStr.split(' ');
             if (parts.length > 1) {
-                return parts[1].substring(0, 8); // Garante formato HH:MM:SS
+                const t = parts[1].substring(0, 8);
+                return t.substring(0, 5); // HH:MM
             }
         }
-        return duracaoStr;
+        const s = String(duracaoStr);
+        if (s.length >= 5) return s.substring(0, 5);
+        return s;
+    }
+
+    function normalizarDuracaoParaBackend(valor) {
+        const v = String(valor || '').trim();
+        if (!v) return '00:30:00';
+        if (v.length === 5) return `${v}:00`;
+        if (v.length === 8) return v;
+        return v;
     }
 
     // Carregar Dados
@@ -286,7 +297,7 @@ export default function renderServicosPage() {
                         <div class="fw-bold">${servico.nome}</div>
                         <div class="text-muted small text-truncate" style="max-width: 200px;">${servico.descricao || ''}</div>
                     </td>
-                    <td><span class="badge badge-primary">${servico.categoria?.nome || 'Geral'}</span></td>
+                    <td><span class="badge badge-primary">${servico.categoria_nome || 'Geral'}</span></td>
                     <td>R$ ${precoVisual}</td>
                     <td>${formatarDuracaoExibicao(servico.duracao)}</td>
                     <td class="text-end">
@@ -322,8 +333,8 @@ export default function renderServicosPage() {
 
         // Preço com Máscara
         if (maskPreco) {
-            maskPreco.value = servico.preco.toString();
-            maskPreco.updateValue();
+            const precoNumber = servico.preco !== null && servico.preco !== undefined ? Number(servico.preco) : 0;
+            maskPreco.typedValue = isNaN(precoNumber) ? 0 : precoNumber;
         } else {
             form.querySelector('[name="preco"]').value = servico.preco;
         }
@@ -366,18 +377,26 @@ export default function renderServicosPage() {
 
         // Recupera Valor Real do Preço (sem R$)
         if (maskPreco) {
-            payload.preco = maskPreco.unmaskedValue;
+            payload.preco = maskPreco.typedValue;
+        } else if (payload.preco) {
+            // fallback: aceita "R$ 1.234,56" e converte para "1234.56"
+            const raw = String(payload.preco)
+                .replace(/\s/g, '')
+                .replace('R$', '')
+                .replace(/\./g, '')
+                .replace(',', '.');
+            const parsed = Number(raw);
+            if (!isNaN(parsed)) {
+                payload.preco = parsed;
+            }
         }
 
         // Validação e Correção de Duração
         // Workaround para coluna DATETIME: Prepend data dummy se necessário
-        let duracao = payload.duracao;
-        if (!duracao) {
-            duracao = '00:30:00';
-        }
+        let duracao = normalizarDuracaoParaBackend(payload.duracao);
 
-        // Se estiver num formato HH:MM:SS ou HH:MM, adicionamos data dummy
-        // Se já tiver data (improvavel no input de mask), deixa
+        // Se estiver num formato HH:MM:SS, adicionamos data dummy
+        // Se já tiver data (improvável no input), deixa
         if (!duracao.includes(' ')) {
             payload.duracao = `2000-01-01 ${duracao}`;
         }

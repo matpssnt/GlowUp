@@ -21,6 +21,13 @@ export default function PerfilSidebar() {
         </a>
     ` : '';
 
+    const menuPerfil = userType === 'cliente' ? `
+        <a href="perfil" class="${getLinkClass('perfil')}">
+            <i class="bi bi-person"></i>
+            <span>Meu Perfil</span>
+        </a>
+    ` : '';
+
     // Menu Profissional Expandido
     const menuProfissional = userType === 'profissional' ? `
         <a href="dashboard" class="${getLinkClass('dashboard')}">
@@ -30,6 +37,14 @@ export default function PerfilSidebar() {
         <a href="servicos" class="${getLinkClass('servicos')}">
             <i class="bi bi-scissors"></i>
             <span>Meus Serviços</span>
+        </a>
+        <a href="configuracoes-loja" class="${getLinkClass('configuracoes-loja')}">
+            <i class="bi bi-gear"></i>
+            <span>Configurações da Loja</span>
+        </a>
+        <a href="seguranca" class="${getLinkClass('seguranca')}">
+            <i class="bi bi-shield-lock"></i>
+            <span>Privacidade / Segurança</span>
         </a>
     ` : '';
 
@@ -43,12 +58,9 @@ export default function PerfilSidebar() {
         
         <div class="d-flex flex-column">
             <h6 class="text-uppercase text-muted ms-3 mb-3" style="font-size: 0.75rem; letter-spacing: 1px;">Gestão</h6>
-            
-            <a href="perfil" class="${getLinkClass('perfil')}">
-                <i class="bi bi-person"></i>
-                <span>Meu Perfil</span>
-            </a>
-            
+
+            ${menuPerfil}
+
             ${menuAgendamentos}
             ${menuProfissional}
             

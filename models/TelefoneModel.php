@@ -10,9 +10,10 @@ class TelefoneModel
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ss", $data['ddd'], $data['digitos']);
         $result = $stmt->execute();
+        $idTelefone = $result ? (int) $stmt->insert_id : 0;
         $stmt->close();
 
-        return $result;
+        return $idTelefone;
     }
 
     public static function update($id, $data)

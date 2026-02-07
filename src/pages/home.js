@@ -2,6 +2,7 @@ import NavBar from "../components/NavBar.js";
 import Footer from "../components/Footer.js";
 import RoomCard from "../components/Cards.js";
 import ApiService from "../utils/api.js";
+import authState from "../utils/AuthState.js";
 
 export default function renderHomePage() {
     const divRoot = document.getElementById('root');
@@ -17,13 +18,16 @@ export default function renderHomePage() {
 
     //Conteudo Principal
     const fundoPrincipal = document.createElement('div');
+    const mostrarBotoesHero = !authState.isAuth();
     fundoPrincipal.innerHTML = `
        <h1 class="hero-title">Bem-vindo à Glow Up</h1>
         <p class="hero-subtitle">Sua plataforma de beleza e bem-estar.</p>
-        <div class="d-flex justify-content-center gap-3 mt-3">
-            <a href="login" class="btn btn-outline-primary register-btn">Cadastre=se</a>
-            <a href="#" class="btn btn-outline-primary register-btn">Veja como funciona</a>
-        </div>
+        ${mostrarBotoesHero ? `
+            <div class="d-flex justify-content-center gap-3 mt-3">
+                <a href="login" class="btn btn-outline-primary register-btn">Cadastre-se</a>
+                <a href="#" class="btn btn-outline-primary register-btn">Veja como funciona</a>
+            </div>
+        ` : ''}
     `;
     fundoPrincipal.className = 'text-center fade-in hero';
 

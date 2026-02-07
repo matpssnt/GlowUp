@@ -5,6 +5,41 @@ require_once __DIR__ . '/EscalaModel.php';
 
 class AgendamentoModel
 {
+    private static function getEscalaDoDiaOuNull($idProfissional, $diaSemana)
+    {
+        $escala = EscalaModel::getEscalaDoProfissionalNoDia($idProfissional, $diaSemana);
+        if (!$escala || empty($escala['inicio']) || empty($escala['fim'])) {
+            return null;
+        }
+        return $escala;
+    }
+
+    private static function duracaoServicoEmSegundos($valorDuracao)
+    {
+        if (empty($valorDuracao)) {
+            return 1800; // 30min
+        }
+
+        $s = (string) $valorDuracao;
+        // Pode vir como 'YYYY-MM-DD HH:MM:SS'
+        if (strpos($s, ' ') !== false) {
+            $parts = explode(' ', $s);
+            $s = $parts[1] ?? $s;
+        }
+        // Espera HH:MM ou HH:MM:SS
+        $s = substr($s, 0, 8);
+        if (strlen($s) === 5) {
+            $s .= ':00';
+        }
+
+        $t = DateTime::createFromFormat('H:i:s', $s);
+        if (!$t) {
+            return 1800;
+        }
+
+        return ((int) $t->format('H')) * 3600 + ((int) $t->format('i')) * 60 + ((int) $t->format('s'));
+    }
+
     public static function create($data)
     {
         $db = Database::getInstancia();
@@ -47,7 +82,7 @@ class AgendamentoModel
     {
         try {
             // Busca serviço com duração e profissional
-            $sql = "SELECT s.duracao, s.id_profissional_fk 
+            $sql = "SELECT s.id_profissional_fk, s.duracao 
                     FROM servicos s 
                     WHERE s.id = ?";
             $stmt = $conn->prepare($sql);
@@ -63,14 +98,13 @@ class AgendamentoModel
             }
 
             $idProfissional = $servico['id_profissional_fk'];
-            
-            // Duração padrão de 30 minutos
-            $duracaoMinutos = 30;
+
+            $duracaoSegundos = self::duracaoServicoEmSegundos($servico['duracao'] ?? null);
 
             // Converte data_hora para objetos DateTime
             $inicio = new DateTime($dataHora);
             $fim = clone $inicio;
-            $fim->modify("+{$duracaoMinutos} minutes");
+            $fim->modify("+{$duracaoSegundos} seconds");
 
             $inicioStr = $inicio->format('Y-m-d H:i:s');
             $fimStr = $fim->format('Y-m-d H:i:s');
@@ -80,33 +114,39 @@ class AgendamentoModel
 
             error_log("Verificando disponibilidade: Profissional $idProfissional, Dia $diaSemana, Hora $horaInicio");
 
-            // Verifica escala do profissional
-            $escala = EscalaModel::getEscalaDoProfissionalNoDia($idProfissional, $diaSemana);
-            
+            // Verifica escala do profissional. Sem escala = fechado.
+            $escala = self::getEscalaDoDiaOuNull($idProfissional, (int) $diaSemana);
             if (!$escala) {
-                error_log("Escala não encontrada para profissional $idProfissional no dia $diaSemana");
-                // Permitir agendamento mesmo sem escala (temporário)
-                return true;
+                error_log("Fechado: sem escala para profissional $idProfissional no dia $diaSemana");
+                return false;
             }
 
-            error_log("Escala encontrada: " . json_encode($escala));
-
             // Verifica se está dentro do horário de trabalho
-            if (isset($escala['inicio']) && isset($escala['fim'])) {
-                $horaInicioEscala = (new DateTime($escala['inicio']))->format('H:i:s');
-                $horaFimEscala = (new DateTime($escala['fim']))->format('H:i:s');
-                
-                if ($horaInicio < $horaInicioEscala || $horaInicio >= $horaFimEscala) {
-                    error_log("Fora do horário de trabalho: $horaInicio não está entre $horaInicioEscala e $horaFimEscala");
-                    return false;
-                }
+            $horaInicioEscala = (new DateTime($escala['inicio']))->format('H:i:s');
+            $horaFimEscala = (new DateTime($escala['fim']))->format('H:i:s');
+            if ($horaInicio < $horaInicioEscala || $horaInicio >= $horaFimEscala) {
+                error_log("Fora do horário de trabalho: $horaInicio não está entre $horaInicioEscala e $horaFimEscala");
+                return false;
+            }
+
+            // Também garante que o serviço termina dentro do horário de trabalho
+            $horaFim = $fim->format('H:i:s');
+            if ($horaFim > $horaFimEscala) {
+                error_log("Serviço termina após o fechamento: $horaFim > $horaFimEscala");
+                return false;
             }
 
             // Verifica agendamentos existentes (simplificado)
-            $sql = "SELECT id FROM agendamentos 
-                    WHERE id_servico_fk IN (SELECT id FROM servicos WHERE id_profissional_fk = ?)
-                      AND data_hora < ? 
-                      AND DATE_ADD(data_hora, INTERVAL 30 MINUTE) > ?
+            $sql = "SELECT a.id
+                    FROM agendamentos a
+                    JOIN servicos se ON se.id = a.id_servico_fk
+                    WHERE se.id_profissional_fk = ?
+                      AND a.status = 'Agendado'
+                      AND a.data_hora < ?
+                      AND DATE_ADD(
+                            a.data_hora,
+                            INTERVAL GREATEST(IFNULL(TIME_TO_SEC(TIME(se.duracao)), 0), 1800) SECOND
+                          ) > ?
                     FOR UPDATE";
 
             $stmt = $conn->prepare($sql);
@@ -145,8 +185,85 @@ class AgendamentoModel
     // Função para gerar horários disponíveis (mantida, mas pode ser otimizada com cache se necessário)
     public static function gerarHorariosDisponiveis($data, $idServico)
     {
-        // Implementação original (truncada no prompt, assume que está completa no seu código original)
-        // Adicione cache aqui se quiser, ex: using APCu or Redis
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
+
+        try {
+            $dataObj = new DateTime($data);
+        } catch (Exception $e) {
+            return [];
+        }
+
+        $sql = "SELECT id_profissional_fk, duracao FROM servicos WHERE id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $idServico);
+        $stmt->execute();
+        $servico = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+
+        if (!$servico) {
+            return [];
+        }
+
+        $idProfissional = (int) $servico['id_profissional_fk'];
+        $duracaoSegundos = self::duracaoServicoEmSegundos($servico['duracao'] ?? null);
+
+        $diaSemana = (int) $dataObj->format('w');
+        $escala = self::getEscalaDoDiaOuNull($idProfissional, $diaSemana);
+        if (!$escala) {
+            return [];
+        }
+
+        $inicioEscala = (new DateTime($escala['inicio']))->format('H:i:s');
+        $fimEscala = (new DateTime($escala['fim']))->format('H:i:s');
+
+        $inicioDia = new DateTime($dataObj->format('Y-m-d') . ' ' . $inicioEscala);
+        $fimDia = new DateTime($dataObj->format('Y-m-d') . ' ' . $fimEscala);
+
+        $slots = [];
+        $cursor = clone $inicioDia;
+        // Sugestões a cada 5 minutos para suportar durações como 28min
+        $intervaloSegundos = 300;
+
+        while (true) {
+            $fimSlot = clone $cursor;
+            $fimSlot->modify('+' . $duracaoSegundos . ' seconds');
+
+            if ($fimSlot > $fimDia) {
+                break;
+            }
+
+            $inicioStr = $cursor->format('Y-m-d H:i:s');
+            $fimStr = $fimSlot->format('Y-m-d H:i:s');
+
+            // Verifica conflitos de agendamento
+            $sql = "SELECT a.id
+                    FROM agendamentos a
+                    JOIN servicos se ON se.id = a.id_servico_fk
+                    WHERE se.id_profissional_fk = ?
+                      AND a.status = 'Agendado'
+                      AND a.data_hora < ?
+                      AND DATE_ADD(
+                            a.data_hora,
+                            INTERVAL GREATEST(IFNULL(TIME_TO_SEC(TIME(se.duracao)), 0), 1800) SECOND
+                          ) > ?
+                    LIMIT 1";
+
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("iss", $idProfissional, $fimStr, $inicioStr);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $conflito = $result->num_rows > 0;
+            $stmt->close();
+
+            if (!$conflito) {
+                $slots[] = $cursor->format('H:i');
+            }
+
+            $cursor->modify('+' . $intervaloSegundos . ' seconds');
+        }
+
+        return $slots;
     }
 
     public static function getById($id)
@@ -183,7 +300,7 @@ class AgendamentoModel
         return $agendamento ?: false;
     }
 
-        public static function getAll()
+    public static function getAll()
     {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();

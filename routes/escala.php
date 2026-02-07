@@ -27,7 +27,7 @@ elseif ($_SERVER['REQUEST_METHOD'] === "PUT") {
     EscalaController::update($data, $id);
 }
 
-if ($_SERVER['REQUEST_METHOD'] === "DELETE") {
+elseif ($_SERVER['REQUEST_METHOD'] === "DELETE") {
 
     $data = json_decode(file_get_contents('php://input'), true);
     $id = $data['id'];

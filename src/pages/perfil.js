@@ -11,6 +11,11 @@ export default function renderPerfilPage() {
         return;
     }
 
+    if (authState.getUserType() === 'profissional') {
+        window.location.href = '/dashboard';
+        return;
+    }
+
     const root = document.getElementById('root');
     root.innerHTML = '';
     root.style.display = 'flex';

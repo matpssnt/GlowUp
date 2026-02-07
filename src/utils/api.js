@@ -373,6 +373,19 @@ export default class ApiService {
         return await this.request(`/agendamento?id=${id}`, 'DELETE');
     }
 
+    async listarHorariosDisponiveis(data, idServicoFk) {
+        const qs = `?data=${encodeURIComponent(data)}&id_servico_fk=${encodeURIComponent(idServicoFk)}`;
+        return await this.request(`/horarios-disponiveis${qs}`, 'GET');
+    }
+
+    async trocarSenha(cadastroId, senhaAntiga, senhaNova) {
+        return await this.request('/seguranca/trocar-senha', 'POST', {
+            id_cadastro: cadastroId,
+            senha_antiga: senhaAntiga,
+            senha_nova: senhaNova
+        });
+    }
+
     // Métodos para Escala
     async listarEscalas() {
         return await this.request('/escala', 'GET');
@@ -390,4 +403,17 @@ export default class ApiService {
         }
         return [];
     }
-} 
+
+    async criarEscala(dados) {
+        return await this.request('/escala', 'POST', dados);
+    }
+
+    async atualizarEscala(id, dados) {
+        const data = { id, ...dados };
+        return await this.request('/escala', 'PUT', data);
+    }
+
+    async deletarEscala(id) {
+        return await this.request('/escala', 'DELETE', { id });
+    }
+}

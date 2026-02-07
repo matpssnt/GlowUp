@@ -8,14 +8,13 @@ class ServicesModel {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
         
-        $sql = "INSERT INTO servicos (nome, descricao, preco, duracao, id_profissional_fk, id_categoria_fk)
-                VALUES (?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO servicos (nome, descricao, preco, id_profissional_fk, id_categoria_fk)
+                VALUES (?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssdsii",
+        $stmt->bind_param("ssdii",
             $data["nome"],
             $data["descricao"],
             $data["preco"],
-            $data["duracao"],  
             $data["id_profissional_fk"],
             $data["id_categoria_fk"]
         );
@@ -26,7 +25,9 @@ class ServicesModel {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
         
-        $sql = "SELECT * FROM servicos";
+        $sql = "SELECT s.*, c.nome as categoria_nome
+                FROM servicos s
+                LEFT JOIN categoria c ON s.id_categoria_fk = c.id";
         $result = $conn->query($sql);
         return $result->fetch_all(MYSQLI_ASSOC);
     }
@@ -35,7 +36,10 @@ class ServicesModel {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
 
-        $sql = "SELECT * FROM servicos WHERE id = ?";
+        $sql = "SELECT s.*, c.nome as categoria_nome
+                FROM servicos s
+                LEFT JOIN categoria c ON s.id_categoria_fk = c.id
+                WHERE s.id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -47,14 +51,13 @@ class ServicesModel {
         $conn = $db->pegarConexao();
         
         $sql = "UPDATE servicos
-                SET nome = ?, descricao = ?, preco = ?, duracao = ?, id_profissional_fk = ?, id_categoria_fk = ?
+                SET nome = ?, descricao = ?, preco = ?, id_profissional_fk = ?, id_categoria_fk = ?
                 WHERE id = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssdsiii",
+        $stmt->bind_param("ssdiii",
             $data["nome"],
             $data["descricao"],
             $data["preco"],
-            $data["duracao"],
             $data["id_profissional_fk"],
             $data["id_categoria_fk"],
             $id
