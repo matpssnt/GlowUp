@@ -1,8 +1,8 @@
-    <?php
-    require_once __DIR__ . '/../config/database.php';
+<?php
+require_once __DIR__ . '/../config/database.php';
 
-    class IndisponibilidadeModel
-    {
+class IndisponibilidadeModel
+{
         public static function create($data)
         {
             $db = Database::getInstancia();
@@ -83,7 +83,7 @@
               hora_inicio IS NULL
               OR (
                   hora_inicio < ADDTIME(?, SEC_TO_TIME(? * 60))
-                  AND hora_fim > ?
+                  AND (hora_fim IS NULL OR hora_fim > ?)
               )
           )
     ";

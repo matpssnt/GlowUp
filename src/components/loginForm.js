@@ -115,11 +115,15 @@ export default function loginForm() {
                 
                 authState.setUser(userData, response.token);
                 
-                // Redireciona para a página home
-                // Usa window.location para garantir que o router processe a rota corretamente
+                // Redireciona conforme tipo de usuário
                 const currentPath = window.location.pathname;
                 const basePath = currentPath.split('/').slice(0, 2).join('/'); // Pega /GlowUp
-                window.location.href = basePath + '/home';
+                
+                if (userData.tipoUsuario === 'profissional') {
+                    window.location.href = basePath + '/dashboard';
+                } else {
+                    window.location.href = basePath + '/home';
+                }
             } else {
                 showError('Erro ao fazer login. Tente novamente.');
             }

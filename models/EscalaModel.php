@@ -17,8 +17,8 @@ class EscalaModel
             ) VALUES (?, ?, ?, ?)
         ";
 
-        $inicio = '2000-01-01 ' . (strlen($data['hora_inicio']) === 5 ? $data['hora_inicio'] . ':00' : $data['hora_inicio']);
-        $fim = '2000-01-01 ' . (strlen($data['hora_fim']) === 5 ? $data['hora_fim'] . ':00' : $data['hora_fim']);
+        $inicio = strlen($data['hora_inicio']) === 5 ? $data['hora_inicio'] . ':00' : $data['hora_inicio'];
+        $fim = strlen($data['hora_fim']) === 5 ? $data['hora_fim'] . ':00' : $data['hora_fim'];
 
         $stmt = $conn->prepare($sql);
         $stmt->bind_param(
@@ -50,8 +50,8 @@ class EscalaModel
             WHERE id = ?
         ";
 
-        $inicio = '2000-01-01 ' . (strlen($data['hora_inicio']) === 5 ? $data['hora_inicio'] . ':00' : $data['hora_inicio']);
-        $fim = '2000-01-01 ' . (strlen($data['hora_fim']) === 5 ? $data['hora_fim'] . ':00' : $data['hora_fim']);
+        $inicio = strlen($data['hora_inicio']) === 5 ? $data['hora_inicio'] . ':00' : $data['hora_inicio'];
+        $fim = strlen($data['hora_fim']) === 5 ? $data['hora_fim'] . ':00' : $data['hora_fim'];
 
         $stmt = $conn->prepare($sql);
         $stmt->bind_param(

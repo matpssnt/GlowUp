@@ -16,28 +16,20 @@ class AgendamentoModel
 
     private static function duracaoServicoEmSegundos($valorDuracao)
     {
-        if (empty($valorDuracao)) {
-            return 1800; // 30min
-        }
-
+        if (empty($valorDuracao)) return 1800;
+        
         $s = (string) $valorDuracao;
-        // Pode vir como 'YYYY-MM-DD HH:MM:SS'
         if (strpos($s, ' ') !== false) {
             $parts = explode(' ', $s);
-            $s = $parts[1] ?? $s;
+            $s = end($parts);
         }
-        // Espera HH:MM ou HH:MM:SS
-        $s = substr($s, 0, 8);
-        if (strlen($s) === 5) {
-            $s .= ':00';
-        }
+        $s = trim(substr($s, 0, 8));
+        if (strlen($s) === 5) $s .= ':00';
 
         $t = DateTime::createFromFormat('H:i:s', $s);
-        if (!$t) {
-            return 1800;
-        }
+        if (!$t) return 1800;
 
-        return ((int) $t->format('H')) * 3600 + ((int) $t->format('i')) * 60 + ((int) $t->format('s'));
+        return ($t->format('H') * 3600) + ($t->format('i') * 60) + $t->format('s');
     }
 
     public static function create($data)
@@ -136,7 +128,7 @@ class AgendamentoModel
                 return false;
             }
 
-            // Verifica agendamentos existentes (simplificado)
+            // Verifica agendamentos existentes (ajustado para prevenir sobreposição exata)
             $sql = "SELECT a.id
                     FROM agendamentos a
                     JOIN servicos se ON se.id = a.id_servico_fk
@@ -158,9 +150,18 @@ class AgendamentoModel
 
             if ($conflito) {
                 error_log("Conflito de horário encontrado");
+                return false;
             }
 
-            return !$conflito;
+            // Verifica indisponibilidades (bloqueios manuais)
+            require_once __DIR__ . '/IndisponibilidadeModel.php';
+            $duracaoMinutos = ceil($duracaoSegundos / 60);
+            if (IndisponibilidadeModel::temConflitoComLock($conn, $idProfissional, $data, $horaInicio, $duracaoMinutos)) {
+                error_log("Horário bloqueado por indisponibilidade manual");
+                return false;
+            }
+
+            return true;
 
         } catch (Exception $e) {
             error_log("Erro em horarioDisponivelComLock: " . $e->getMessage());
@@ -182,7 +183,6 @@ class AgendamentoModel
         return $result;
     }
 
-    // Função para gerar horários disponíveis (mantida, mas pode ser otimizada com cache se necessário)
     public static function gerarHorariosDisponiveis($data, $idServico)
     {
         $db = Database::getInstancia();
@@ -201,60 +201,96 @@ class AgendamentoModel
         $servico = $stmt->get_result()->fetch_assoc();
         $stmt->close();
 
-        if (!$servico) {
-            return [];
-        }
+        if (!$servico) return [];
 
         $idProfissional = (int) $servico['id_profissional_fk'];
         $duracaoSegundos = self::duracaoServicoEmSegundos($servico['duracao'] ?? null);
 
         $diaSemana = (int) $dataObj->format('w');
         $escala = self::getEscalaDoDiaOuNull($idProfissional, $diaSemana);
-        if (!$escala) {
-            return [];
-        }
+        if (!$escala) return [];
 
         $inicioEscala = (new DateTime($escala['inicio']))->format('H:i:s');
         $fimEscala = (new DateTime($escala['fim']))->format('H:i:s');
-
         $inicioDia = new DateTime($dataObj->format('Y-m-d') . ' ' . $inicioEscala);
         $fimDia = new DateTime($dataObj->format('Y-m-d') . ' ' . $fimEscala);
 
+        // --- Otimização: Busca todos os agendamentos do dia de uma vez ---
+        $sqlAgnd = "SELECT a.data_hora, se.duracao 
+                    FROM agendamentos a 
+                    JOIN servicos se ON se.id = a.id_servico_fk 
+                    WHERE se.id_profissional_fk = ? AND a.status = 'Agendado' AND DATE(a.data_hora) = ?";
+        $stmtAgnd = $conn->prepare($sqlAgnd);
+        $stmtAgnd->bind_param("is", $idProfissional, $data);
+        $stmtAgnd->execute();
+        $agendamentos = $stmtAgnd->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmtAgnd->close();
+
+        // --- Otimização: Busca todas as indisponibilidades do dia ---
+        $sqlIndisp = "SELECT hora_inicio, hora_fim FROM indisponibilidades WHERE id_profissional_fk = ? AND data = ?";
+        $stmtIndisp = $conn->prepare($sqlIndisp);
+        $stmtIndisp->bind_param("is", $idProfissional, $data);
+        $stmtIndisp->execute();
+        $indisponibilidades = $stmtIndisp->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmtIndisp->close();
+
         $slots = [];
         $cursor = clone $inicioDia;
-        // Sugestões a cada 5 minutos para suportar durações como 28min
-        $intervaloSegundos = 300;
+        
+        // Se a data for hoje, começa a partir do horário atual (+30 min de folga)
+        $hoje = new DateTime();
+        if ($dataObj->format('Y-m-d') === $hoje->format('Y-m-d')) {
+            $agoraFolga = clone $hoje;
+            $agoraFolga->modify('+30 minutes');
+            if ($cursor < $agoraFolga) {
+                $cursor = $agoraFolga;
+            }
+        }
+
+        $intervaloSegundos = 300; // 5 min de intervalo para maior flexibilidade
 
         while (true) {
             $fimSlot = clone $cursor;
             $fimSlot->modify('+' . $duracaoSegundos . ' seconds');
 
-            if ($fimSlot > $fimDia) {
-                break;
+            if ($fimSlot > $fimDia) break;
+
+            $inicioSlotTS = $cursor->getTimestamp();
+            $fimSlotTS = $fimSlot->getTimestamp();
+            $conflito = false;
+
+            // 1. Verifica conflitos com agendamentos em memória
+            foreach ($agendamentos as $ag) {
+                $agInicioTS = strtotime($ag['data_hora']);
+                $agDurSec = self::duracaoServicoEmSegundos($ag['duracao']);
+                $agFimTS = $agInicioTS + $agDurSec;
+                
+                // Conflito se o slot começa antes do fim do agendamento E termina após o início
+                if ($inicioSlotTS < $agFimTS && $fimSlotTS > $agInicioTS) {
+                    $conflito = true;
+                    break;
+                }
             }
 
-            $inicioStr = $cursor->format('Y-m-d H:i:s');
-            $fimStr = $fimSlot->format('Y-m-d H:i:s');
+            if ($conflito) {
+                $cursor->modify('+' . $intervaloSegundos . ' seconds');
+                continue;
+            }
 
-            // Verifica conflitos de agendamento
-            $sql = "SELECT a.id
-                    FROM agendamentos a
-                    JOIN servicos se ON se.id = a.id_servico_fk
-                    WHERE se.id_profissional_fk = ?
-                      AND a.status = 'Agendado'
-                      AND a.data_hora < ?
-                      AND DATE_ADD(
-                            a.data_hora,
-                            INTERVAL GREATEST(IFNULL(TIME_TO_SEC(TIME(se.duracao)), 0), 1800) SECOND
-                          ) > ?
-                    LIMIT 1";
+            // 2. Verifica conflitos com indisponibilidades em memória
+            foreach ($indisponibilidades as $ind) {
+                if ($ind['hora_inicio'] === null) { // Bloqueio o dia todo
+                    $conflito = true;
+                    break;
+                }
+                $indInicioTS = strtotime($data . ' ' . $ind['hora_inicio']);
+                $indFimTS = $ind['hora_fim'] ? strtotime($data . ' ' . $ind['hora_fim']) : strtotime($data . ' 23:59:59');
 
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("iss", $idProfissional, $fimStr, $inicioStr);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $conflito = $result->num_rows > 0;
-            $stmt->close();
+                if ($inicioSlotTS < $indFimTS && $fimSlotTS > $indInicioTS) {
+                    $conflito = true;
+                    break;
+                }
+            }
 
             if (!$conflito) {
                 $slots[] = $cursor->format('H:i');

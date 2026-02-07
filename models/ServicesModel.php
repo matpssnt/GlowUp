@@ -25,9 +25,8 @@ class ServicesModel {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
         
-        $sql = "SELECT s.*, c.nome as categoria_nome
-                FROM servicos s
-                LEFT JOIN categoria c ON s.id_categoria_fk = c.id";
+        $sql = "SELECT s.*
+                FROM servicos s";
         $result = $conn->query($sql);
         return $result->fetch_all(MYSQLI_ASSOC);
     }
@@ -36,9 +35,8 @@ class ServicesModel {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
 
-        $sql = "SELECT s.*, c.nome as categoria_nome
+        $sql = "SELECT s.*
                 FROM servicos s
-                LEFT JOIN categoria c ON s.id_categoria_fk = c.id
                 WHERE s.id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id);
