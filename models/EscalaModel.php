@@ -3,76 +3,116 @@ require_once __DIR__ . '/../config/database.php';
 
 class EscalaModel
 {
-    public static function create($data)
+    private static function normalizarHora(string $hora): string
     {
-        $db = Database::getInstancia();
-        $conn = $db->pegarConexao();
-
-        $sql = "
-            INSERT INTO escalas (
-                dia_semana,
-                inicio,
-                fim,
-                id_profissional_fk
-            ) VALUES (?, ?, ?, ?)
-        ";
-
-        $inicio = strlen($data['hora_inicio']) === 5 ? $data['hora_inicio'] . ':00' : $data['hora_inicio'];
-        $fim = strlen($data['hora_fim']) === 5 ? $data['hora_fim'] . ':00' : $data['hora_fim'];
-
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param(
-            "issi",
-            $data['dia_semana'],
-            $inicio,
-            $fim,
-            $data['id_profissional_fk']
-        );
-
-        $result = $stmt->execute();
-        $stmt->close();
-
-        return $result;
+        $hora = trim($hora);
+        return strlen($hora) === 5 ? $hora . ':00' : $hora;
     }
 
-    public static function update($data, $id)
+    public static function create(array $data): bool
     {
-        $db = Database::getInstancia();
-        $conn = $db->pegarConexao();
+        $conn = Database::getInstancia()->pegarConexao();
 
-        $sql = "
-            UPDATE escalas
-            SET
-                dia_semana = ?,
-                inicio = ?,
-                fim = ?,
-                id_profissional_fk = ?
-            WHERE id = ?
-        ";
-
-        $inicio = strlen($data['hora_inicio']) === 5 ? $data['hora_inicio'] . ':00' : $data['hora_inicio'];
-        $fim = strlen($data['hora_fim']) === 5 ? $data['hora_fim'] . ':00' : $data['hora_fim'];
-
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param(
-            "issii",
-            $data['dia_semana'],
-            $inicio,
-            $fim,
+        // Validação extra de sobreposição (simples)
+        if (self::temSobreposicaoNoDia(
             $data['id_profissional_fk'],
-            $id
-        );
+            $data['dia_semana'],
+            $data['hora_inicio'],
+            $data['hora_fim']
+        )) {
+            throw new Exception("Já existe um bloco de horário sobreposto neste dia");
+        }
 
+        $sql = "INSERT INTO escalas (dia_semana, inicio, fim, id_profissional_fk) 
+                VALUES (?, ?, ?, ?)";
+
+        $inicio = self::normalizarHora($data['hora_inicio']);
+        $fim    = self::normalizarHora($data['hora_fim']);
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("issi", $data['dia_semana'], $inicio, $fim, $data['id_profissional_fk']);
         $result = $stmt->execute();
         $stmt->close();
 
         return $result;
     }
 
-    public static function delete($id)
+    public static function update(array $data, int $id): bool
     {
-        $db = Database::getInstancia();
-        $conn = $db->pegarConexao();
+        $conn = Database::getInstancia()->pegarConexao();
+
+        // Busca dados atuais para validar
+        $atual = self::getById($id);
+        if (!$atual) return false;
+
+        if (self::temSobreposicaoNoDia(
+            $data['id_profissional_fk'],
+            $data['dia_semana'],
+            $data['hora_inicio'],
+            $data['hora_fim'],
+            $id // exclui o próprio registro
+        )) {
+            throw new Exception("Horário sobreposto com outro bloco");
+        }
+
+        $sql = "UPDATE escalas SET dia_semana = ?, inicio = ?, fim = ?, id_profissional_fk = ? 
+                WHERE id = ?";
+
+        $inicio = self::normalizarHora($data['hora_inicio']);
+        $fim    = self::normalizarHora($data['hora_fim']);
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("issii", $data['dia_semana'], $inicio, $fim, $data['id_profissional_fk'], $id);
+        $result = $stmt->execute();
+        $stmt->close();
+
+        return $result;
+    }
+
+    private static function temSobreposicaoNoDia(int $idProf, int $diaSemana, string $inicioNovo, string $fimNovo, int $excluirId = 0): bool
+    {
+        $conn = Database::getInstancia()->pegarConexao();
+
+        $sql = "SELECT 1 FROM escalas 
+                WHERE id_profissional_fk = ? 
+                  AND dia_semana = ?
+                  AND id != ?
+                  AND NOT (fim <= ? OR inicio >= ?)";
+
+        $inicio = self::normalizarHora($inicioNovo);
+        $fim    = self::normalizarHora($fimNovo);
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("iiiss", $idProf, $diaSemana, $excluirId, $inicio, $fim);
+        $stmt->execute();
+        $tem = $stmt->get_result()->num_rows > 0;
+        $stmt->close();
+
+        return $tem;
+    }
+
+    // getEscalaDoProfissionalNoDia → agora retorna TODOS os blocos do dia
+    public static function getEscalaDoProfissionalNoDia(int $idProfissional, int $diaSemana): array
+    {
+        $conn = Database::getInstancia()->pegarConexao();
+
+        $sql = "SELECT inicio, fim 
+                FROM escalas 
+                WHERE id_profissional_fk = ? AND dia_semana = ?
+                ORDER BY inicio";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ii", $idProfissional, $diaSemana);
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+
+        return $result; // array de blocos
+    }
+
+    public static function delete(int $id): bool
+    {
+        $conn = Database::getInstancia()->pegarConexao();
 
         $sql = "DELETE FROM escalas WHERE id = ?";
 
@@ -84,10 +124,9 @@ class EscalaModel
         return $result;
     }
 
-    public static function getById($id)
+    public static function getById(int $id): ?array
     {
-        $db = Database::getInstancia();
-        $conn = $db->pegarConexao();
+        $conn = Database::getInstancia()->pegarConexao();
 
         $sql = "
             SELECT 
@@ -101,17 +140,15 @@ class EscalaModel
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id);
         $stmt->execute();
-
         $result = $stmt->get_result()->fetch_assoc();
         $stmt->close();
 
-        return $result;
+        return $result ?: null;
     }
 
-    public static function getAll()
+    public static function getAll(): array
     {
-        $db = Database::getInstancia();
-        $conn = $db->pegarConexao();
+        $conn = Database::getInstancia()->pegarConexao();
 
         $sql = "
             SELECT 
@@ -127,30 +164,6 @@ class EscalaModel
         ";
 
         $result = $conn->query($sql);
-
-        return $result->fetch_all(MYSQLI_ASSOC);
-    }
-
-    // 🔥 Comunicação direta para agendamento
-    public static function getEscalaDoProfissionalNoDia($idProfissional, $diaSemana)
-    {
-        $db = Database::getInstancia();
-        $conn = $db->pegarConexao();
-
-        $sql = "
-            SELECT *
-            FROM escalas
-            WHERE id_profissional_fk = ?
-              AND dia_semana = ?
-        ";
-
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ii", $idProfissional, $diaSemana);
-        $stmt->execute();
-
-        $result = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
-
-        return $result;
+        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
     }
 }

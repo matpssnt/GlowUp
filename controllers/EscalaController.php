@@ -5,92 +5,92 @@ require_once __DIR__ . '/ValidadorController.php';
 
 class EscalaController
 {
-    public static function create($data)
-    {
-        // Ajuste: campos corretos da escala recorrente
-        ValidadorController::validate_data(
-            $data,
-            ['hora_inicio', 'hora_fim', 'dia_semana', 'id_profissional_fk']
-        );
-
-        // validar formato de hora
-        if (!preg_match('/^\d{2}:\d{2}(:\d{2})?$/', $data['hora_inicio']) ||
-            !preg_match('/^\d{2}:\d{2}(:\d{2})?$/', $data['hora_fim'])) {
-            return jsonResponse(['message' => 'Formato de hora inválido'], 400);
-        }
-
-        if ($data['hora_inicio'] >= $data['hora_fim']) {
-            return jsonResponse(['message' => 'Hora inicial deve ser menor que a final'], 400);
-        }
-
-        $result = EscalaModel::create($data);
-
-        if ($result) {
-            return jsonResponse([
-                'message' => 'Escala criada com sucesso'
-            ], 201);
-        } else {
-            return jsonResponse(['message' => 'Erro ao criar escala'], 400);
-        }
-    }
-
-    public static function update($data, $id)
+    public static function create(array $data): void
     {
         ValidadorController::validate_data(
             $data,
             ['hora_inicio', 'hora_fim', 'dia_semana', 'id_profissional_fk']
         );
 
-        // validar formato de hora
         if (!preg_match('/^\d{2}:\d{2}(:\d{2})?$/', $data['hora_inicio']) ||
             !preg_match('/^\d{2}:\d{2}(:\d{2})?$/', $data['hora_fim'])) {
-            return jsonResponse(['message' => 'Formato de hora inválido'], 400);
+            jsonResponse(['message' => 'Formato de hora inválido'], 400);
+            return;
         }
 
         if ($data['hora_inicio'] >= $data['hora_fim']) {
-            return jsonResponse(['message' => 'Hora inicial deve ser menor que a final'], 400);
+            jsonResponse(['message' => 'Hora inicial deve ser menor que a final'], 400);
+            return;
         }
 
-        $result = EscalaModel::update($data, $id);
-
-        if ($result) {
-            return jsonResponse(['message' => 'Escala atualizada com sucesso'], 200);
-        } else {
-            return jsonResponse(['message' => 'Erro ao atualizar escala'], 400);
+        try {
+            $result = EscalaModel::create($data);
+            jsonResponse(['message' => 'Escala criada com sucesso'], 201);
+        } catch (Exception $e) {
+            jsonResponse(['message' => $e->getMessage()], 400);
         }
     }
 
-    public static function delete($id)
+    public static function update(array $data, int $id): void
+    {
+        ValidadorController::validate_data(
+            $data,
+            ['hora_inicio', 'hora_fim', 'dia_semana', 'id_profissional_fk']
+        );
+
+        if (!preg_match('/^\d{2}:\d{2}(:\d{2})?$/', $data['hora_inicio']) ||
+            !preg_match('/^\d{2}:\d{2}(:\d{2})?$/', $data['hora_fim'])) {
+            jsonResponse(['message' => 'Formato de hora inválido'], 400);
+            return;
+        }
+
+        if ($data['hora_inicio'] >= $data['hora_fim']) {
+            jsonResponse(['message' => 'Hora inicial deve ser menor que a final'], 400);
+            return;
+        }
+
+        try {
+            $result = EscalaModel::update($data, $id);
+            if ($result) {
+                jsonResponse(['message' => 'Escala atualizada com sucesso'], 200);
+            } else {
+                jsonResponse(['message' => 'Erro ao atualizar escala'], 400);
+            }
+        } catch (Exception $e) {
+            jsonResponse(['message' => $e->getMessage()], 400);
+        }
+    }
+
+    public static function delete(int $id): void
     {
         $result = EscalaModel::delete($id);
 
         if ($result) {
-            return jsonResponse(['message' => 'Escala desativada com sucesso'], 200);
+            jsonResponse(['message' => 'Escala removida com sucesso'], 200);
         } else {
-            return jsonResponse(['message' => 'Erro ao desativar escala'], 400);
+            jsonResponse(['message' => 'Erro ao remover escala'], 400);
         }
     }
 
-    public static function getById($id)
+    public static function getById(int $id): void
     {
         $result = EscalaModel::getById($id);
 
         if ($result) {
-            return jsonResponse($result, 200);
+            jsonResponse($result, 200);
         } else {
-            return jsonResponse(['message' => 'Escala não encontrada'], 404);
+            jsonResponse(['message' => 'Escala não encontrada'], 404);
         }
     }
 
-    public static function getAll()
+    public static function getAll(): void
     {
         $result = EscalaModel::getAll();
 
         if (!empty($result)) {
-            return jsonResponse($result, 200);
+            jsonResponse($result, 200);
         } else {
-            return jsonResponse(['message' => 'Nenhuma escala encontrada'], 404);
+            jsonResponse(['message' => 'Nenhuma escala encontrada'], 404);
         }
     }
 }
-?>
