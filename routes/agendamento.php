@@ -14,14 +14,14 @@ if ($_SERVER['REQUEST_METHOD'] === "GET") {
     AgendamentoController::create($data);
 } elseif ($_SERVER['REQUEST_METHOD'] === "PUT") {
     $data = json_decode(file_get_contents('php://input'), true);
-    $id = $data['id'] ?? null;
+    $id = $data['id'] ?? $_GET['id'] ?? null;
     if (!$id) {
         jsonResponse(['message' => 'ID do agendamento é obrigatório'], 400);
     }
     AgendamentoController::update($data, $id);
 } elseif ($_SERVER['REQUEST_METHOD'] === "DELETE") {
     $data = json_decode(file_get_contents('php://input'), true);
-    $id = $data['id'] ?? null;
+    $id = $data['id'] ?? $_GET['id'] ?? null;
     if (!$id) {
         jsonResponse(['message' => 'ID do agendamento é obrigatório'], 400);
     }

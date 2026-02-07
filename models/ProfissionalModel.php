@@ -101,39 +101,51 @@ class ProfissionalModel
             $existeJuridico = $conn->query("SELECT id FROM juridicos WHERE id_profissional_fk = $id")->num_rows > 0;
 
             if ($novoTipo === 0) {
-                if (!empty($data["cpf"])) {
-                    if ($existeFisico) {
-                        $stmt2 = $conn->prepare("UPDATE fisicos SET cpf = ? WHERE id_profissional_fk = ?");
-                        $stmt2->bind_param("si", $data["cpf"], $id);
-                        if (!$stmt2->execute()) throw new Exception("Falha ao atualizar CPF");
-                    } else {
-                        $stmt2 = $conn->prepare("INSERT INTO fisicos (cpf, id_profissional_fk) VALUES (?, ?)");
-                        $stmt2->bind_param("si", $data["cpf"], $id);
-                        if (!$stmt2->execute()) throw new Exception("Falha ao criar CPF");
-                    }
-                }
+                // Se mudou para pessoa física ou já é
                 if ($existeJuridico) {
                     if (!$conn->query("DELETE FROM juridicos WHERE id_profissional_fk = $id")) {
                         throw new Exception("Falha ao remover CNPJ ao migrar para fisico");
                     }
                 }
+                // Se CPF foi fornecido, atualiza ou cria
+                if (!empty($data["cpf"])) {
+                    // Remove máscara se houver
+                    $cpfLimpo = preg_replace('/[^0-9]/', '', $data["cpf"]);
+                    if ($existeFisico) {
+                        $stmt2 = $conn->prepare("UPDATE fisicos SET cpf = ? WHERE id_profissional_fk = ?");
+                        $stmt2->bind_param("si", $cpfLimpo, $id);
+                        if (!$stmt2->execute()) throw new Exception("Falha ao atualizar CPF");
+                    } else {
+                        $stmt2 = $conn->prepare("INSERT INTO fisicos (cpf, id_profissional_fk) VALUES (?, ?)");
+                        $stmt2->bind_param("si", $cpfLimpo, $id);
+                        if (!$stmt2->execute()) throw new Exception("Falha ao criar CPF");
+                    }
+                } elseif (!$existeFisico) {
+                    // Se não tem CPF e não existe registro, não faz nada (mantém sem CPF)
+                }
             }
             if ($novoTipo === 1) {
-                if (!empty($data["cnpj"])) {
-                    if ($existeJuridico) {
-                        $stmt2 = $conn->prepare("UPDATE juridicos SET cnpj = ? WHERE id_profissional_fk = ?");
-                        $stmt2->bind_param("si", $data["cnpj"], $id);
-                        if (!$stmt2->execute()) throw new Exception("Falha ao atualizar CNPJ");
-                    } else {
-                        $stmt2 = $conn->prepare("INSERT INTO juridicos (cnpj, id_profissional_fk) VALUES (?, ?)");
-                        $stmt2->bind_param("si", $data["cnpj"], $id);
-                        if (!$stmt2->execute()) throw new Exception("Falha ao criar CNPJ");
-                    }
-                }
+                // Se mudou para pessoa jurídica ou já é
                 if ($existeFisico) {
                     if (!$conn->query("DELETE FROM fisicos WHERE id_profissional_fk = $id")) {
                         throw new Exception("Falha ao remover CPF ao migrar para juridico");
                     }
+                }
+                // Se CNPJ foi fornecido, atualiza ou cria
+                if (!empty($data["cnpj"])) {
+                    // Remove máscara se houver
+                    $cnpjLimpo = preg_replace('/[^0-9]/', '', $data["cnpj"]);
+                    if ($existeJuridico) {
+                        $stmt2 = $conn->prepare("UPDATE juridicos SET cnpj = ? WHERE id_profissional_fk = ?");
+                        $stmt2->bind_param("si", $cnpjLimpo, $id);
+                        if (!$stmt2->execute()) throw new Exception("Falha ao atualizar CNPJ");
+                    } else {
+                        $stmt2 = $conn->prepare("INSERT INTO juridicos (cnpj, id_profissional_fk) VALUES (?, ?)");
+                        $stmt2->bind_param("si", $cnpjLimpo, $id);
+                        if (!$stmt2->execute()) throw new Exception("Falha ao criar CNPJ");
+                    }
+                } elseif (!$existeJuridico) {
+                    // Se não tem CNPJ e não existe registro, não faz nada (mantém sem CNPJ)
                 }
             }
 
@@ -159,10 +171,10 @@ class ProfissionalModel
     {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
-        $sql = "SELECT profissionais.id, profissionais.nome, profissionais.email
-        FROM profissionais
-        JOIN cadastros ON cadastros.id = profissionais.id_cadastro_fk
-        WHERE profissionais.email = ?";
+        $sql = "SELECT p.id, p.nome, p.email, c.senha
+                FROM profissionais p
+                JOIN cadastros c ON c.id = p.id_cadastro_fk
+                WHERE p.email = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $email);
         $stmt->execute();
@@ -172,7 +184,6 @@ class ProfissionalModel
                 unset($prof['senha']);
                 return $prof;
             }
-            return false;
         }
         return false;
     }

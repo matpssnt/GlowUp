@@ -38,8 +38,14 @@ class EscalaController
     {
         ValidadorController::validate_data(
             $data,
-            ['hora_inicio', 'hora_fim', 'dia_semana', 'id_profissional_fk', 'ativo']
+            ['hora_inicio', 'hora_fim', 'dia_semana', 'id_profissional_fk']
         );
+
+        // validar formato de hora
+        if (!preg_match('/^\d{2}:\d{2}(:\d{2})?$/', $data['hora_inicio']) ||
+            !preg_match('/^\d{2}:\d{2}(:\d{2})?$/', $data['hora_fim'])) {
+            return jsonResponse(['message' => 'Formato de hora inválido'], 400);
+        }
 
         if ($data['hora_inicio'] >= $data['hora_fim']) {
             return jsonResponse(['message' => 'Hora inicial deve ser menor que a final'], 400);

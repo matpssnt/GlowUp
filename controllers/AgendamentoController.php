@@ -35,7 +35,15 @@ class AgendamentoController
 
     public static function update($data, $id)
     {
-        // Implementação original, adicione validações semelhantes se necessário
+        // Se update for apenas status (cancelamento/confirmacao), passamos direto
+        // Se haver mudança de horário, precisaríamos revalidar disponibilidades
+        
+        $resultado = AgendamentoModel::update($id, $data);
+        
+        if ($resultado) {
+             return jsonResponse(['message' => 'Agendamento atualizado com sucesso'], 200);
+        }
+        return jsonResponse(['message' => 'Erro ao atualizar agendamento'], 400);
     }
 
     public static function cancelar($id)

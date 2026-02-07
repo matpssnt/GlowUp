@@ -8,14 +8,13 @@ class ServicesModel {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
         
-        $sql = "INSERT INTO servicos (nome, descricao, preco, duracao, id_profissional_fk, id_categoria_fk)
-                VALUES (?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO servicos (nome, descricao, preco, id_profissional_fk, id_categoria_fk)
+                VALUES (?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssdsii",
+        $stmt->bind_param("ssdii",
             $data["nome"],
             $data["descricao"],
             $data["preco"],
-            $data["duracao"],  
             $data["id_profissional_fk"],
             $data["id_categoria_fk"]
         );
@@ -26,7 +25,8 @@ class ServicesModel {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
         
-        $sql = "SELECT * FROM servicos";
+        $sql = "SELECT s.*
+                FROM servicos s";
         $result = $conn->query($sql);
         return $result->fetch_all(MYSQLI_ASSOC);
     }
@@ -35,7 +35,9 @@ class ServicesModel {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
 
-        $sql = "SELECT * FROM servicos WHERE id = ?";
+        $sql = "SELECT s.*
+                FROM servicos s
+                WHERE s.id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -47,14 +49,13 @@ class ServicesModel {
         $conn = $db->pegarConexao();
         
         $sql = "UPDATE servicos
-                SET nome = ?, descricao = ?, preco = ?, duracao = ?, id_profissional_fk = ?, id_categoria_fk = ?
+                SET nome = ?, descricao = ?, preco = ?, id_profissional_fk = ?, id_categoria_fk = ?
                 WHERE id = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssdsiii",
+        $stmt->bind_param("ssdiii",
             $data["nome"],
             $data["descricao"],
             $data["preco"],
-            $data["duracao"],
             $data["id_profissional_fk"],
             $data["id_categoria_fk"],
             $id
@@ -66,9 +67,18 @@ class ServicesModel {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
 
+        // 1. Remove agendamentos vinculados (Cascade manual)
+        $sqlAgendamentos = "DELETE FROM agendamentos WHERE id_servico_fk = ?";
+        $stmtA = $conn->prepare($sqlAgendamentos);
+        $stmtA->bind_param("i", $id);
+        $stmtA->execute();
+        $stmtA->close();
+
+        // 2. Remove o serviço
         $sql = "DELETE FROM servicos WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id);
+        
         return $stmt->execute();
     }
 }

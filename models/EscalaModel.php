@@ -11,19 +11,21 @@ class EscalaModel
         $sql = "
             INSERT INTO escalas (
                 dia_semana,
-                hora_inicio,
-                hora_fim,
-                id_profissional_fk,
-                ativo
-            ) VALUES (?, ?, ?, ?, 1)
+                inicio,
+                fim,
+                id_profissional_fk
+            ) VALUES (?, ?, ?, ?)
         ";
+
+        $inicio = strlen($data['hora_inicio']) === 5 ? $data['hora_inicio'] . ':00' : $data['hora_inicio'];
+        $fim = strlen($data['hora_fim']) === 5 ? $data['hora_fim'] . ':00' : $data['hora_fim'];
 
         $stmt = $conn->prepare($sql);
         $stmt->bind_param(
             "issi",
             $data['dia_semana'],
-            $data['hora_inicio'],
-            $data['hora_fim'],
+            $inicio,
+            $fim,
             $data['id_profissional_fk']
         );
 
@@ -42,21 +44,22 @@ class EscalaModel
             UPDATE escalas
             SET
                 dia_semana = ?,
-                hora_inicio = ?,
-                hora_fim = ?,
-                id_profissional_fk = ?,
-                ativo = ?
+                inicio = ?,
+                fim = ?,
+                id_profissional_fk = ?
             WHERE id = ?
         ";
 
+        $inicio = strlen($data['hora_inicio']) === 5 ? $data['hora_inicio'] . ':00' : $data['hora_inicio'];
+        $fim = strlen($data['hora_fim']) === 5 ? $data['hora_fim'] . ':00' : $data['hora_fim'];
+
         $stmt = $conn->prepare($sql);
         $stmt->bind_param(
-            "issiii",
+            "issii",
             $data['dia_semana'],
-            $data['hora_inicio'],
-            $data['hora_fim'],
+            $inicio,
+            $fim,
             $data['id_profissional_fk'],
-            $data['ativo'],
             $id
         );
 
@@ -71,8 +74,7 @@ class EscalaModel
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
 
-        // Soft delete (recomendado)
-        $sql = "UPDATE escalas SET ativo = 0 WHERE id = ?";
+        $sql = "DELETE FROM escalas WHERE id = ?";
 
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id);
@@ -117,7 +119,7 @@ class EscalaModel
                 e.dia_semana,
                 e.inicio,
                 e.fim,
-                p.id AS profissional_id,
+                e.id_profissional_fk,
                 p.nome AS profissional_nome
             FROM escalas e
             JOIN profissionais p ON p.id = e.id_profissional_fk

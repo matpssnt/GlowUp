@@ -8,9 +8,9 @@ class TelefoneController {
     public static function create($data){
         ValidadorController::validate_data($data, ['ddd', 'digitos']);
 
-        $result = TelefoneModel::create($data);
-        if ($result) {
-            return jsonResponse(['message' => 'Telefone criado com sucesso'], 200);
+        $idTelefone = TelefoneModel::create($data);
+        if ($idTelefone) {
+            return jsonResponse(['message' => 'Telefone criado com sucesso', 'id' => $idTelefone], 200);
         } else {
             return jsonResponse(['message' => 'Erro ao criar telefone'], 400);
         }

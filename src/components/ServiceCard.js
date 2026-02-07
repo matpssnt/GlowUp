@@ -42,11 +42,7 @@ export default function ServiceCard(servico, profissional = null) {
 
     // Cria e mostra modal
     const modal = AgendamentoModal(servico, profissional);
-    if (modal) {
-      document.body.appendChild(modal);
-      const bsModal = new bootstrap.Modal(modal);
-      bsModal.show();
-    }
+    // O modal já é adicionado ao DOM e mostrado dentro da função AgendamentoModal
   });
 
   return card;
