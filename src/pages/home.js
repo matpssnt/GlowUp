@@ -22,12 +22,10 @@ export default function renderHomePage() {
     fundoPrincipal.innerHTML = `
        <h1 class="hero-title">Bem-vindo à Glow Up</h1>
         <p class="hero-subtitle">Sua plataforma de beleza e bem-estar.</p>
-        ${mostrarBotoesHero ? `
-            <div class="d-flex justify-content-center gap-3 mt-3">
-                <a href="login" class="btn btn-outline-primary register-btn">Cadastre-se</a>
-                <a href="#" class="btn btn-outline-primary register-btn">Veja como funciona</a>
-            </div>
-        ` : ''}
+        <div class="d-flex justify-content-center gap-3 mt-3">
+            <a href="login" class="btn btn-outline-primary register-btn">Login</a>
+            <a href="#" class="btn btn-outline-primary register-btn">Veja como funciona</a>
+        </div>
     `;
     fundoPrincipal.className = 'text-center fade-in hero';
 

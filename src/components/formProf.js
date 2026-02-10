@@ -78,85 +78,127 @@ export default function renderFormProf(container) {
     passwordConfirmContainer.appendChild(passwordConfirm);
     formulario.appendChild(passwordConfirmContainer);
 
-    // BOTÃO
-    const btnSubmit = document.createElement('button');
-    btnSubmit.type = 'submit';
-    btnSubmit.textContent = 'Cadastrar';
-    btnSubmit.className = 'btn btn-primary mt-2';
-    formulario.appendChild(btnSubmit);
-
-    // Aplica validação visual aos campos
-    applyVisualValidation(nome, ['required'], {
-        helpText: 'Digite o nome do seu estabelecimento',
-        customMessage: friendlyMessages.required
-    });
     
-    applyVisualValidation(email, ['required', 'email'], {
-        helpText: 'Digite um e-mail válido',
-        customMessage: friendlyMessages.email
-    });
+        // BOTÃO
+        const btnSubmit = document.createElement('button');
+        btnSubmit.type = 'submit';
+        btnSubmit.textContent = 'Cadastrar';
+        btnSubmit.className = 'btn btn-primary mt-2';
+        formulario.appendChild(btnSubmit);
     
-    applyVisualValidation(password, ['required', ['minLength', 6]], {
-        helpText: 'A senha deve ter no mínimo 6 caracteres',
-        customMessage: friendlyMessages.password
-    });
+        // Aplica validação visual aos campos
+        applyVisualValidation(nome, ['required'], {
+            helpText: 'Digite seu nome completo',
+            customMessage: friendlyMessages.required
+        });
     
-    // Validação customizada para confirmação de senha
-    passwordConfirm.addEventListener('blur', () => {
-        if (passwordConfirm.value !== password.value) {
-            passwordConfirm.classList.add('is-invalid');
-            passwordConfirm.classList.remove('is-valid');
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'invalid-feedback';
-            errorDiv.textContent = friendlyMessages.passwordMatch;
-            passwordConfirm.parentElement.appendChild(errorDiv);
-        } else if (passwordConfirm.value.length > 0) {
-            passwordConfirm.classList.remove('is-invalid');
-            passwordConfirm.classList.add('is-valid');
-            const existingError = passwordConfirm.parentElement.querySelector('.invalid-feedback');
-            if (existingError) existingError.remove();
-        }
-    });
+        applyVisualValidation(email, ['required', 'email'], {
+            helpText: 'Digite um e-mail válido',
+            customMessage: friendlyMessages.email
+        });
     
-    password.addEventListener('input', () => {
-        if (passwordConfirm.value && passwordConfirm.value !== password.value) {
-            passwordConfirm.classList.add('is-invalid');
-            passwordConfirm.classList.remove('is-valid');
-        }
-    });
-
-    // SUBMIT
-    formulario.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        let invalido = false;
-
-        // senha curta
-        if (password.value.length < 6) {
-            invalido = true;
-            password.classList.add("is-invalid");
-            if (!password.parentElement.querySelector('.invalid-feedback')) {
-                const errorDiv = document.createElement('div');
+        applyVisualValidation(password, ['required', ['minLength', 6]], {
+            helpText: 'A senha deve ter no mínimo 6 caracteres',
+            customMessage: friendlyMessages.password
+        });
+    
+        // ===============================
+        // FUNÇÕES AUXILIARES
+        // ===============================
+        function setFieldError(input, message) {
+            let errorDiv = input.parentElement.querySelector('.invalid-feedback');
+    
+            input.classList.add('is-invalid');
+            input.classList.remove('is-valid');
+    
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
                 errorDiv.className = 'invalid-feedback';
-                errorDiv.textContent = friendlyMessages.password;
-                password.parentElement.appendChild(errorDiv);
+                input.parentElement.appendChild(errorDiv);
             }
+    
+            errorDiv.textContent = message;
         }
-
-        // senhas diferentes
-        if (passwordConfirm.value !== password.value) {
-            invalido = true;
-            passwordConfirm.classList.add("is-invalid");
-            if (!passwordConfirm.parentElement.querySelector('.invalid-feedback')) {
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback';
-                errorDiv.textContent = friendlyMessages.passwordMatch;
-                passwordConfirm.parentElement.appendChild(errorDiv);
+    
+        function clearFieldError(input) {
+            input.classList.remove('is-invalid');
+            input.classList.add('is-valid');
+    
+            const errorDiv = input.parentElement.querySelector('.invalid-feedback');
+            if (errorDiv) errorDiv.remove();
+        }
+    
+        // ===============================
+        // VALIDAÇÃO AO SAIR DO CAMPO DE CONFIRMAÇÃO DE SENHA
+        // ===============================
+        passwordConfirm.addEventListener('blur', () => {
+            if (
+                passwordConfirm.value.length > 0 &&
+                passwordConfirm.value !== password.value
+            ) {
+                setFieldError(
+                    passwordConfirm,
+                    friendlyMessages.passwordMatch || 'As senhas não coincidem'
+                );
+            } else if (passwordConfirm.value.length > 0) {
+                clearFieldError(passwordConfirm);
             }
-        }
-
-        if (invalido) {
-            return; // não continua
-        }
+        });
+    
+        // ===============================
+        // REVALIDA CONFIRMAÇÃO AO DIGITAR A SENHA
+        // ===============================
+        password.addEventListener('input', () => {
+            if (
+                passwordConfirm.value.length > 0 &&
+                passwordConfirm.value !== password.value
+            ) {
+                setFieldError(
+                    passwordConfirm,
+                    friendlyMessages.passwordMatch || 'As senhas não coincidem'
+                );
+            } else if (passwordConfirm.value.length > 0) {
+                clearFieldError(passwordConfirm);
+            }
+        });
+    
+        // ===============================
+        // FUNÇÃO AUXILIAR DE SENHA
+        // ===============================
+        const validarSenha = (senha) => {
+            const resultado = validators.senha(senha);
+            return resultado === true;
+        };
+    
+        // ===============================
+        // VALIDAÇÃO FINAL NO SUBMIT
+        // ===============================
+        formulario.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            let invalido = false;
+    
+            const resultadoSenha = validators.senha(password.value);
+            if (resultadoSenha !== true) {
+                invalido = true;
+                setFieldError(password, resultadoSenha);
+            } else {
+                clearFieldError(password);
+            }
+    
+            if (
+                passwordConfirm.value.length > 0 &&
+                passwordConfirm.value !== password.value
+            ) {
+                invalido = true;
+                setFieldError(
+                    passwordConfirm,
+                    friendlyMessages.passwordMatch || 'As senhas não coincidem'
+                );
+            } else if (passwordConfirm.value.length > 0) {
+                clearFieldError(passwordConfirm);
+            }
+    
+            if (invalido) return;
 
         // Desabilita o botão durante a requisição
         btnSubmit.disabled = true;

@@ -133,7 +133,7 @@ export default function renderFormCliente(container) {
     }
 
     // ===============================
-    // VALIDAÇÃO AO SAIR DO CAMPO (BLUR)
+    // VALIDAÇÃO AO SAIR DO CAMPO DE CONFIRMAÇÃO DE SENHA
     // ===============================
     passwordConfirm.addEventListener('blur', () => {
         if (
