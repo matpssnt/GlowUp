@@ -103,6 +103,11 @@ export class CepAPI {
             // Callback de sucesso
             if (callback && typeof callback.success === 'function') {
                 callback.success(dados);
+                
+                document.getElementById('rua').readOnly = true;
+                document.getElementById('cidade').readOnly = true;
+                document.getElementById('bairro').readOnly = true;
+                document.getElementById('estado').readOnly = true;
             }
 
             return dados;
