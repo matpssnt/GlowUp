@@ -24,12 +24,16 @@ class ClientModel {
     public static function create($data) {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
+        
+        // Se id_telefone_fk não for fornecido, usa NULL
+        $idTelefone = $data["id_telefone_fk"] ?? null;
+        
         $sql = "INSERT INTO clientes (nome, id_cadastro_fk, id_telefone_fk) VALUES (?, ?, ?);";
         $stat = $conn->prepare($sql);
         $stat->bind_param("sii", 
             $data["nome"],
             $data["id_cadastro_fk"],
-            $data["id_telefone_fk"]
+            $idTelefone
         );
         return $stat->execute();
     }

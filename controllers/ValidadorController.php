@@ -23,7 +23,7 @@ class ValidadorController{
         date_default_timezone_set('America/Sao_Paulo');
         try {
             if ($dateString === null) {
-                $dateString = new DateTime();
+                $dateTime = new DateTime();
             }
             else {
                 $dateTime = new DateTime($dateString);

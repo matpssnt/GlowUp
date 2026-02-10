@@ -7,6 +7,9 @@ import renderAgendamentoPage from './pages/agendamento.js';
 import renderPerfilPage from './pages/perfil.js';
 import renderMinhaAgendaPage from './pages/minhaAgenda.js';
 import renderDashboardPage from './pages/dashboard.js';
+import renderServicosPage from './pages/servicos.js';
+import renderConfiguracoesLojaPage from './pages/configuracoes-loja.js';
+import renderSegurancaPage from './pages/seguranca.js';
 
 const routes = {
     "/home": renderHomePage,
@@ -17,7 +20,10 @@ const routes = {
     "/agendamento": renderAgendamentoPage,
     "/perfil": renderPerfilPage,         // Rota para página de perfil
     "/minhaAgenda": renderMinhaAgendaPage,  // Rota para página minha agenda
-    "/dashboard": renderDashboardPage    // Rota para dashboard profissional
+    "/dashboard": renderDashboardPage,    // Rota para dashboard profissional
+    "/servicos": renderServicosPage,      // Rota para gestão de serviços
+    "/configuracoes-loja": renderConfiguracoesLojaPage,
+    "/seguranca": renderSegurancaPage
 };
 
 function getPath() {

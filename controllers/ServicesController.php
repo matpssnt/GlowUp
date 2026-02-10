@@ -30,11 +30,15 @@ class ServicesController {
     }
 
     public static function delete($id) {
-        $result = ServicesModel::delete($id);
-        if ($result) {
-            return jsonResponse(['message' => 'O serviço foi deletado!'], 200);
-        } else {
-            return jsonResponse(['message' => 'Erro ao deletar serviço'], 400);
+        try {
+            $result = ServicesModel::delete($id);
+            if ($result) {
+                return jsonResponse(['message' => 'O serviço foi deletado!'], 200);
+            } else {
+                return jsonResponse(['message' => 'Erro ao deletar serviço'], 400);
+            }
+        } catch (Exception $e) {
+             return jsonResponse(['message' => $e->getMessage()], 400);
         }
     }
 

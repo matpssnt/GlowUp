@@ -2,65 +2,82 @@ import authState from '../utils/AuthState.js';
 
 export default function PerfilSidebar() {
     const sidebar = document.createElement('div');
-    sidebar.className = 'bg-white rounded shadow-sm sidebar';
+    sidebar.className = 'sidebar'; // Usa classe CSS do dashboard.css
 
     const userType = authState.getUserType();
     const currentPath = window.location.pathname;
-    const isPerfilPage = currentPath.includes('/perfil');
-    const isMinhaAgendaPage = currentPath.includes('/minhaAgenda');
-    const isDashboardPage = currentPath.includes('/dashboard');
-    const estiloAtivo = 'd-flex align-items-center p-2 rounded bg-light text-dark text-decoration-none';
-    const estiloInativo = 'd-flex align-items-center p-2 rounded text-dark text-decoration-none';
-    
+
+    // Helper para classe ativa
+    // Verifica se a URL atual contém o caminho alvo
+    const getLinkClass = (path) => {
+        const isActive = currentPath.includes(path);
+        return `sidebar-link ${isActive ? 'active' : ''}`;
+    };
+
     const menuAgendamentos = userType === 'cliente' ? `
-        <li class="mb-2">
-            <a href="minhaAgenda" class="${isMinhaAgendaPage ? estiloAtivo : estiloInativo}">
-                <i class="bi bi-calendar me-2"></i>
-                <span>Minha Agenda</span>
-            </a>
-        </li>
+        <a href="minhaAgenda" class="${getLinkClass('minhaAgenda')}">
+            <i class="bi bi-calendar"></i>
+            <span>Minha Agenda</span>
+        </a>
     ` : '';
-    
-    const menuDashboard = userType === 'profissional' ? `
-        <li class="mb-2">
-            <a href="dashboard" class="${isDashboardPage ? estiloAtivo : estiloInativo}">
-                <i class="bi bi-speedometer2 me-2"></i>
-                <span>Dashboard</span>
-            </a>
-        </li>
+
+    const menuPerfil = userType === 'cliente' ? `
+        <a href="perfil" class="${getLinkClass('perfil')}">
+            <i class="bi bi-person"></i>
+            <span>Meu Perfil</span>
+        </a>
+    ` : '';
+
+    // Menu Profissional Expandido
+    const menuProfissional = userType === 'profissional' ? `
+        <a href="dashboard" class="${getLinkClass('dashboard')}">
+            <i class="bi bi-speedometer2"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="servicos" class="${getLinkClass('servicos')}">
+            <i class="bi bi-scissors"></i>
+            <span>Meus Serviços</span>
+        </a>
+        <a href="configuracoes-loja" class="${getLinkClass('configuracoes-loja')}">
+            <i class="bi bi-gear"></i>
+            <span>Configurações da Loja</span>
+        </a>
+        <a href="seguranca" class="${getLinkClass('seguranca')}">
+            <i class="bi bi-shield-lock"></i>
+            <span>Privacidade / Segurança</span>
+        </a>
     ` : '';
 
     sidebar.innerHTML = `
         <div class="mb-4">
-            <a href="home" class="text-decoration-none text-dark d-flex align-items-center mb-3">
+            <a href="home" class="text-decoration-none text-dark d-flex align-items-center mb-3 px-3">
                 <i class="bi bi-arrow-left me-2"></i>
-                <span>Voltar</span>
+                <span style="font-weight: 600">Voltar para Home</span>
             </a>
         </div>
-        <ul class="list-unstyled">
-            <li class="mb-2">
-                <a href="perfil" class="${isPerfilPage ? estiloAtivo : estiloInativo}">
-                    <i class="bi bi-pencil me-2"></i>
-                    <span>Editar perfil</span>
-                </a>
-            </li>
+        
+        <div class="d-flex flex-column">
+            <h6 class="text-uppercase text-muted ms-3 mb-3" style="font-size: 0.75rem; letter-spacing: 1px;">Gestão</h6>
+
+            ${menuPerfil}
+
             ${menuAgendamentos}
-            ${menuDashboard}
-            <li class="mb-2">
-                <a href="#" class="d-flex align-items-center p-2 rounded text-dark text-decoration-none">
-                    <i class="bi bi-bell me-2"></i>
-                    <span>Notificações</span>
-                </a>
-            </li>
-            <li class="mb-2">
-                <a href="#" class="d-flex align-items-center p-2 rounded text-dark text-decoration-none">
-                    <i class="bi bi-question-circle me-2"></i>
-                    <span>Help</span>
-                </a>
-            </li>
-        </ul>
+            ${menuProfissional}
+            
+            <div class="my-3 border-top mx-3"></div>
+            
+            <h6 class="text-uppercase text-muted ms-3 mb-3" style="font-size: 0.75rem; letter-spacing: 1px;">Suporte</h6>
+            
+            <a href="#" class="sidebar-link">
+                <i class="bi bi-bell"></i>
+                <span>Notificações</span>
+            </a>
+            <a href="#" class="sidebar-link">
+                <i class="bi bi-question-circle"></i>
+                <span>Ajuda</span>
+            </a>
+        </div>
     `;
 
     return sidebar;
 }
-

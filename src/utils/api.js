@@ -4,14 +4,14 @@ export default class ApiService {
         // Modo debug - desative em produção (localStorage.getItem('apiDebug') !== 'false')
         this.debug = localStorage.getItem('apiDebug') !== 'false';
     }
-    
+
     /**
      * Verifica se há conexão com a internet
      */
     checkOnline() {
         return navigator.onLine;
     }
-    
+
     /**
      * Método auxiliar para logging condicional (apenas em modo debug)
      */
@@ -20,20 +20,20 @@ export default class ApiService {
             console.log(...args);
         }
     }
-    
+
     /**
      * Método auxiliar para error logging (sempre ativo)
      */
     logError(...args) {
         console.error(...args);
     }
-    
+
     async request(endpoint, method = 'GET', data = null) {
         // Verifica se está online
         if (!this.checkOnline()) {
             throw new Error('Sem conexão com a internet. Verifique sua conexão e tente novamente.');
         }
-        
+
         const token = localStorage.getItem('authToken');
         const headers = {
             'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ export default class ApiService {
         try {
             const url = `${this.baseUrl}${endpoint}`;
             this.log(`[API] ${method} ${url}`, data);
-            
+
             const response = await fetch(url, {
                 method,
                 headers,
@@ -67,7 +67,7 @@ export default class ApiService {
             if (!response.ok) {
                 const errorMessage = responseData.message || responseData.error || `Erro ${response.status}: ${response.statusText}`;
                 this.logError(`[API] Erro ${response.status}:`, errorMessage);
-                
+
                 // Mensagens de erro mais amigáveis para o usuário
                 let userFriendlyMessage = errorMessage;
                 if (response.status === 401) {
@@ -79,7 +79,7 @@ export default class ApiService {
                 } else if (response.status >= 500) {
                     userFriendlyMessage = 'Erro no servidor. Por favor, tente novamente mais tarde.';
                 }
-                
+
                 throw new Error(userFriendlyMessage);
             }
 
@@ -90,12 +90,12 @@ export default class ApiService {
                 this.logError('[API] Erro de rede:', error);
                 throw new Error('Erro de conexão. Verifique sua internet e tente novamente.');
             }
-            
+
             // Se for erro de offline
             if (error.message.includes('Sem conexão')) {
                 throw error;
             }
-            
+
             this.logError('[API] Erro completo:', error);
             if (error.message) {
                 throw error;
@@ -148,7 +148,7 @@ export default class ApiService {
         };
         return await this.request('/cadastro', 'POST', data);
     }
-    
+
     async buscarCadastroPorEmail(email) {
         // Busca todos os cadastros e filtra por email
         // Nota: Isso só funciona se o backend permitir
@@ -162,7 +162,7 @@ export default class ApiService {
         }
         return null;
     }
-    
+
     async buscarOuCriarCadastroPorEmail(email, maxTentativas = 3) {
         // Tenta buscar o cadastro várias vezes (útil após criação)
         for (let i = 0; i < maxTentativas; i++) {
@@ -280,21 +280,21 @@ export default class ApiService {
         } catch (error) {
             // Se não for profissional, continua
         }
-        
+
         // Se não encontrou como profissional, busca todos os endereços
         // e tenta encontrar por id_cadastro_fk ou id_cliente_fk (se existir no backend)
         try {
             const enderecos = await this.request('/endereco', 'GET');
             if (Array.isArray(enderecos)) {
-                return enderecos.find(e => 
-                    e.id_cadastro_fk == idCadastro || 
+                return enderecos.find(e =>
+                    e.id_cadastro_fk == idCadastro ||
                     e.id_cliente_fk == idCadastro
                 ) || null;
             }
         } catch (error) {
             console.error('Erro ao buscar endereço por cadastro:', error);
         }
-        
+
         return null;
     }
 
@@ -329,6 +329,24 @@ export default class ApiService {
         return await this.request(`/services/${id}`, 'GET');
     }
 
+    async criarServico(dados) {
+        return await this.request('/services', 'POST', dados);
+    }
+
+    async atualizarServico(id, dados) {
+        const data = { id, ...dados };
+        return await this.request('/services', 'PUT', data);
+    }
+
+    async deletarServico(id) {
+        return await this.request(`/services?id=${id}`, 'DELETE');
+    }
+
+    // Métodos para Categorias
+    async listarCategorias() {
+        return await this.request('/categoria', 'GET');
+    }
+
     // Métodos para Agendamento
     async listarAgendamentos() {
         return await this.request('/agendamento', 'GET');
@@ -351,8 +369,21 @@ export default class ApiService {
     }
 
     async cancelarAgendamento(id) {
-        // Atualiza status para 'Cancelado'
-        return await this.atualizarAgendamento(id, { status: 'Cancelado' });
+        // Usa DELETE com query param para garantir compatibilidade
+        return await this.request(`/agendamento?id=${id}`, 'DELETE');
+    }
+
+    async listarHorariosDisponiveis(data, idServicoFk) {
+        const qs = `?data=${encodeURIComponent(data)}&id_servico_fk=${encodeURIComponent(idServicoFk)}`;
+        return await this.request(`/horarios-disponiveis${qs}`, 'GET');
+    }
+
+    async trocarSenha(cadastroId, senhaAntiga, senhaNova) {
+        return await this.request('/seguranca/trocar-senha', 'POST', {
+            id_cadastro: cadastroId,
+            senha_antiga: senhaAntiga,
+            senha_nova: senhaNova
+        });
     }
 
     // Métodos para Escala
@@ -372,4 +403,17 @@ export default class ApiService {
         }
         return [];
     }
-} 
+
+    async criarEscala(dados) {
+        return await this.request('/escala', 'POST', dados);
+    }
+
+    async atualizarEscala(id, dados) {
+        const data = { id, ...dados };
+        return await this.request('/escala', 'PUT', data);
+    }
+
+    async deletarEscala(id) {
+        return await this.request('/escala', 'DELETE', { id });
+    }
+}

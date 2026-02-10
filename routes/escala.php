@@ -2,46 +2,36 @@
 require_once __DIR__ . '/../controllers/EscalaController.php';
 require_once __DIR__ . '/../helpers/response.php';
 
-if ($_SERVER['REQUEST_METHOD'] === "GET") {
+$method = $_SERVER['REQUEST_METHOD'] ?? '';
+$path   = explode('/', trim($_SERVER['PATH_INFO'] ?? '', '/'));
+$id     = isset($path[1]) && is_numeric($path[1]) ? (int)$path[1] : null;
 
-    $id = $seguimentos[2] ?? null;
+$data = json_decode(file_get_contents('php://input'), true) ?? [];
 
-    if (isset($id)) {
+if ($method === 'GET') {
+    if ($id) {
         EscalaController::getById($id);
     } else {
         EscalaController::getAll();
     }
-}
-
-elseif ($_SERVER['REQUEST_METHOD'] === "POST") {
-
-    $data = json_decode(file_get_contents('php://input'), true);
+} elseif ($method === 'POST') {
     EscalaController::create($data);
-}
-
-elseif ($_SERVER['REQUEST_METHOD'] === "PUT") {
-
-    $data = json_decode(file_get_contents('php://input'), true);
-    $id = $data['id'];
-
-    EscalaController::update($data, $id);
-}
-
-if ($_SERVER['REQUEST_METHOD'] === "DELETE") {
-
-    $data = json_decode(file_get_contents('php://input'), true);
-    $id = $data['id'];
-
-    if (isset($id)) {
-        EscalaController::delete($id);
-    } else {
-        jsonResponse(['message' => 'ID da escala é obrigatório'], 404);
+} elseif ($method === 'PUT') {
+    $idFromBody = isset($data['id']) && is_numeric($data['id']) ? (int)$data['id'] : null;
+    $finalId = $idFromBody ?: $id;
+    if (!$finalId) {
+        jsonResponse(['message' => 'ID da escala é obrigatório e deve ser numérico'], 400);
+        exit;
     }
-}
-
-else {
-    jsonResponse([
-        'status'  => 'erro',
-        'message' => 'método não permitido'
-    ], 405);
+    EscalaController::update($data, $finalId);
+} elseif ($method === 'DELETE') {
+    $idFromBody = isset($data['id']) && is_numeric($data['id']) ? (int)$data['id'] : null;
+    $finalId = $idFromBody ?: $id;
+    if (!$finalId) {
+        jsonResponse(['message' => 'ID da escala é obrigatório e deve ser numérico'], 400);
+        exit;
+    }
+    EscalaController::delete($finalId);
+} else {
+    jsonResponse(['message' => 'Método não permitido'], 405);
 }

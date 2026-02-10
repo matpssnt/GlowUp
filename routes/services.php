@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../controllers/ServicesController.php';
 require_once __DIR__ . '/../helpers/response.php';
 
-$id = $seguimentos[2] ?? null;
+$id = $seguimentos[2] ?? $_GET['id'] ?? null;
 
 if ($_SERVER['REQUEST_METHOD'] === "GET") {
     if (isset($id)) {
@@ -14,7 +14,6 @@ if ($_SERVER['REQUEST_METHOD'] === "GET") {
 
 elseif ($_SERVER['REQUEST_METHOD'] === "POST") {
     $data = json_decode(file_get_contents('php://input'), true);
-
     ServicesController::create($data);
 }
 
