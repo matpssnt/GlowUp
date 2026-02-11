@@ -1,5 +1,5 @@
 import { applyVisualValidation, friendlyMessages } from "../utils/formValidation.js";
-import {validators} from "../utils/validation.js"
+import {validators} from "../utils/validation.js" 
 
 export default function renderFormProf(container) {
 
@@ -79,7 +79,6 @@ export default function renderFormProf(container) {
     passwordConfirmContainer.appendChild(passwordConfirm);
     formulario.appendChild(passwordConfirmContainer);
 
-    
         // BOTÃO
         const btnSubmit = document.createElement('button');
         btnSubmit.type = 'submit';
