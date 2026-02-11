@@ -184,20 +184,11 @@ export default function PerfilForm() {
                 <input type="tel" class="form-control" id="telefone" placeholder="(00) 00000-0000 ou (00) 0000-0000" value="">
             </div>
  
-            <div class="mb-3">
-                <label for="senha" class="form-label">Senha</label>
-                <div class="input-group">
-                    <input type="password" class="form-control" id="senha" placeholder="Deixe em branco para manter a senha atual">
-                    </span>
-                </div>
-                <small class="form-text text-muted">Deixe em branco para manter a senha atual</small>
-            </div>
- 
             <div class="d-flex justify-content-end gap-2 mt-4">
                 <button type="button" class="btn btn-outline-secondary" id="btnCancelar">Cancelar</button>
                 <button type="submit" class="btn btn-dark" id="btnSalvar" style=" background-color: #75b16e;">Salvar alterações</button>
             </div>
-        </form>
+        </form> 
     `;
  
     // Event listeners
@@ -261,7 +252,6 @@ export default function PerfilForm() {
                 senha || '', // Envia string vazia se não preenchida
                 isProfissional
             );
-           
            
             // Atualiza authState
             authState.setUser({ ...authState.getUser(), id: cadastroId, nome: nomeCompleto, email }, authState.getToken());
