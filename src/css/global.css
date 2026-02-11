@@ -10,6 +10,7 @@
 @import url('./sobre.css');
 @import url('./dashboard.css');
 @import url('./loading.css');
+@import url('.perfil.css');
 
 /* Variáveis CSS Globais */
 :root {
@@ -186,30 +187,20 @@ html {
 }
 
 /* Responsividade navbar */
-@media (max-width: 991px) {
+@media (max-width: 450px) {
     .navbar-actions {
         width: 100%;
         justify-content: flex-start;
-        margin-top: 0.5rem;
+        margin-top: 0.5rem; 
+        flex-direction: column;
     }
     
     .navbar-actions .btn {
         margin: 0.25rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .navbar-actions {
-        flex-direction: column;
         width: 100%;
     }
-    
-    .navbar-actions .btn {
-        width: 100%;
-        margin: 0.25rem 0;
-    }
 }
-
+ 
 /* Footer Global */
 .footer-link {
     transition: color 0.3s ease, transform 0.2s ease;
@@ -331,7 +322,7 @@ footer.bg-body-tertiary {
 }
 
 /* Responsividade Footer */
-@media (max-width: 768px) {
+@media (max-width: 450px) {
     .social-links {
         justify-content: center;
         flex-wrap: wrap;
@@ -616,7 +607,7 @@ textarea.form-control:focus {
     margin-bottom: 20px;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 450px) {
     .sidebar {
         width: 250px;
         position: sticky;
@@ -740,7 +731,7 @@ textarea.form-control:focus {
 }
 
 /* Responsividade das notificações */
-@media (max-width: 768px) {
+@media (max-width: 450px) {
     .notifications-container {
         right: 10px;
         left: 10px;

@@ -141,33 +141,30 @@ export default function PerfilForm() {
  
             <div class="mb-4">
                 <h5 class="mb-3">Endereço</h5>
-                
+                <div class="col-md-3",  estyle="">
+                        <label for="cep" class="form-label">CEP</label>
+                        <input type="text" class="form-control" id="cep" placeholder="00000-000" value="">
+                    </div>
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="cidade" class="form-label">Cidade</label>
                         <input type="text" class="form-control" id="cidade" placeholder="Nome da cidade" value="">
-                    </div>
+                    </div>              
                     <div class="col-md-6">
                         <label for="bairro" class="form-label">Bairro</label>
                         <input type="text" class="form-control" id="bairro" placeholder="Nome do bairro" value="">
                     </div>
                 </div>
-
                 <div class="mb-3">
                     <label for="rua" class="form-label">Rua</label>
                     <input type="text" class="form-control" id="rua" placeholder="Nome da rua" value="">
                 </div>
-
                 <div class="row mb-3">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label for="numero" class="form-label">Número</label>
                         <input type="text" class="form-control" id="numero" placeholder="Número" value="">
-                    </div>
-                    <div class="col-md-4">
-                        <label for="cep" class="form-label">CEP</label>
-                        <input type="text" class="form-control" id="cep" placeholder="00000-000" value="">
-                    </div>
-                    <div class="col-md-4">
+                    </div>       
+                    <div class="col-md-6">
                         <label for="complemento" class="form-label">Complemento</label>
                         <input type="text" class="form-control" id="complemento" placeholder="Apartamento, casa, etc." value="">
                     </div>
@@ -181,7 +178,7 @@ export default function PerfilForm() {
 
             <div class="mb-3">
                 <label for="telefone" class="form-label">Número para contato</label>
-                <input type="tel" class="form-control" id="telefone" placeholder="(00) 00000-0000 ou (00) 0000-0000" value="">
+                <input type="tel" class="form-control" id="telefone" placeholder="(00) 00000-0000" value="">
             </div>
  
             <div class="d-flex justify-content-end gap-2 mt-4">
