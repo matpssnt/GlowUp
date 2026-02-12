@@ -1,8 +1,8 @@
 export default class ApiService {
     constructor() {
-        this.baseUrl = '/GlowUp/api';
-        // Modo debug - desative em produção (localStorage.getItem('apiDebug') !== 'false')
-        this.debug = localStorage.getItem('apiDebug') !== 'false';
+    this.baseUrl = '/GlowUp/api';
+    this.debug = false;
+    // this.debug = localStorage.getItem('apiDebug') !== 'false';
     }
 
     /**
