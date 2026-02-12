@@ -51,16 +51,18 @@ export default function NavBar({hidelogin = false} = {}) {
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
                             <li><h6 class="dropdown-header">${userType === 'profissional' ? 'Profissional' : 'Cliente'}</h6></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="perfil">Meu Perfil</a></li>
                             ${userType === 'cliente' ? `
+                            <li><a class="dropdown-item" href="perfil">Meu Perfil</a></li>
                             <li><a class="dropdown-item" href="minhaAgenda">Minha Agenda</a></li>
                             <li><a class="dropdown-item" href="seguranca">Privacidade e Segurança</a></li>` : ''}
                             ${userType === 'profissional' ? 
+                            '<li><a class="dropdown-item" href="configuracoes-loja">Configurações da Loja</a></li>' : ''}
+                            ${userType === 'profissional' ?
                             '<li><a class="dropdown-item" href="dashboard">Dashboard</a></li>' : ''}
-                          <!-- <li><a class="dropdown-item" href="seguranca">Privacidade e Segurança</a></li> criei aqui tambem, mas como ja tem no dashboard, vou deixar comentado. -->
+                        <!-- <li><a class="dropdown-item" href="seguranca">Privacidade e Segurança</a></li> criei aqui tambem, mas como ja tem no dashboard, vou deixar comentado. -->
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="#" id="logoutBtn">Sair</a></li>
-                        </ul>
+                        </ul>   
                     </div>
                 </div>
             `;
