@@ -1,3 +1,8 @@
 /* Estilos específicos da página Sobre Nós */
-
+@media(max-width: 450px){
+.fund-principal .fade-in{
+     padding: 60px 0;
+     margin-top: 40px;
+}
+}
 /* Estilos adicionais específicos da página sobre podem ser adicionados aqui */

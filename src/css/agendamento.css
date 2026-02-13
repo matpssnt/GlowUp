@@ -119,7 +119,7 @@
 }
 
 /* Responsividade */
-@media (min-width: 768px) {
+@media (min-width: 450px) {
     .agendamento .cards {
         gap: 40px;
     }
