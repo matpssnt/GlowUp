@@ -13,11 +13,11 @@ require_once "helpers/token_jwt.php";
 
     if($route != "api"){
         require __DIR__ . "/public/index.html";
-        require "teste.php";
+        // require "teste.php";
         exit;
         
     }elseif($route === "api"){
-        if(in_array( $subRoute, ["home", "agendamento", "cadastro", "categoria", "client", "endereco", "escala", "horarios-disponiveis", "indisponibilidade", "login", "profissional", "seguranca", "services", "telefone", "telprof"])){
+        if(in_array( $subRoute, ["home", "agendamento", "cadastro", "categoria", "client", "endereco", "escala", "horarios-disponiveis", "login", "profissional", "seguranca", "services", "telefone", "telprof"])){
             require "routes/{$subRoute}.php";
         }else{
             return jsonResponse(['message' => 'rota não encontrada'], 404);
