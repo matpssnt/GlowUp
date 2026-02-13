@@ -3,7 +3,7 @@ import { notify } from '../components/Notification.js';
 
 // Trata erros de forma padronizada
 export function handleError(error, context = '', showToUser = true) {
-    console.error(`[${context}]`, error);
+    // console.error(`[${context}]`, error);
     
     // Determina mensagem
     let message = 'Ocorreu um erro. Tente novamente.';
