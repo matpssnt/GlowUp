@@ -1,3 +1,383 @@
 /* Estilos específicos da página Sobre Nós */
+.sobre-container {
+    width: 100%;
+    min-height: 100vh;
+    background: var(--light-color);
+}
 
-/* Estilos adicionais específicos da página sobre podem ser adicionados aqui */
+/* =================================
+   HERO SECTION
+   ================================= */
+.sobre-hero {
+    padding: 150px 50px 80px;
+    width: 100%;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+
+.sobre-hero::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.3));
+    z-index: 1;
+}
+
+.sobre-hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    text-align: center;
+}
+
+.sobre-hero h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--white-color);
+    margin-bottom: 1.5rem;
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+.sobre-hero p {
+    font-size: 1.3rem;
+    color: var(--white-color);
+    margin-bottom: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    opacity: 0.95;
+    text-align: center;
+}
+
+/* =================================
+   SEÇÕES GERAIS
+   ================================= */
+.section {
+    padding: 80px 0;
+}
+
+.content-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* =================================
+   NOSSA HISTÓRIA
+   ================================= */
+.sobre-historia {
+    background: var(--white-color);
+}
+
+.sobre-historia h2 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.sobre-historia h2::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: var(--accent-color);
+    border-radius: 2px;
+}
+
+.sobre-historia p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--dark-color);
+    margin-bottom: 1.5rem;
+    text-align: justify;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* =================================
+   MISSÃO, VISÃO E VALORES
+   ================================= */
+.sobre-mvv {
+    background: var(--secondary-color);
+}
+
+.sobre-mvv h2 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.sobre-mvv h2::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: var(--accent-color);
+    border-radius: 2px;
+}
+
+.mvv-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 30px;
+    margin-top: 4rem;
+}
+
+.mvv-card {
+    background: var(--white-color);
+    padding: 40px 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.mvv-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+}
+
+.mvv-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.mvv-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 25px;
+    transition: all 0.3s ease;
+}
+
+.mvv-card:hover .mvv-icon {
+    transform: scale(1.1);
+}
+
+.mvv-icon i {
+    font-size: 2rem;
+    color: var(--white-color);
+}
+
+.mvv-card h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 1.5rem;
+}
+
+.mvv-card p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--dark-color);
+    margin-bottom: 0;
+}
+
+.mvv-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+}
+
+.mvv-card li {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--dark-color);
+    margin-bottom: 0.8rem;
+    padding-left: 25px;
+    position: relative;
+}
+
+.mvv-card li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--accent-color);
+    font-weight: bold;
+}
+
+/* =================================
+   CTA SECTION
+   ================================= */
+.sobre-cta {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    padding: 100px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.sobre-cta::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.2));
+    z-index: 1;
+}
+
+.sobre-cta-content {
+    position: relative;
+    z-index: 2;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.sobre-cta h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--white-color);
+    margin-bottom: 1.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.sobre-cta p {
+    font-size: 1.2rem;
+    color: var(--white-color);
+    margin-bottom: 2.5rem;
+    opacity: 0.95;
+}
+
+.sobre-cta .btn-primary {
+    display: inline-block;
+    padding: 15px 40px;
+    background: var(--white-color);
+    color: var(--white-color);
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    border: none;
+    cursor: pointer;
+}
+
+.sobre-cta .btn-primary:hover {
+    background: var(--secondary-color);
+    color: var(--white-color);
+}
+
+/* =================================
+   RESPONSIVIDADE
+   ================================= */
+@media (max-width: 768px) {
+    .sobre-hero {
+        padding: 100px 20px 60px;
+    }
+    
+    .sobre-hero h1 {
+        font-size: 2.5rem;
+    }
+    
+    .sobre-hero p {
+        font-size: 1.1rem;
+    }
+    
+    .section {
+        padding: 60px 0;
+    }
+    
+    .content-wrapper {
+        padding: 0 15px;
+    }
+    
+    .sobre-historia h2,
+    .sobre-mvv h2 {
+        font-size: 2rem;
+    }
+    
+    .mvv-cards {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .mvv-card {
+        padding: 30px 20px;
+    }
+    
+    .sobre-cta {
+        padding: 80px 15px;
+    }
+    
+    .sobre-cta h2 {
+        font-size: 2rem;
+    }
+    
+    .sobre-cta p {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .sobre-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .sobre-hero p {
+        font-size: 1rem;
+    }
+    
+    .sobre-historia p {
+        font-size: 1rem;
+    }
+    
+    .mvv-card {
+        padding: 25px 15px;
+    }
+    
+    .mvv-icon {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .mvv-icon i {
+        font-size: 1.5rem;
+    }
+    
+    .sobre-cta h2 {
+        font-size: 1.8rem;
+    }
+    
+    .sobre-cta .btn-primary {
+        padding: 12px 30px;
+        font-size: 1rem;
+    }
+}

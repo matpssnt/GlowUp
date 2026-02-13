@@ -27,14 +27,7 @@ export default function PerfilSidebar() {
             <span>Meu Perfil</span>
         </a>
     ` : '';
-
-    const minhaSeguranca = userType === 'cliente' ? `
-        <a href="seguranca" class="${getLinkClass('seguranca')}">
-            <i class="bi bi-person"></i>
-            <span>Privacidade e Segurança</span>
-        </a>
-    ` : '';
-
+    
     // Menu Profissional Expandido
     const menuProfissional = userType === 'profissional' ? `
         <a href="dashboard" class="${getLinkClass('dashboard')}">
