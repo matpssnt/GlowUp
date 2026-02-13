@@ -34,7 +34,7 @@ export default function renderSegurancaPage() {
     card.className = 'content-card';
     card.innerHTML = `
         <div class="card-header-custom">
-            <h5 class="card-title-custom">Privacidade / Segurança</h5>
+            <h5 class="card-title-custom">Privacidade e Segurança</h5>
         </div>
         <div class="p-4">
             <form id="formTrocarSenha" class="row g-3" autocomplete="off">
