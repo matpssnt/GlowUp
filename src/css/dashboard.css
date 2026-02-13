@@ -50,9 +50,9 @@ body {
     background: var(--bg-card);
     border-radius: 16px;
     padding: 24px;
-    height: fit-content;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-    border: 1px solid var(--border-color);
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-height: calc(100vh - 200px);
 }
 
 .sidebar-link {

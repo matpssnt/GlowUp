@@ -10,6 +10,9 @@ import renderDashboardPage from './pages/dashboard.js';
 import renderServicosPage from './pages/servicos.js';
 import renderConfiguracoesLojaPage from './pages/configuracoes-loja.js';
 import renderSegurancaPage from './pages/seguranca.js';
+import renderExplorarPage from './pages/explorar.js';
+import renderProfissionaisPage from './pages/profissionais.js';
+import renderEstabelecimentosPage from './pages/estabelecimentos.js';
 
 const routes = {
     "/home": renderHomePage,
@@ -23,7 +26,10 @@ const routes = {
     "/dashboard": renderDashboardPage,    // Rota para dashboard profissional
     "/servicos": renderServicosPage,      // Rota para gestão de serviços
     "/configuracoes-loja": renderConfiguracoesLojaPage,
-    "/seguranca": renderSegurancaPage
+    "/seguranca": renderSegurancaPage,
+    "/explorar": renderExplorarPage,       // Rota para explorar (todos)
+    "/profissionais": renderProfissionaisPage,  // Rota para profissionais (PF)
+    "/estabelecimentos": renderEstabelecimentosPage  // Rota para estabelecimentos (PJ)
 };
 
 function getPath() {
