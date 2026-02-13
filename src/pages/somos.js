@@ -10,28 +10,103 @@ export default function renderquemSomos() {
     const navbar = NavBar();
     nav.appendChild(navbar);
     
-    // Hero section
-    const fundoPrincipal = document.createElement('div');
-    fundoPrincipal.innerHTML = `
-       <h1 style="font-size: 2.8rem; font-weight: 700;">
-            Quem somos nós?
-        </h1>
-        <p style="font-size: 1rem; font-weight: 500;">
-            Conheça nossa empresa
-        </p>
-        <div class="line">
-        </div> 
-    `;
-    fundoPrincipal.className = 'fund-principal fade-in';
+    // Conteúdo principal da página Sobre Nós
+    const mainContent = document.createElement('main');
+    mainContent.className = 'sobre-container';
+    mainContent.innerHTML = `
+        <!-- HERO -->
+        <section class="sobre-hero">
+            <div class="sobre-hero-content">
+                <h1>Sobre Nós</h1>
+                <p>Conectando beleza e bem-estar com profissionais qualificados</p>
+            </div>
+        </section>
 
+        <!-- NOSSA HISTÓRIA -->
+        <section class="sobre-historia section">
+            <div class="content-wrapper">
+                <h2>Nossa História</h2>
+                <p>
+                    A GlowUp nasceu com o propósito de transformar a experiência de encontrar profissionais de beleza e bem-estar. 
+                    Acreditamos que todos merecem acesso fácil e confiável aos melhores serviços de estética.
+                </p>
+                <p>
+                    Começamos como um pequeno projeto, movido pela paixão por conectar pessoas com profissionais qualificados. 
+                    Com o tempo, crescemos, aprendemos com nossos usuários e evoluímos junto com eles, sempre mantendo nosso 
+                    compromisso com qualidade e confiança.
+                </p>
+                <p>
+                    Hoje continuamos expandindo, desenvolvendo novas funcionalidades e melhorando nossos serviços, 
+                    sem esquecer nossa essência: ouvir, entender e entregar valor real para cada pessoa que utiliza nossa plataforma.
+                </p>
+            </div>
+        </section>
+
+        <!-- MISSÃO, VISÃO E VALORES -->
+        <section class="sobre-mvv section">
+            <div class="content-wrapper">
+                <h2>Missão, Visão e Valores</h2>
+                
+                <div class="mvv-cards">
+                    <div class="mvv-card">
+                        <div class="mvv-icon">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <h3>Missão</h3>
+                        <p>
+                            Conectar pessoas com profissionais de beleza e bem-estar de forma simples, 
+                            segura e acessível, promovendo autoestima e confiança.
+                        </p>
+                    </div>
+                    
+                    <div class="mvv-card">
+                        <div class="mvv-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <h3>Visão</h3>
+                        <p>
+                            Ser a principal plataforma de beleza e bem-estar, reconhecida pela qualidade, 
+                            confiabilidade e proximidade com nossos usuários.
+                        </p>
+                    </div>
+                    
+                    <div class="mvv-card">
+                        <div class="mvv-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <h3>Valores</h3>
+                        <ul>
+                            <li>Transparência em todas as relações</li>
+                            <li>Foco no usuário e sua experiência</li>
+                            <li>Inovação constante em serviços</li>
+                            <li>Respeito e inclusão para todos</li>
+                            <li>Compromisso com qualidade</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="sobre-cta">
+            <div class="sobre-cta-content">
+                <h2>Faça parte da nossa comunidade</h2>
+                <p>
+                    Cadastre-se agora e comece a aproveitar todos os recursos disponíveis na nossa plataforma.
+                </p>
+                <a href="/GlowUp/register" class="btn-primary">
+                    Criar minha conta
+                </a>
+            </div>
+        </section>
+    `;
 
     // Footer
     const footerContainer = document.getElementById('footer');
     footerContainer.innerHTML = '';
-    footerContainer.style.marginTop = '150px';
+    footerContainer.style.marginTop = '0';
     const footer = Footer();
     footerContainer.appendChild(footer);
-
 
     // Botão WhatsApp flutuante
     if (!document.querySelector('.whatsapp-float')) {
@@ -51,5 +126,5 @@ export default function renderquemSomos() {
         document.body.appendChild(whatsappFloat);
     }
 
-    Divroot.appendChild(fundoPrincipal);
+    Divroot.appendChild(mainContent);
 }
