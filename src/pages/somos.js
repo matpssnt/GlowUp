@@ -13,7 +13,7 @@ export default function renderquemSomos() {
     // Hero section
     const fundoPrincipal = document.createElement('div');
     fundoPrincipal.innerHTML = `
-       <h1 style="font-size: 2.8rem; font-weight: 700;">
+    <h1 style="font-size: 2.8rem; font-weight: 700;">
             Quem somos nós?
         </h1>
         <p style="font-size: 1rem; font-weight: 500;">
