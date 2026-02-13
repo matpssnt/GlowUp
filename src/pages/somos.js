@@ -10,37 +10,19 @@ export default function renderquemSomos() {
     const navbar = NavBar();
     nav.appendChild(navbar);
     
-    // Conteúdo principal da página Sobre Nós
-    const mainContent = document.createElement('main');
-    mainContent.className = 'sobre-container';
-    mainContent.innerHTML = `
-        <!-- HERO -->
-        <section class="sobre-hero">
-            <div class="sobre-hero-content">
-                <h1>Sobre Nós</h1>
-                <p>Conectando beleza e bem-estar com profissionais qualificados</p>
-            </div>
-        </section>
-
-        <!-- NOSSA HISTÓRIA -->
-        <section class="sobre-historia section">
-            <div class="content-wrapper">
-                <h2>Nossa História</h2>
-                <p>
-                    A GlowUp nasceu com o propósito de transformar a experiência de encontrar profissionais de beleza e bem-estar. 
-                    Acreditamos que todos merecem acesso fácil e confiável aos melhores serviços de estética.
-                </p>
-                <p>
-                    Começamos como um pequeno projeto, movido pela paixão por conectar pessoas com profissionais qualificados. 
-                    Com o tempo, crescemos, aprendemos com nossos usuários e evoluímos junto com eles, sempre mantendo nosso 
-                    compromisso com qualidade e confiança.
-                </p>
-                <p>
-                    Hoje continuamos expandindo, desenvolvendo novas funcionalidades e melhorando nossos serviços, 
-                    sem esquecer nossa essência: ouvir, entender e entregar valor real para cada pessoa que utiliza nossa plataforma.
-                </p>
-            </div>
-        </section>
+    // Hero section
+    const fundoPrincipal = document.createElement('div');
+    fundoPrincipal.innerHTML = `
+    <h1 style="font-size: 2.8rem; font-weight: 700;">
+            Quem somos nós?
+        </h1>
+        <p style="font-size: 1rem; font-weight: 500;">
+            Conheça nossa empresa
+        </p>
+        <div class="line">
+        </div> 
+    `;
+    fundoPrincipal.className = 'fund-principal fade-in';
 
         <!-- MISSÃO, VISÃO E VALORES -->
         <section class="sobre-mvv section">
