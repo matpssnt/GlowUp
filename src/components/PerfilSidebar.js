@@ -27,7 +27,7 @@ export default function PerfilSidebar() {
             <span>Meu Perfil</span>
         </a>
     ` : '';
-
+    
     // Menu Profissional Expandido
     const menuProfissional = userType === 'profissional' ? `
         <a href="dashboard" class="${getLinkClass('dashboard')}">
@@ -60,12 +60,11 @@ export default function PerfilSidebar() {
             <h6 class="text-uppercase text-muted ms-3 mb-3" style="font-size: 0.75rem; letter-spacing: 1px;">Gestão</h6>
 
             ${menuPerfil}
-
             ${menuAgendamentos}
             ${menuProfissional}
-            
+            ${minhaSeguranca}
+
             <div class="my-3 border-top mx-3"></div>
-            
             <h6 class="text-uppercase text-muted ms-3 mb-3" style="font-size: 0.75rem; letter-spacing: 1px;">Suporte</h6>
             
             <a href="#" class="sidebar-link">

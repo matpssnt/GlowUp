@@ -9,10 +9,10 @@ import { handleError } from "../utils/errorHandler.js";
 // Carrega o CSS específico
 const link = document.createElement('link');
 link.rel = 'stylesheet';
-link.href = 'src/css/dashboard.css';
+link.href = 'src/css/.css';
 document.head.appendChild(link);
 
-export default function renderDashboardPage() {
+export default function renderPage() {
     // Verifica se está autenticado
     if (!authState.isAuth()) {
         window.location.href = '/login';
@@ -30,7 +30,7 @@ export default function renderDashboardPage() {
     root.innerHTML = '';
     // Limpa estilos inline antigos e usa classes
     root.style = '';
-    root.className = 'dashboard-wrapper';
+    root.className = '-wrapper';
 
     // NavBar
     const nav = document.getElementById('navbar');
@@ -53,7 +53,7 @@ export default function renderDashboardPage() {
     header.className = 'mb-4';
     header.innerHTML = `
         <h1 class="h3 fw-bold text-dark mb-1">
-            <i class="bi bi-speedometer2 me-2 text-primary"></i>Dashboard
+            <i class="bi bi-speedometer2 me-2 text-primary"></i>
         </h1>
         <p class="text-muted">Visão geral do seu negócio e agenda.</p>
     `;
@@ -91,7 +91,7 @@ export default function renderDashboardPage() {
         const card = document.createElement('div');
         card.className = 'col-md-3 col-sm-6';
         card.innerHTML = `
-            <div class="dashboard-card h-100 p-4 d-flex justify-content-between align-items-center">
+            <div class="-card h-100 p-4 d-flex justify-content-between align-items-center">
                 <div>
                     <div class="stat-value">${valor}</div>
                     <div class="stat-label">${titulo}</div>
@@ -188,7 +188,7 @@ export default function renderDashboardPage() {
             notify.success('Confirmado!');
             carregarDados();
         } catch (error) {
-            handleError(error, 'Dashboard');
+            handleError(error, '');
         }
     }
 
@@ -199,7 +199,7 @@ export default function renderDashboardPage() {
             notify.success('Cancelado!');
             carregarDados();
         } catch (error) {
-            handleError(error, 'Dashboard');
+            handleError(error, '');
         }
     }
 
@@ -210,7 +210,7 @@ export default function renderDashboardPage() {
 
             let profissional = null;
             try { profissional = await api.buscarProfissionalPorCadastro(profissionalId); }
-            catch (e) { console.error('Busca prof', e); }
+            catch (e) {  }
 
             if (!profissional || !profissional.id) {
                 agendamentosContainer.innerHTML = '<div class="alert alert-warning">Perfil incompleto.</div>';
@@ -266,7 +266,7 @@ export default function renderDashboardPage() {
             }
 
         } catch (error) {
-            handleError(error, 'Dashboard Load');
+            handleError(error, ' Load');
         }
     }
 

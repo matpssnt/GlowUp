@@ -1,8 +1,8 @@
 export default class ApiService {
     constructor() {
-        this.baseUrl = '/GlowUp/api';
-        // Modo debug - desative em produção (localStorage.getItem('apiDebug') !== 'false')
-        this.debug = localStorage.getItem('apiDebug') !== 'false';
+    this.baseUrl = '/GlowUp/api';
+    this.debug = false;
+    // this.debug = localStorage.getItem('apiDebug') !== 'false';
     }
 
     /**
@@ -25,7 +25,7 @@ export default class ApiService {
      * Método auxiliar para error logging (sempre ativo)
      */
     logError(...args) {
-        console.error(...args);
+        // console.error(...args);
     }
 
     async request(endpoint, method = 'GET', data = null) {
@@ -158,7 +158,7 @@ export default class ApiService {
                 return cadastros.find(c => c.email === email) || null;
             }
         } catch (error) {
-            console.error('Erro ao buscar cadastro por email:', error);
+            // console.error('Erro ao buscar cadastro por email:', error);
         }
         return null;
     }
@@ -292,7 +292,7 @@ export default class ApiService {
                 ) || null;
             }
         } catch (error) {
-            console.error('Erro ao buscar endereço por cadastro:', error);
+            // console.error('Erro ao buscar endereço por cadastro:', error);
         }
 
         return null;
@@ -311,7 +311,7 @@ export default class ApiService {
             }
             return null;
         } catch (error) {
-            console.error('Erro ao buscar telefone do profissional:', error);
+            // console.error('Erro ao buscar telefone do profissional:', error);
             return null;
         }
     }

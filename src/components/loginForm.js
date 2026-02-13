@@ -30,7 +30,7 @@ export default function loginForm() {
     // Cria o campo de email
     const email = document.createElement('input');
     email.type = 'email';
-    email.placeholder = "Seu e-mail";
+    email.placeholder = "Seu login";
     email.className = 'form-control mb-3';
     email.required = true;
     formulario.appendChild(email);
