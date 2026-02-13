@@ -152,7 +152,6 @@ export function enableAutoSave(form, saveKey, interval = 30000) {
             }
         });
         localStorage.setItem(saveKey, JSON.stringify(currentData));
-        console.log('Auto-save realizado');
     }, interval);
     
     // Auto-save ao sair da página
@@ -179,7 +178,7 @@ export function enableAutoSave(form, saveKey, interval = 30000) {
                 }
             });
         } catch (e) {
-            console.error('Erro ao restaurar dados salvos:', e);
+            // console.error('Erro ao restaurar dados salvos:', e);
         }
     }
     

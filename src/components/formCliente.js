@@ -133,7 +133,7 @@ export default function renderFormCliente(container) {
     }
 
     // ===============================
-    // VALIDAÇÃO AO SAIR DO CAMPO (BLUR)
+    // VALIDAÇÃO AO SAIR DO CAMPO DE CONFIRMAÇÃO DE SENHA
     // ===============================
     passwordConfirm.addEventListener('blur', () => {
         if (
@@ -235,7 +235,7 @@ export default function renderFormCliente(container) {
 
         } catch (error) {
             notify.error('Erro ao cadastrar: ' + error.message);
-            console.error('Erro no cadastro:', error);
+            // console.error('Erro no cadastro:', error);
         } finally {
             if (loadingElement && loadingElement.parentElement) {
                 loadingElement.remove();

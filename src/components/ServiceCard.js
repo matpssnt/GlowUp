@@ -1,19 +1,51 @@
 import AgendamentoModal from './AgendamentoModal.js';
-import authState from '../utils/AuthState.js';
 
 export default function ServiceCard(servico, profissional = null) {
   const card = document.createElement("div");
-  card.className = "card";
-  card.style.width = "18rem";
+  card.className = "service-card-modern";
+
+  const preco = servico.preco ? parseFloat(servico.preco).toFixed(2).replace('.', ',') : null;
+  const duracao = servico.duracao || servico.tempo_estimado || null;
+
+  // Formata duração legível
+  let duracaoTexto = '';
+  if (duracao) {
+    const min = parseInt(duracao);
+    if (min >= 60) {
+      const h = Math.floor(min / 60);
+      const m = min % 60;
+      duracaoTexto = m > 0 ? `${h}h ${m}min` : `${h}h`;
+    } else {
+      duracaoTexto = `${min} min`;
+    }
+  }
 
   card.innerHTML = `
-    <img src="${servico.imagem || 'public/assets/images/botox.jpg'}" class="card-img-top" alt="${servico.nome}" style="height: 200px; object-fit: cover;">
-    <div class="card-body">
-      <h5 class="card-title">${servico.nome || 'Serviço'}</h5>
-      <p class="card-text">${servico.descricao || ''}</p>
-      ${servico.preco ? `<p class="text-success fw-bold mb-2">R$ ${parseFloat(servico.preco).toFixed(2).replace('.', ',')}</p>` : ''}
-      <button class="btn btn-primary btn-agendar" data-servico-id="${servico.id || ''}">
-        <i class="bi bi-calendar-check me-2"></i>Agendar
+    <div class="service-card-img-wrapper">
+      <img src="${servico.imagem || 'public/assets/images/botox.jpg'}" 
+           alt="${servico.nome}" 
+           class="service-card-img"
+           onerror="this.src='public/assets/images/Florence-estetica.jpg'">
+      <div class="service-card-img-overlay"></div>
+    </div>
+    <div class="service-card-content">
+      <h4 class="service-card-title">${servico.nome || 'Serviço'}</h4>
+      ${servico.descricao ? `<p class="service-card-desc">${servico.descricao}</p>` : ''}
+      <div class="service-card-details">
+        ${preco ? `
+          <div class="service-card-price">
+            <span class="service-price-currency">R$</span>
+            <span class="service-price-value">${preco}</span>
+          </div>
+        ` : ''}
+        ${duracaoTexto ? `
+          <div class="service-card-duration">
+            <i class="fas fa-clock"></i> ${duracaoTexto}
+          </div>
+        ` : ''}
+      </div>
+      <button class="service-card-btn btn-agendar" data-servico-id="${servico.id || ''}">
+        <i class="fas fa-calendar-check"></i> Agendar
       </button>
     </div>
   `;
@@ -21,28 +53,21 @@ export default function ServiceCard(servico, profissional = null) {
   // Event listener para abrir modal
   const btnAgendar = card.querySelector('.btn-agendar');
   btnAgendar.addEventListener('click', () => {
-    // Verifica se tem profissional (necessário para agendar)
     if (!profissional || !profissional.id) {
-      // Tenta buscar profissional da URL ou contexto
       const urlParams = new URLSearchParams(window.location.search);
       const profissionalId = urlParams.get('profissional');
-      
+
       if (!profissionalId) {
-        // Importa notificação dinamicamente
         import('../components/Notification.js').then(({ notify }) => {
           notify.error('Erro: Profissional não identificado');
         });
         return;
       }
-      
-      // Se não tiver profissional passado, precisa buscar
-      // Por enquanto, usa dados básicos
+
       profissional = { id: profissionalId };
     }
 
-    // Cria e mostra modal
     const modal = AgendamentoModal(servico, profissional);
-    // O modal já é adicionado ao DOM e mostrado dentro da função AgendamentoModal
   });
 
   return card;

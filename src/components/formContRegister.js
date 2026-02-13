@@ -72,9 +72,27 @@ export default function renderFormContRegister(container) {
     tituloEndereco.className = 'cont-register-section-title';
     secaoEndereco.appendChild(tituloEndereco);
 
-    // Linha 1: Cidade e Bairro lado a lado
+    // Linha 1: cep, Cidade e Bairro lado a lado
     const linha1 = document.createElement('div');
     linha1.className = 'cont-register-row-1';
+
+     // CEP
+    const divCep = document.createElement('div');
+    divCep.className = 'cont-register-field';
+    const labelCep = document.createElement('label');
+    labelCep.textContent = 'CEP';
+    labelCep.className = 'form-label';
+
+    const inputCep = document.createElement('input');
+    inputCep.type = 'text';
+    inputCep.className = 'form-control';
+    inputCep.id = 'cep';
+    inputCep.placeholder = '00000-000';
+    inputCep.required = true;
+
+    divCep.appendChild(labelCep);
+    divCep.appendChild(inputCep);
+    linha1.appendChild(divCep);
 
     // Cidade
     const divCidade = document.createElement('div');
@@ -131,7 +149,7 @@ export default function renderFormContRegister(container) {
 
     secaoEndereco.appendChild(linha2);
 
-    // Linha 3: Número, CEP e Complemento lado a lado
+    // Linha 3: Número e Complemento lado a lado
     const linha3 = document.createElement('div');
     linha3.className = 'cont-register-row-3';
 
@@ -150,24 +168,6 @@ export default function renderFormContRegister(container) {
     divNumero.appendChild(labelNumero);
     divNumero.appendChild(inputNumero);
     linha3.appendChild(divNumero);
-
-    // CEP
-    const divCep = document.createElement('div');
-    divCep.className = 'cont-register-field';
-    const labelCep = document.createElement('label');
-    labelCep.textContent = 'CEP';
-    labelCep.className = 'form-label';
-
-    const inputCep = document.createElement('input');
-    inputCep.type = 'text';
-    inputCep.className = 'form-control';
-    inputCep.id = 'cep';
-    inputCep.placeholder = '00000-000';
-    inputCep.required = true;
-
-    divCep.appendChild(labelCep);
-    divCep.appendChild(inputCep);
-    linha3.appendChild(divCep);
 
     // Complemento
     const divComplemento = document.createElement('div');
@@ -349,7 +349,7 @@ export default function renderFormContRegister(container) {
             try {
                 await api.atualizarProfissional(idProfissional, dadosProfissional);
             } catch (error) {
-                console.error('Erro ao atualizar profissional:', error);
+                // console.error('Erro ao atualizar profissional:', error);
                 throw new Error('Erro ao atualizar dados do profissional: ' + error.message);
             }
 
@@ -369,7 +369,7 @@ export default function renderFormContRegister(container) {
             try {
                 await api.criarEndereco(dadosEndereco);
             } catch (error) {
-                console.error('Erro ao criar endereço:', error);
+                // console.error('Erro ao criar endereço:', error);
                 // Não bloqueia o cadastro se o endereço falhar
                 console.warn('Endereço não foi criado, mas o cadastro continua');
             }
@@ -388,7 +388,7 @@ export default function renderFormContRegister(container) {
 
         } catch (error) {
             // Erro
-            console.error('Erro completo no cadastro:', error);
+            // console.error('Erro completo no cadastro:', error);
             const mensagemErro = error.message || 'Erro desconhecido ao finalizar cadastro';
             notify.error('Erro ao finalizar cadastro: ' + mensagemErro);
         } finally {
@@ -410,8 +410,28 @@ function adicionarAlternanciaTipoPessoa(selectTipo, container) {
         container.classList.remove('d-none');
         container.classList.add('show');
 
+         // Função para formatar CPF
+        function formatarCPF(valor) {
+            valor = valor.replace(/\D/g, ""); // remove tudo que não é número
+            valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
+            valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
+            valor = valor.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+            return valor;
+        }
+ 
+        // Função para formatar CNPJ
+        function formatarCNPJ(valor) {
+            valor = valor.replace(/\D/g, "");
+            valor = valor.replace(/(\d{2})(\d)/, "$1.$2");
+            valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
+            valor = valor.replace(/(\d{3})(\d)/, "$1/$2");
+            valor = valor.replace(/(\d{4})(\d{1,2})$/, "$1-$2");
+            return valor;
+        }
+ 
+     
         if (tipo === 'fisica') {
-            // Campo CPF
+             // Campo CPF
             const divCampo = document.createElement('div');
             divCampo.className = 'cont-register-field';
             const label = document.createElement('label');
@@ -425,8 +445,17 @@ function adicionarAlternanciaTipoPessoa(selectTipo, container) {
             divCampo.appendChild(label);
             divCampo.appendChild(input);
             container.appendChild(divCampo);
-        } else if (tipo === 'juridica') {
-            // Campo CNPJ
+ 
+            input.addEventListener('input', function (e) {
+                e.target.value = formatarCPF(e.target.value);
+            });
+ 
+            // Opcional: limitar a 14 caracteres (11 números + 3 pontos + 1 traço)
+            input.maxLength = 14;
+        }
+ 
+        else if (tipo === 'juridica') {
+              // Campo CNPJ
             const divCampo = document.createElement('div');
             divCampo.className = 'cont-register-field';
             const label = document.createElement('label');
@@ -440,6 +469,13 @@ function adicionarAlternanciaTipoPessoa(selectTipo, container) {
             divCampo.appendChild(label);
             divCampo.appendChild(input);
             container.appendChild(divCampo);
+ 
+            input.addEventListener('input', function (e) {
+                e.target.value = formatarCNPJ(e.target.value);
+            });
+ 
+            // Opcional: limitar a 18 caracteres
+            input.maxLength = 18;
         }
     });
 }
@@ -482,13 +518,13 @@ function adicionarBuscaCep(inputCep) {
                     }
                 },
                 error: (error) => {
-                    console.error('Erro ao buscar CEP:', error);
+                    // console.error('Erro ao buscar CEP:', error);
                     notify.error('Erro ao buscar CEP: ' + error.message);
                 }
             });
 
         } catch (error) {
-            console.error('Erro na busca do CEP:', error);
+            // console.error('Erro na busca do CEP:', error);
             notify.error('Erro na busca do CEP: ' + error.message);
         }
     };

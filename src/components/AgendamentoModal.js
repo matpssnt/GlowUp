@@ -50,7 +50,7 @@ export default function AgendamentoModal(servico, profissional) {
 
             return [];
         } catch (error) {
-            console.error('Erro ao buscar horários:', error);
+            // console.error('Erro ao buscar horários:', error);
             return [];
         }
     }
@@ -408,7 +408,7 @@ export default function AgendamentoModal(servico, profissional) {
                 horariosContainer.innerHTML = '<div class="text-muted">Selecione uma data primeiro</div>';
                 carregarDisponibilidadeDoMes(fp, hoje, hoje, max);
             } catch (error) {
-                console.error('Erro ao inicializar calendário:', error);
+                // console.error('Erro ao inicializar calendário:', error);
                 dataInput.disabled = false;
                 dataInput.type = 'date';
             }
@@ -496,7 +496,7 @@ export default function AgendamentoModal(servico, profissional) {
         bootstrapModal.show();
 
         // Inicializa o calendário
-        console.log('Modal adicionado ao DOM, inicializando calendário...');
+        // console.log('Modal adicionado ao DOM, inicializando calendário...');
         inicializarCalendario();
 
     }, 100);

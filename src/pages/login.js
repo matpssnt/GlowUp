@@ -22,8 +22,6 @@ export default function renderLoginPage() {
     const campo = document.getElementById('castra-se');
     if (campo) campo.remove();
 
-
-
     const formulario = loginForm();
     // Cria link para página de cadastro
     const btnVoltar = document.createElement('a');

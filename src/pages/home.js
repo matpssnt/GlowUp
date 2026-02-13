@@ -1,6 +1,5 @@
 import NavBar from "../components/NavBar.js";
 import Footer from "../components/Footer.js";
-import RoomCard from "../components/Cards.js";
 import ApiService from "../utils/api.js";
 import authState from "../utils/AuthState.js";
 
@@ -18,16 +17,13 @@ export default function renderHomePage() {
 
     //Conteudo Principal
     const fundoPrincipal = document.createElement('div');
-    const mostrarBotoesHero = !authState.isAuth();
     fundoPrincipal.innerHTML = `
-       <h1 class="hero-title">Bem-vindo à Glow Up</h1>
+    <h1 class="hero-title">Bem-vindo à Glow Up</h1>
         <p class="hero-subtitle">Sua plataforma de beleza e bem-estar.</p>
-        ${mostrarBotoesHero ? `
-            <div class="d-flex justify-content-center gap-3 mt-3">
-                <a href="login" class="btn btn-outline-primary register-btn">Cadastre-se</a>
-                <a href="#" class="btn btn-outline-primary register-btn">Veja como funciona</a>
-            </div>
-        ` : ''}
+        <div class="d-flex justify-content-center gap-3 mt-3">
+            <a href="login" class="btn btn-outline-primary register-btn">Login</a>
+            <a href="#" class="btn btn-outline-primary register-btn">Veja como funciona</a>
+        </div>
     `;
     fundoPrincipal.className = 'text-center fade-in hero';
 
@@ -37,12 +33,12 @@ export default function renderHomePage() {
         <h2 class="partners-title">
             Alguns dos nossos parceiros 
         </h2>
-        <p class="partners-subtitle">Os melhores do ramo da estetica</p>
+        <p class="partners-subtitle">Os melhores do ramo da estética</p>
     `;
 
     const divCards = document.createElement('div');
     divCards.innerHTML = '';
-    divCards.className = "cards";
+    divCards.className = "home-parceiros-grid";
 
     // Adiciona loading
     const loading = document.createElement('div');
@@ -50,38 +46,100 @@ export default function renderHomePage() {
     loading.innerHTML = '<div class="spinner-border" role="status"><span class="visually-hidden">Carregando...</span></div>';
     divCards.appendChild(loading);
 
+    // Função para embaralhar array (Fisher-Yates)
+    function shuffleArray(arr) {
+        const shuffled = [...arr];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    }
+
     // Função para carregar profissionais
     async function carregarProfissionais() {
-        // Função auxiliar para usar fallback
-        const usarFallback = () => {
-            loading.remove();
-            for (let i = 0; i < 4; i++) {
-                divCards.appendChild(RoomCard(i));
-            }
-        };
-
         try {
             const api = new ApiService();
-            const profissionais = await api.listarProfissionais();
+            const [profissionais, servicos, enderecos] = await Promise.allSettled([
+                api.listarProfissionais(),
+                api.listarServicos(),
+                api.request('/endereco', 'GET')
+            ]);
+
             loading.remove();
 
-            // Se retornou array válido com dados, usa profissionais reais
-            if (Array.isArray(profissionais) && profissionais.length > 0) {
-                profissionais.slice(0, 4).forEach(prof => {
-                    divCards.appendChild(RoomCard(prof));
+            const profs = (profissionais.status === 'fulfilled' && Array.isArray(profissionais.value)) ? profissionais.value : [];
+            const servs = (servicos.status === 'fulfilled' && Array.isArray(servicos.value)) ? servicos.value : [];
+            const endrs = (enderecos.status === 'fulfilled' && Array.isArray(enderecos.value)) ? enderecos.value : [];
+
+            if (profs.length > 0) {
+                // Seleciona até 8 profissionais aleatórios
+                const selecionados = shuffleArray(profs).slice(0, 8);
+
+                selecionados.forEach((prof, index) => {
+                    const endereco = endrs.find(e => e.id_profissional_fk == prof.id);
+                    const servicosDoProf = servs.filter(s => s.id_profissional_fk == prof.id);
+                    const menorPreco = servicosDoProf.length > 0
+                        ? Math.min(...servicosDoProf.map(s => parseFloat(s.preco)))
+                        : null;
+                    const bairro = endereco ? `${endereco.bairro}, ${endereco.cidade}` : '';
+                    const descricao = prof.descricao || 'Profissional de estética e beleza';
+
+                    const cardEl = document.createElement('div');
+                    cardEl.className = 'explorar-card';
+                    cardEl.style.animationDelay = `${index * 0.05}s`;
+                    cardEl.innerHTML = `
+                        <div class="explorar-card-img-wrapper">
+                            <img class="explorar-card-img" 
+                                 src="public/assets/images/botox.jpg" 
+                                 alt="${prof.nome}"
+                                 onerror="this.src='public/assets/images/Florence-estetica.jpg'">
+                        </div>
+                        <div class="explorar-card-body">
+                            <h4 class="explorar-card-name">${prof.nome}</h4>
+                            ${bairro ? `
+                                <div class="explorar-card-location">
+                                    <i class="fas fa-map-marker-alt"></i> ${bairro}
+                                </div>
+                            ` : ''}
+                            <p class="explorar-card-desc">${descricao}</p>
+                            <div class="explorar-card-footer">
+                                ${menorPreco !== null ? `
+                                    <div class="explorar-card-price">
+                                        <span class="explorar-card-price-label">A partir de</span>
+                                        <span class="explorar-card-price-value">R$ ${menorPreco.toFixed(2).replace('.', ',')}</span>
+                                    </div>
+                                ` : '<div></div>'}
+                                <a href="agendamento?profissional=${prof.id}" class="btn-ver-perfil">
+                                    Conhecer <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    divCards.appendChild(cardEl);
                 });
             } else {
-                usarFallback();
+                divCards.innerHTML = '<p class="text-center text-muted">Nenhum parceiro encontrado no momento.</p>';
             }
         } catch (error) {
-            usarFallback();
+            loading.remove();
+            divCards.innerHTML = '<p class="text-center text-muted">Não foi possível carregar os parceiros.</p>';
         }
     }
+
+    // Botão Explorar
+    const explorarBtnContainer = document.createElement('div');
+    explorarBtnContainer.className = 'explorar-btn-container';
+    explorarBtnContainer.innerHTML = `
+        <a href="profissionais" class="btn-explorar-home">
+            <i class="fas fa-compass"></i> Explorar
+        </a>
+    `;
 
     const secaoDeInformacao = document.createElement('div');
     secaoDeInformacao.className = 'info-section';
     secaoDeInformacao.innerHTML =
-    `
+        `
     <div class="container py-5">
         <div class="row text-center mb-5">
             <div class="col-12">
@@ -137,6 +195,7 @@ export default function renderHomePage() {
     divRoot.appendChild(fundoPrincipal);
     divRoot.appendChild(informacoes);
     divRoot.appendChild(divCards);
+    divRoot.appendChild(explorarBtnContainer);
     divRoot.appendChild(secaoDeInformacao);
 
     const footerContainer = document.getElementById('footer');

@@ -9,6 +9,7 @@
 @import url('./sobre.css');
 @import url('./dashboard.css');
 @import url('./loading.css');
+@import url('./explorar.css');
 
 /* Variáveis CSS Globais */
 :root {
@@ -184,27 +185,17 @@ html {
 }
 
 /* Responsividade navbar */
-@media (max-width: 991px) {
+@media (max-width: 450px) {
     .navbar-actions {
         width: 100%;
         justify-content: flex-start;
         margin-top: 0.5rem;
+        flex-direction: column;
     }
-    
+
     .navbar-actions .btn {
         margin: 0.25rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .navbar-actions {
-        flex-direction: column;
         width: 100%;
-    }
-    
-    .navbar-actions .btn {
-        width: 100%;
-        margin: 0.25rem 0;
     }
 }
 
@@ -329,26 +320,26 @@ footer.bg-body-tertiary {
 }
 
 /* Responsividade Footer */
-@media (max-width: 768px) {
+@media (max-width: 450px) {
     .social-links {
         justify-content: center;
         flex-wrap: wrap;
     }
-    
+
     .newsletter-form {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .newsletter-input {
         max-width: 100% !important;
         margin-bottom: 0.5rem;
     }
-    
+
     .newsletter-btn {
         width: 100%;
     }
-    
+
     .testimonial-item {
         margin-top: 1rem;
     }
@@ -614,7 +605,7 @@ textarea.form-control:focus {
     margin-bottom: 20px;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 450px) {
     .sidebar {
         width: 250px;
         position: sticky;
@@ -738,7 +729,7 @@ textarea.form-control:focus {
 }
 
 /* Responsividade das notificações */
-@media (max-width: 768px) {
+@media (max-width: 450px) {
     .notifications-container {
         right: 10px;
         left: 10px;
@@ -746,32 +737,32 @@ textarea.form-control:focus {
         max-width: none;
         width: calc(100% - 20px);
     }
-    
+
     .notification {
         width: 100%;
         padding: 12px;
         font-size: 0.9rem;
         transform: translateY(-20px);
     }
-    
+
     .notification.show {
         transform: translateY(0);
     }
-    
+
     .notification.hide {
         transform: translateY(-20px);
         opacity: 0;
     }
-    
+
     .notification-icon {
         font-size: 1.2rem;
     }
-    
+
     .notification-message {
         font-size: 0.85rem;
         line-height: 1.4;
     }
-    
+
     .notification-close {
         font-size: 1.2rem;
         width: 20px;
@@ -786,12 +777,12 @@ textarea.form-control:focus {
         left: 5px;
         width: calc(100% - 10px);
     }
-    
+
     .notification {
         padding: 10px;
         font-size: 0.85rem;
     }
-    
+
     .notification-content {
         gap: 8px;
     }
@@ -961,6 +952,7 @@ textarea.form-control:focus {
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -986,18 +978,16 @@ textarea.form-control:focus {
         flex-wrap: wrap;
         gap: 0.5rem;
     }
-    
+
     .form-step {
         flex: 0 0 calc(50% - 0.5rem);
     }
-    
+
     .form-step:not(:last-child)::after {
         display: none;
     }
-    
+
     .step-label {
         font-size: 0.7rem;
     }
 }
-
-

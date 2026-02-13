@@ -5,7 +5,6 @@ require_once __DIR__ . '/../controllers/PasswordController.php';
 
 class CadastroModel
 {
-
     public static function create($data)
     {
         $db = Database::getInstancia();

@@ -12,7 +12,7 @@ export default function renderPerfilPage() {
     }
 
     if (authState.getUserType() === 'profissional') {
-        window.location.href = '/dashboard';
+        window.location.href = '/';
         return;
     }
 
