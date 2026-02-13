@@ -1,7 +1,8 @@
 export default class ApiService {
     constructor() {
-        this.baseUrl = '/GlowUp/api';
-        this.debug = false;
+    this.baseUrl = '/GlowUp/api';
+    this.debug = false;
+    // this.debug = localStorage.getItem('apiDebug') !== 'false';
     }
 
     /**
@@ -103,7 +104,6 @@ export default class ApiService {
         }
     }
 
-    // Métodos de Autenticação
     async loginCliente(email, senha) {
         return await this.request('/login/cliente', 'POST', { email, senha });
     }
@@ -129,15 +129,64 @@ export default class ApiService {
         }
     }
 
-    // Métodos para Cadastro
     async cadastrarCliente(nome, email, senha) {
-        const data = { nome, email, senha, isProfissional: 0 };
+        const data = {
+            nome,
+            email,
+            senha,
+            isProfissional: 0
+        };
         return await this.request('/cadastro', 'POST', data);
     }
 
     async cadastrarProfissional(nome, email, senha) {
-        const data = { nome, email, senha, isProfissional: 1 };
+        const data = {
+            nome,
+            email,
+            senha,
+            isProfissional: 1
+        };
         return await this.request('/cadastro', 'POST', data);
+    }
+
+    async buscarCadastroPorEmail(email) {
+        // Busca todos os cadastros e filtra por email
+        // Nota: Isso só funciona se o backend permitir
+        try {
+            const cadastros = await this.listarCadastros();
+            if (Array.isArray(cadastros)) {
+                return cadastros.find(c => c.email === email) || null;
+            }
+        } catch (error) {
+            console.error('Erro ao buscar cadastro por email:', error);
+        }
+        return null;
+    }
+
+    async buscarOuCriarCadastroPorEmail(email, maxTentativas = 3) {
+        // Tenta buscar o cadastro várias vezes (útil após criação)
+        for (let i = 0; i < maxTentativas; i++) {
+            const cadastro = await this.buscarCadastroPorEmail(email);
+            if (cadastro) {
+                return cadastro;
+            }
+            // Aguarda antes de tentar novamente
+            if (i < maxTentativas - 1) {
+                await new Promise(resolve => setTimeout(resolve, 500 * (i + 1)));
+            }
+        }
+        return null;
+    }
+
+    async atualizarCadastro(id, nome, email, senha, isProfissional) {
+        const data = {
+            id,
+            nome,
+            email,
+            senha,
+            isProfissional
+        };
+        return await this.request('/cadastro', 'PUT', data);
     }
 
     async buscarCadastro(id) {
@@ -146,6 +195,40 @@ export default class ApiService {
 
     async listarCadastros() {
         return await this.request('/cadastro', 'GET');
+    }
+
+    async deletarCadastro(id) {
+        return await this.request('/cadastro', 'DELETE', { id });
+    }
+
+    // Métodos para Endereço
+    async criarEndereco(dados) {
+        return await this.request('/endereco', 'POST', dados);
+    }
+
+    async atualizarEndereco(id, dados) {
+        const data = {
+            id,
+            ...dados
+        };
+        return await this.request('/endereco', 'PUT', data);
+    }
+
+    // Métodos para Telefone
+    async criarTelefone(ddd, digitos) {
+        return await this.request('/telefone', 'POST', { ddd, digitos });
+    }
+
+    async atualizarTelefone(id, ddd, digitos) {
+        return await this.request('/telefone', 'PUT', { id, ddd, digitos });
+    }
+
+    async buscarTelefone(id) {
+        return await this.request(`/telefone/${id}`, 'GET');
+    }
+
+    async listarTelefones() {
+        return await this.request('/telefone', 'GET');
     }
 
     // Métodos para Profissional
@@ -158,16 +241,7 @@ export default class ApiService {
     }
 
     async buscarProfissionalPorCadastro(idCadastro) {
-        // Busca todos os profissionais e filtra por id_cadastro_fk
-        try {
-            const profissionais = await this.request('/profissional', 'GET');
-            if (Array.isArray(profissionais)) {
-                return profissionais.find(p => p.id_cadastro_fk == idCadastro) || null;
-            }
-        } catch (error) {
-            console.error('Erro ao buscar profissional por cadastro:', error);
-        }
-        return null;
+        return await this.request(`/profissional/cadastro/${idCadastro}`, 'GET');
     }
 
     async criarProfissional(dados) {
@@ -175,37 +249,22 @@ export default class ApiService {
     }
 
     async atualizarProfissional(id, dados) {
-        const data = { id, ...dados };
+        const data = {
+            id,
+            ...dados
+        };
         return await this.request('/profissional', 'PUT', data);
-    }
-
-    // Métodos para Endereço
-    async criarEndereco(dados) {
-        return await this.request('/endereco', 'POST', dados);
-    }
-
-    async atualizarEndereco(id, dados) {
-        const data = { id, ...dados };
-        return await this.request('/endereco', 'PUT', data);
     }
 
     async buscarEndereco(id) {
         return await this.request(`/endereco/${id}`, 'GET');
     }
 
-    async listarEnderecos() {
-        return await this.request('/endereco', 'GET');
-    }
-
     async buscarEnderecoPorProfissional(idProfissional) {
         // Busca todos os endereços e filtra por profissional
-        try {
-            const enderecos = await this.request('/endereco', 'GET');
-            if (Array.isArray(enderecos)) {
-                return enderecos.find(e => e.id_profissional_fk == idProfissional) || null;
-            }
-        } catch (error) {
-            console.error('Erro ao buscar endereço por profissional:', error);
+        const enderecos = await this.request('/endereco', 'GET');
+        if (Array.isArray(enderecos)) {
+            return enderecos.find(e => e.id_profissional_fk == idProfissional) || null;
         }
         return null;
     }
@@ -223,7 +282,7 @@ export default class ApiService {
         }
 
         // Se não encontrou como profissional, busca todos os endereços
-        // e tenta encontrar por id_cadastro_fk ou id_cliente_fk
+        // e tenta encontrar por id_cadastro_fk ou id_cliente_fk (se existir no backend)
         try {
             const enderecos = await this.request('/endereco', 'GET');
             if (Array.isArray(enderecos)) {
@@ -237,6 +296,28 @@ export default class ApiService {
         }
 
         return null;
+    }
+
+    async buscarTelefonePorProfissional(idProfissional) {
+        try {
+            // Busca relação tel_prof
+            const telProfs = await this.request('/telProf', 'GET');
+            if (Array.isArray(telProfs)) {
+                const relacao = telProfs.find(tp => tp.id_profissional_fk == idProfissional);
+                if (relacao && relacao.id_telefone_fk) {
+                    // Busca o telefone
+                    return await this.buscarTelefone(relacao.id_telefone_fk);
+                }
+            }
+            return null;
+        } catch (error) {
+            console.error('Erro ao buscar telefone do profissional:', error);
+            return null;
+        }
+    }
+
+    async listarTelProfs() {
+        return await this.request('/telProf', 'GET');
     }
 
     // Métodos para Serviços
@@ -280,11 +361,15 @@ export default class ApiService {
     }
 
     async atualizarAgendamento(id, dados) {
-        const data = { id, ...dados };
+        const data = {
+            id,
+            ...dados
+        };
         return await this.request('/agendamento', 'PUT', data);
     }
 
     async cancelarAgendamento(id) {
+        // Usa DELETE com query param para garantir compatibilidade
         return await this.request(`/agendamento?id=${id}`, 'DELETE');
     }
 
@@ -293,12 +378,42 @@ export default class ApiService {
         return await this.request(`/horarios-disponiveis${qs}`, 'GET');
     }
 
-    // Métodos para Segurança
     async trocarSenha(cadastroId, senhaAntiga, senhaNova) {
         return await this.request('/seguranca/trocar-senha', 'POST', {
             id_cadastro: cadastroId,
             senha_antiga: senhaAntiga,
             senha_nova: senhaNova
         });
+    }
+
+    // Métodos para Escala
+    async listarEscalas() {
+        return await this.request('/escala', 'GET');
+    }
+
+    async buscarEscala(id) {
+        return await this.request(`/escala/${id}`, 'GET');
+    }
+
+    async buscarEscalasProfissional(idProfissional) {
+        // Busca todas as escalas e filtra por profissional
+        const escalas = await this.listarEscalas();
+        if (Array.isArray(escalas)) {
+            return escalas.filter(e => e.id_profissional_fk == idProfissional);
+        }
+        return [];
+    }
+
+    async criarEscala(dados) {
+        return await this.request('/escala', 'POST', dados);
+    }
+
+    async atualizarEscala(id, dados) {
+        const data = { id, ...dados };
+        return await this.request('/escala', 'PUT', data);
+    }
+
+    async deletarEscala(id) {
+        return await this.request('/escala', 'DELETE', { id });
     }
 }
