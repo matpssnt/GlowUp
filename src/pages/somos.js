@@ -24,14 +24,71 @@ export default function renderquemSomos() {
     `;
     fundoPrincipal.className = 'fund-principal fade-in';
 
+        <!-- MISSÃO, VISÃO E VALORES -->
+        <section class="sobre-mvv section">
+            <div class="content-wrapper">
+                <h2>Missão, Visão e Valores</h2>
+                
+                <div class="mvv-cards">
+                    <div class="mvv-card">
+                        <div class="mvv-icon">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <h3>Missão</h3>
+                        <p>
+                            Conectar pessoas com profissionais de beleza e bem-estar de forma simples, 
+                            segura e acessível, promovendo autoestima e confiança.
+                        </p>
+                    </div>
+                    
+                    <div class="mvv-card">
+                        <div class="mvv-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <h3>Visão</h3>
+                        <p>
+                            Ser a principal plataforma de beleza e bem-estar, reconhecida pela qualidade, 
+                            confiabilidade e proximidade com nossos usuários.
+                        </p>
+                    </div>
+                    
+                    <div class="mvv-card">
+                        <div class="mvv-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <h3>Valores</h3>
+                        <ul>
+                            <li>Transparência em todas as relações</li>
+                            <li>Foco no usuário e sua experiência</li>
+                            <li>Inovação constante em serviços</li>
+                            <li>Respeito e inclusão para todos</li>
+                            <li>Compromisso com qualidade</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="sobre-cta">
+            <div class="sobre-cta-content">
+                <h2>Faça parte da nossa comunidade</h2>
+                <p>
+                    Cadastre-se agora e comece a aproveitar todos os recursos disponíveis na nossa plataforma.
+                </p>
+                <a href="/GlowUp/register" class="btn-primary">
+                    Criar minha conta
+                </a>
+            </div>
+        </section>
+    `;
 
     // Footer
     const footerContainer = document.getElementById('footer');
     footerContainer.innerHTML = '';
-    footerContainer.style.marginTop = '150px';
+    footerContainer.style.marginTop = '0';
     const footer = Footer();
     footerContainer.appendChild(footer);
-
 
     // Botão WhatsApp flutuante
     if (!document.querySelector('.whatsapp-float')) {
@@ -51,5 +108,5 @@ export default function renderquemSomos() {
         document.body.appendChild(whatsappFloat);
     }
 
-    Divroot.appendChild(fundoPrincipal);
+    Divroot.appendChild(mainContent);
 }
