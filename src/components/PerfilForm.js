@@ -108,7 +108,7 @@ export default function PerfilForm() {
                 telefoneInput.value = telefoneFormatado;
             }
         } catch (error) {
-            console.error('Erro ao carregar dados:', error);
+            // console.error('Erro ao carregar dados:', error);
         }
     }
  
@@ -271,7 +271,7 @@ export default function PerfilForm() {
             }
             
             notify.error('Erro ao salvar: ' + error.message);
-            console.error('Erro ao salvar perfil:', error);
+            // console.error('Erro ao salvar perfil:', error);
         } finally {
             // Reabilita botão
             btnSalvar.disabled = false;

@@ -235,7 +235,7 @@ export default function renderFormCliente(container) {
 
         } catch (error) {
             notify.error('Erro ao cadastrar: ' + error.message);
-            console.error('Erro no cadastro:', error);
+            // console.error('Erro no cadastro:', error);
         } finally {
             if (loadingElement && loadingElement.parentElement) {
                 loadingElement.remove();

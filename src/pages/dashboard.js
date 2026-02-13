@@ -210,7 +210,7 @@ export default function renderPage() {
 
             let profissional = null;
             try { profissional = await api.buscarProfissionalPorCadastro(profissionalId); }
-            catch (e) { console.error('Busca prof', e); }
+            catch (e) {  }
 
             if (!profissional || !profissional.id) {
                 agendamentosContainer.innerHTML = '<div class="alert alert-warning">Perfil incompleto.</div>';

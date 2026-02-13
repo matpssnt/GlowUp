@@ -228,7 +228,7 @@ export default function renderFormProf(container) {
                     throw new Error('Não foi possível obter o ID do cadastro criado.');
                 }
             } catch (error) {
-                console.error('Erro ao criar cadastro:', error);
+                // console.error('Erro ao criar cadastro:', error);
                 throw error;
             }
             
@@ -285,7 +285,7 @@ export default function renderFormProf(container) {
                             }
                         }
                     } catch (e) {
-                        console.error('Erro ao listar profissionais:', e);
+                        // console.error('Erro ao listar profissionais:', e);
                     }
                 }
                 
@@ -294,7 +294,7 @@ export default function renderFormProf(container) {
                     // Continua sem o ID - será buscado na etapa 2
                 }
             } catch (profError) {
-                console.error('Erro ao criar profissional:', profError);
+                // console.error('Erro ao criar profissional:', profError);
                 throw new Error('Não foi possível criar o profissional: ' + (profError.message || 'Erro desconhecido'));
             }
 
@@ -319,7 +319,7 @@ export default function renderFormProf(container) {
             }, 1000);
         } catch (error) {
             // Erro
-            console.error('Erro no cadastro:', error);
+            // console.error('Erro no cadastro:', error);
             
             // Importa notificação para mostrar erro amigável
             const { notify } = await import('../components/Notification.js');

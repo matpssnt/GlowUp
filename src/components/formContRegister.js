@@ -349,7 +349,7 @@ export default function renderFormContRegister(container) {
             try {
                 await api.atualizarProfissional(idProfissional, dadosProfissional);
             } catch (error) {
-                console.error('Erro ao atualizar profissional:', error);
+                // console.error('Erro ao atualizar profissional:', error);
                 throw new Error('Erro ao atualizar dados do profissional: ' + error.message);
             }
 
@@ -369,7 +369,7 @@ export default function renderFormContRegister(container) {
             try {
                 await api.criarEndereco(dadosEndereco);
             } catch (error) {
-                console.error('Erro ao criar endereço:', error);
+                // console.error('Erro ao criar endereço:', error);
                 // Não bloqueia o cadastro se o endereço falhar
                 console.warn('Endereço não foi criado, mas o cadastro continua');
             }
@@ -388,7 +388,7 @@ export default function renderFormContRegister(container) {
 
         } catch (error) {
             // Erro
-            console.error('Erro completo no cadastro:', error);
+            // console.error('Erro completo no cadastro:', error);
             const mensagemErro = error.message || 'Erro desconhecido ao finalizar cadastro';
             notify.error('Erro ao finalizar cadastro: ' + mensagemErro);
         } finally {
@@ -518,13 +518,13 @@ function adicionarBuscaCep(inputCep) {
                     }
                 },
                 error: (error) => {
-                    console.error('Erro ao buscar CEP:', error);
+                    // console.error('Erro ao buscar CEP:', error);
                     notify.error('Erro ao buscar CEP: ' + error.message);
                 }
             });
 
         } catch (error) {
-            console.error('Erro na busca do CEP:', error);
+            // console.error('Erro na busca do CEP:', error);
             notify.error('Erro na busca do CEP: ' + error.message);
         }
     };

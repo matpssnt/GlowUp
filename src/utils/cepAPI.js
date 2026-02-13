@@ -37,7 +37,7 @@ export class CepAPI {
             return dados;
 
         } catch (error) {
-            console.error('Erro ao buscar CEP:', error);
+            // console.error('Erro ao buscar CEP:', error);
             throw error;
         }
     }
@@ -61,8 +61,6 @@ export class CepAPI {
      * @param {Object} campos - Objeto com IDs dos campos do formulário
      */
     preencherEndereco(dadosCep, campos = {}) {
-        console.log('Preenchendo endereço com dados:', dadosCep);
-        console.log('Campos fornecidos:', campos);
         
         const camposPadrao = {
             city: 'cidade',
@@ -72,18 +70,13 @@ export class CepAPI {
         };
 
         const camposFinais = { ...camposPadrao, ...campos };
-        console.log('Campos finais:', camposFinais);
 
         // Preenche cada campo se existir
         Object.keys(camposFinais).forEach(campo => {
             const elemento = document.getElementById(camposFinais[campo]);
-            console.log(`Tentando preencher campo ${campo} (ID: ${camposFinais[campo]})`, elemento, dadosCep[campo]);
             
             if (elemento && dadosCep[campo]) {
                 elemento.value = dadosCep[campo];
-                console.log(`Campo ${campo} preenchido com: ${dadosCep[campo]}`);
-            } else {
-                console.log(`Campo ${campo} não preenchido - elemento:`, elemento, 'dados:', dadosCep[campo]);
             }
         });
     }
