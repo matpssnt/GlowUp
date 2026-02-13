@@ -24,28 +24,191 @@
 }
 
 /* Cards de serviços */
-.agendamento .cards {
+.agendamento .cards,
+.perfil-content .cards {
     justify-content: center;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
     padding: 20px;
     margin-top: 20px;
     width: 100%;
     clear: both;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* Garantir que os cards fiquem abaixo do minicarrosel */
 .perfil-content .cards {
-    margin-top: 2rem;
-    width: 100%;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
-    padding: 20px 0;
-    flex-basis: 100%;
     order: 999;
+}
+
+/* Título dos serviços dentro do perfil-content */
+.perfil-content .titulo-servicos {
+    width: 100%;
+    flex-basis: 100%;
+    order: 998;
+    margin-top: 2rem;
+}
+
+/* ================================
+   SERVICE CARD MODERN
+   ================================ */
+.service-card-modern {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+.service-card-modern:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 32px rgba(41, 95, 28, 0.15);
+}
+
+/* Imagem */
+.service-card-img-wrapper {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+}
+
+.service-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.service-card-modern:hover .service-card-img {
+    transform: scale(1.08);
+}
+
+.service-card-img-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.25), transparent);
+    pointer-events: none;
+}
+
+/* Conteúdo */
+.service-card-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.service-card-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--dark-color);
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+}
+
+.service-card-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.88rem;
+    color: #666;
+    line-height: 1.5;
+    margin: 0 0 16px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex: 1;
+}
+
+/* Detalhes: preço e duração */
+.service-card-details {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding: 12px;
+    background: var(--light-color, #f6f5f2);
+    border-radius: 10px;
+    gap: 12px;
+}
+
+.service-card-price {
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+}
+
+.service-price-currency {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--primary-color);
+}
+
+.service-price-value {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--primary-color);
+    letter-spacing: -0.5px;
+}
+
+.service-card-duration {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #666;
+}
+
+.service-card-duration i {
+    color: var(--accent-color);
+    font-size: 0.9rem;
+}
+
+/* Botão agendar */
+.service-card-btn {
+    width: 100%;
+    padding: 12px 0;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    letter-spacing: 0.3px;
+}
+
+.service-card-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(41, 95, 28, 0.3);
+}
+
+.service-card-btn:active {
+    transform: translateY(0);
+}
+
+.service-card-btn i {
+    font-size: 1rem;
 }
 
 /* Título dos serviços dentro do perfil-content */
@@ -119,15 +282,11 @@
 }
 
 /* Responsividade */
-@media (min-width: 450px) {
-    .agendamento .cards {
-        gap: 40px;
-    }
-}
+@media (min-width: 768px) {
 
-@media (min-width: 1200px) {
-    .agendamento .cards {
-        gap: 70px;
+    .agendamento .cards,
+    .perfil-content .cards {
+        gap: 28px;
     }
 }
 
@@ -135,6 +294,25 @@
     .titulo-servicos {
         font-size: 1.5rem;
         margin: 1.5rem 0;
+    }
+
+    .agendamento .cards,
+    .perfil-content .cards {
+        grid-template-columns: 1fr;
+        padding: 16px;
+        gap: 16px;
+    }
+
+    .service-card-img-wrapper {
+        height: 180px;
+    }
+
+    .service-card-content {
+        padding: 16px;
+    }
+
+    .service-price-value {
+        font-size: 1.15rem;
     }
 
     #agendamentoModal .modal-dialog {
@@ -154,5 +332,35 @@
     #agendamentoModal .modal-footer .btn {
         width: 100%;
         min-width: auto;
+    }
+
+    /* Responsive para ServiceCard moderno */
+    .service-card-moderno {
+        padding: 15px;
+    }
+
+    .service-card-moderno .service-header {
+        margin-bottom: 12px;
+    }
+
+    .service-card-moderno .service-title {
+        font-size: 1rem;
+        margin-bottom: 8px;
+    }
+
+    .service-card-moderno .service-meta {
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 15px;
+    }
+
+    .service-card-moderno .service-price {
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+    }
+
+    .service-card-moderno .btn-agendar {
+        width: 100%;
+        padding: 10px;
     }
 }

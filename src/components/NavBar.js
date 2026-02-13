@@ -16,32 +16,32 @@ function isActiveRoute(href) {
     return currentRoute === `/${href}` || currentRoute === href;
 }
 
-export default function NavBar({hidelogin = false} = {}) {
+export default function NavBar({ hidelogin = false } = {}) {
     const nav = document.createElement('nav');
     nav.className = 'navbar navbar-expand-lg bg-body-tertiary';
-    
+
     // Função para renderizar o conteúdo da navbar
     const renderNavBar = () => {
         const isAuthenticated = authState.isAuth();
         const user = authState.getUser();
         const userType = authState.getUserType();
         const currentRoute = getCurrentRoute();
-        
+
         let authButtons = '';
         let userMenu = '';
         let notificationsBadge = '';
-        
+
         if (isAuthenticated && user) {
             // Menu do usuário logado
             const userDisplayName = user.nome || user.email || 'Usuário';
             const shortName = userDisplayName.length > 15 ? userDisplayName.substring(0, 15) + '...' : userDisplayName;
-            
+
             // Badge de notificações (placeholder - pode ser conectado a um sistema real)
             const notificationCount = 0; // TODO: Conectar com sistema de notificações
             if (notificationCount > 0) {
                 notificationsBadge = `<span class="notification-badge">${notificationCount}</span>`;
             }
-            
+
             authButtons = `
                 <div class="navbar-actions d-flex align-items-center gap-2">
                     <div class="dropdown">
@@ -51,16 +51,18 @@ export default function NavBar({hidelogin = false} = {}) {
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
                             <li><h6 class="dropdown-header">${userType === 'profissional' ? 'Profissional' : 'Cliente'}</h6></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="perfil">Meu Perfil</a></li>
                             ${userType === 'cliente' ? `
+                            <li><a class="dropdown-item" href="perfil">Meu Perfil</a></li>
                             <li><a class="dropdown-item" href="minhaAgenda">Minha Agenda</a></li>
                             <li><a class="dropdown-item" href="seguranca">Privacidade e Segurança</a></li>` : ''}
                             ${userType === 'profissional' ? 
+                            '<li><a class="dropdown-item" href="configuracoes-loja">Configurações da Loja</a></li>' : ''}
+                            ${userType === 'profissional' ?
                             '<li><a class="dropdown-item" href="dashboard">Dashboard</a></li>' : ''}
-                          <!-- <li><a class="dropdown-item" href="seguranca">Privacidade e Segurança</a></li> criei aqui tambem, mas como ja tem no dashboard, vou deixar comentado. -->
+                        <!-- <li><a class="dropdown-item" href="seguranca">Privacidade e Segurança</a></li> criei aqui tambem, mas como ja tem no dashboard, vou deixar comentado. -->
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="#" id="logoutBtn">Sair</a></li>
-                        </ul>
+                        </ul>   
                     </div>
                 </div>
             `;
@@ -74,11 +76,11 @@ export default function NavBar({hidelogin = false} = {}) {
                 </div>
             `;
         }
-        
+
         // Determina qual link está ativo
         const homeActive = isActiveRoute('home') ? 'active' : '';
         const sobreActive = isActiveRoute('sobre') ? 'active' : '';
-        
+
         nav.innerHTML = `
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="home">
@@ -101,10 +103,10 @@ export default function NavBar({hidelogin = false} = {}) {
                             Serviços
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">Estabelecimentos</a></li>
-                            <li><a class="dropdown-item" href="#">Profissionais</a></li>
+                            <li><a class="dropdown-item" href="estabelecimentos">Estabelecimentos</a></li>
+                            <li><a class="dropdown-item" href="profissionais">Profissionais</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="#">Em Construção</a></li>
+                            <li><a class="dropdown-item" href="explorar">Explorar Todos</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -112,7 +114,7 @@ export default function NavBar({hidelogin = false} = {}) {
             </div>
         </div>
         `;
-        
+
         // Adiciona evento de logout
         const logoutBtn = nav.querySelector('#logoutBtn');
         if (logoutBtn) {
@@ -122,7 +124,7 @@ export default function NavBar({hidelogin = false} = {}) {
                 window.location.href = 'home';
             });
         }
-        
+
         // Melhora o menu mobile
         const navbarToggler = nav.querySelector('.navbar-toggler');
         if (navbarToggler) {
@@ -131,19 +133,15 @@ export default function NavBar({hidelogin = false} = {}) {
             });
         }
     };
-    
     // Renderiza inicialmente
     renderNavBar();
-    
     // Escuta mudanças no estado de autenticação
     authState.subscribe(() => {
         renderNavBar();
     });
-    
     // Atualiza links ativos quando a rota muda
     window.addEventListener('popstate', () => {
         renderNavBar();
     });
-    
     return nav;
 }
