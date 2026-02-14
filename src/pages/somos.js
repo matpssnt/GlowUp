@@ -9,26 +9,25 @@ export default function renderquemSomos() {
     nav.innerHTML = '';
     const navbar = NavBar();
     nav.appendChild(navbar);
-    
+
     // Hero section
     const fundoPrincipal = document.createElement('div');
+    fundoPrincipal.className = 'fund-principal fade-in';
+
     fundoPrincipal.innerHTML = `
-    <h1 style="font-size: 2.8rem; font-weight: 700;">
+        <h1 style="font-size: 2.8rem; font-weight: 700;">
             Quem somos nós?
         </h1>
         <p style="font-size: 1rem; font-weight: 500;">
             Conheça nossa empresa
         </p>
-        <div class="line">
-        </div> 
-    `;
-    fundoPrincipal.className = 'fund-principal fade-in';
+        <div class="line"></div>
 
         <!-- MISSÃO, VISÃO E VALORES -->
         <section class="sobre-mvv section">
             <div class="content-wrapper">
                 <h2>Missão, Visão e Valores</h2>
-                
+
                 <div class="mvv-cards">
                     <div class="mvv-card">
                         <div class="mvv-icon">
@@ -36,22 +35,22 @@ export default function renderquemSomos() {
                         </div>
                         <h3>Missão</h3>
                         <p>
-                            Conectar pessoas com profissionais de beleza e bem-estar de forma simples, 
+                            Conectar pessoas com profissionais de beleza e bem-estar de forma simples,
                             segura e acessível, promovendo autoestima e confiança.
                         </p>
                     </div>
-                    
+
                     <div class="mvv-card">
                         <div class="mvv-icon">
                             <i class="fas fa-eye"></i>
                         </div>
                         <h3>Visão</h3>
                         <p>
-                            Ser a principal plataforma de beleza e bem-estar, reconhecida pela qualidade, 
+                            Ser a principal plataforma de beleza e bem-estar, reconhecida pela qualidade,
                             confiabilidade e proximidade com nossos usuários.
                         </p>
                     </div>
-                    
+
                     <div class="mvv-card">
                         <div class="mvv-icon">
                             <i class="fas fa-heart"></i>
@@ -83,6 +82,8 @@ export default function renderquemSomos() {
         </section>
     `;
 
+    Divroot.appendChild(fundoPrincipal);
+
     // Footer
     const footerContainer = document.getElementById('footer');
     footerContainer.innerHTML = '';
@@ -107,6 +108,4 @@ export default function renderquemSomos() {
         whatsappFloat.appendChild(whatsappLink);
         document.body.appendChild(whatsappFloat);
     }
-
-    Divroot.appendChild(mainContent);
 }
