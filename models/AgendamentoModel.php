@@ -139,9 +139,9 @@ class AgendamentoModel
     {
         $data = ['status' => strtolower(self::STATUS_CANCELADO)];
         $sucesso = self::update($id, $data);
-        if($sucesso) { 
+        if ($sucesso) {
             error_log("[CANCEL OK] ID $id -> status = 'cancelado'");
-        }else{
+        } else {
             error_log("[CANCEL FALHA] ID $id não mudou");
         }
         return self::update($id, $data);
@@ -214,7 +214,7 @@ class AgendamentoModel
      * Valida se serviço existe e retorna dados (inclui prof)
      * @throws Exception se não
      */
-    private static function validarServico($id, $conn)
+    public static function validarServico($id, $conn)
     {
         $sql = "SELECT * FROM servicos WHERE id = ?";
         $stmt = $conn->prepare($sql);
@@ -231,40 +231,60 @@ class AgendamentoModel
         }
         return $result;
     }
-/**
- * Checa conflitos de horário (janela de 1h) usando JOIN com servicos
- * @return int COUNT de conflitos
- */
-private static function checagemConflitos($idProfissional, $dataHora, $conn)
-{
-    $data = date('Y-m-d', strtotime($dataHora));
-    $horaInicio = date('Y-m-d H:i:s', strtotime($dataHora . ' -30 minutes'));
-    $horaFim    = date('Y-m-d H:i:s', strtotime($dataHora . ' +30 minutes'));
+    /**
+     * Checa conflitos de horário (janela de 1h) usando JOIN com servicos
+     * @return int COUNT de conflitos
+     */
+    private static function checagemConflitos($idProfissional, $dataHoraCompleta, $conn)
+    {
+        $dia = date('Y-m-d', strtotime($dataHoraCompleta));
+        $inicio = date('Y-m-d H:i:s', strtotime($dataHoraCompleta . ' -30 minutes'));
+        $fim = date('Y-m-d H:i:s', strtotime($dataHoraCompleta . ' +30 minutes'));
 
-    $sql = "
+        $sql = "
         SELECT COUNT(*) as count 
         FROM agendamentos a
         INNER JOIN servicos s ON a.id_servico_fk = s.id
         WHERE s.id_profissional_fk = ?
-        AND DATE(a.data_hora) = ?
-        AND a.data_hora BETWEEN ? AND ?
-        AND a.status != ?
+          AND DATE(a.data_hora) = ?
+          AND a.data_hora BETWEEN ? AND ?
+          AND a.status != ?
     ";
 
-    $statusExcluido = self::STATUS_CANCELADO;
+        $stmt = $conn->prepare($sql);
+        if ($stmt === false) {
+            throw new Exception('Erro ao preparar checagem: ' . $conn->error);
+        }
 
-    $stmt = $conn->prepare($sql);
-    if ($stmt === false) {
-        error_log("[ERRO prepare checagemConflitos com JOIN] SQL: $sql | Erro: " . $conn->error);
-        throw new Exception('Erro interno ao preparar checagem de conflitos');
+        $cancelado = self::STATUS_CANCELADO;  // 'cancelado' ou 'Cancelado' conforme seu ENUM
+        $stmt->bind_param("issss", $idProfissional, $dia, $inicio, $fim, $cancelado);
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+
+        $count = (int) $row['count'];
+        error_log("[CONFLITOS] Prof $idProfissional | Dia $dia | Count: $count");
+
+        return $count;
     }
 
-    $stmt->bind_param("isssi", $idProfissional, $data, $horaInicio, $horaFim, $statusExcluido);
+    public static function getHorariosOcupados($idProfissional, $data)
+{
+    $conn = Database::getInstancia()->pegarConexao();
+    $sql = "
+        SELECT a.data_hora
+        FROM agendamentos a
+        INNER JOIN servicos s ON a.id_servico_fk = s.id
+        WHERE s.id_profissional_fk = ?
+          AND DATE(a.data_hora) = ?
+          AND a.status != 'cancelado'
+    ";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("is", $idProfissional, $data);
     $stmt->execute();
-    $row = $stmt->get_result()->fetch_assoc();
+    $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
-
-    return (int) ($row['count'] ?? 0);
+    return $result;
 }
 }
 ?>
