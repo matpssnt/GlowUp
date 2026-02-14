@@ -15,14 +15,20 @@ export default function renderquemSomos() {
     fundoPrincipal.className = 'fund-principal fade-in';
 
     fundoPrincipal.innerHTML = `
-        <h1 style="font-size: 2.8rem; font-weight: 700;">
-            Quem somos nós?
-        </h1>
-        <p style="font-size: 1rem; font-weight: 500;">
-            Conheça nossa empresa
-        </p>
-        <div class="line"></div>
 
+            <!-- CTA -->
+        <section class="sobre-cta">
+            <div class="sobre-cta-content">
+                <h2>Faça parte da nossa comunidade</h2>
+                <p>
+                    Cadastre-se agora e comece a aproveitar todos os recursos disponíveis na nossa plataforma.
+                </p>
+                <a href="/GlowUp/register" class="btn-primary">
+                    Criar minha conta
+                </a>
+            </div>
+        </section>
+        
         <!-- MISSÃO, VISÃO E VALORES -->
         <section class="sobre-mvv section">
             <div class="content-wrapper">
@@ -65,19 +71,6 @@ export default function renderquemSomos() {
                         </ul>
                     </div>
                 </div>
-            </div>
-        </section>
-
-        <!-- CTA -->
-        <section class="sobre-cta">
-            <div class="sobre-cta-content">
-                <h2>Faça parte da nossa comunidade</h2>
-                <p>
-                    Cadastre-se agora e comece a aproveitar todos os recursos disponíveis na nossa plataforma.
-                </p>
-                <a href="/GlowUp/register" class="btn-primary">
-                    Criar minha conta
-                </a>
             </div>
         </section>
     `;

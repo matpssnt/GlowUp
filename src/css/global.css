@@ -624,7 +624,6 @@ textarea.form-control:focus {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: radial-gradient(circle, #fac37c, #c7824dff);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
