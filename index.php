@@ -17,7 +17,8 @@ require_once "helpers/token_jwt.php";
         exit;
         
     }elseif($route === "api"){
-        if(in_array( $subRoute, ["home", 
+        if(in_array( $subRoute, [
+        "home", 
         "agendamento", 
         "cadastro", 
         "categoria", 
