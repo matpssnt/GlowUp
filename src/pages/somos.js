@@ -75,7 +75,7 @@ export default function renderquemSomos() {
                 <p>
                     Cadastre-se agora e comece a aproveitar todos os recursos disponíveis na nossa plataforma.
                 </p>
-                <a href="/GlowUp/register" class="btn-primary">
+                <a href="register" class="btn btn-primary" style="background: white; color: var(--primary-color); border: none; padding: 12px 35px; border-radius: 50px; font-weight: 600; text-decoration: none; display: inline-block;">
                     Criar minha conta
                 </a>
             </div>

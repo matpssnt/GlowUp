@@ -330,7 +330,7 @@ export default function renderConfiguracoesLojaPage() {
                 } else {
                     // cria telefone
                     const resp = await api.criarTelefone(ddd, digitos);
-                    const idTelefone = resp?.id;
+                    const idTelefone = resp?.id || resp?.idTelefone;
                     if (idTelefone) {
                         await api.request('/telProf', 'POST', { id_profissional_fk: profissional.id, id_telefone_fk: idTelefone });
                     }

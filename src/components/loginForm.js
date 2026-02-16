@@ -98,7 +98,7 @@ export default function loginForm() {
                     nome: response.nome || emailValue,
                     email: emailValue
                 };
-                
+
                 // Tenta buscar ID do cadastro (opcional, não bloqueia o login)
                 try {
                     const cadastros = await apiService.listarCadastros();
@@ -112,13 +112,13 @@ export default function loginForm() {
                 } catch (error) {
                     // Ignora erro, continua com dados básicos
                 }
-                
+
                 authState.setUser(userData, response.token);
-                
+
                 // Redireciona conforme tipo de usuário
                 const currentPath = window.location.pathname;
                 const basePath = currentPath.split('/').slice(0, 2).join('/'); // Pega /GlowUp
-                
+
                 if (userData.tipoUsuario === 'profissional') {
                     window.location.href = basePath + '/dashboard';
                 } else {

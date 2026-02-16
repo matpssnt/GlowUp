@@ -8,16 +8,20 @@ class ProfissionalController
 {
     public static function create($data)
     {
-        ValidadorController::validate_data($data, ['nome', 'email', 'descricao', 'acessibilidade', 'isJuridica', 'id_cadastro_fk']);
+        try {
+            ValidadorController::validate_data($data, ['nome', 'email', 'descricao', 'acessibilidade', 'isJuridica', 'id_cadastro_fk']);
 
-        $resultado = ProfissionalModel::create($data);
-        if ($resultado) {
-            return jsonResponse([
-                'message' => 'Profissional criado com sucesso',
-                'idProfissional' => $resultado
-            ], 201);
-        } else {
-            return jsonResponse(['message' => 'Erro ao criar profissional. Verifique os dados fornecidos.'], 400);
+            $resultado = ProfissionalModel::create($data);
+            if ($resultado) {
+                return jsonResponse([
+                    'message' => 'Profissional criado com sucesso',
+                    'idProfissional' => $resultado
+                ], 201);
+            } else {
+                return jsonResponse(['message' => 'Erro ao criar profissional. Verifique os dados fornecidos.'], 400);
+            }
+        } catch (Exception $e) {
+            return jsonResponse(['message' => 'Erro ao processar cadastro de profissional.'], 500);
         }
     }
 

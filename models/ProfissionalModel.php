@@ -30,24 +30,36 @@ class ProfissionalModel
         $conn->begin_transaction();
         try {
             $stmt = $conn->prepare("INSERT INTO profissionais (nome, email, descricao, acessibilidade, isJuridica, id_cadastro_fk) VALUES (?, ?, ?, ?, ?, ?)");
+            if (!$stmt) {
+                throw new Exception("Falha ao preparar SQL: " . $conn->error);
+            }
             $stmt->bind_param("sssiii", $data["nome"], $data["email"], $data["descricao"], $data["acessibilidade"], $data["isJuridica"], $data["id_cadastro_fk"]);
-            $stmt->execute();
+            
+            if (!$stmt->execute()) {
+                throw new Exception("Falha ao executar insert: " . $stmt->error);
+            }
+
             $idProfissional = $stmt->insert_id;
             $stmt->close();
+
+            // Pega o ID caso o insert_id falhe mas o execute tenha funcionado (raro em AI)
+            if (!$idProfissional) {
+                throw new Exception("Não foi possível obter o ID gerado para o profissional.");
+            }
 
             // CPF/CNPJ são opcionais na criação, mas obrigatórios na atualização
             if ($data['isJuridica'] == 1) {
                 if (!empty($data['cnpj'])) {
                     $stmt = $conn->prepare("INSERT INTO juridicos (cnpj, id_profissional_fk) VALUES (?, ?)");
                     $stmt->bind_param("si", $data['cnpj'], $idProfissional);
-                    $stmt->execute();
+                    if (!$stmt->execute()) throw new Exception("Falha ao inserir CNPJ: " . $stmt->error);
                     $stmt->close();
                 }
             } else {
                 if (!empty($data['cpf'])) {
                     $stmt = $conn->prepare("INSERT INTO fisicos (cpf, id_profissional_fk) VALUES (?, ?)");
                     $stmt->bind_param("si", $data['cpf'], $idProfissional);
-                    $stmt->execute();
+                    if (!$stmt->execute()) throw new Exception("Falha ao inserir CPF: " . $stmt->error);
                     $stmt->close();
                 }
             }
@@ -56,8 +68,8 @@ class ProfissionalModel
             return $idProfissional;
         } catch (Exception $error) {
             $conn->rollback();
-            error_log("Erro ao criar profissional: " . $error->getMessage());
-            return false;
+            // Relança a exceção para o Controller capturar e mostrar no log
+            throw $error;
         }
     }
 
