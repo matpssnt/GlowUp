@@ -23,7 +23,6 @@ export default function renderquemSomos() {
             <div class="sobre-hero-content">
                 <h1>Quem somos nós?</h1>
                 <p>Conheça nossa empresa e nossa paixão pela beleza e bem-estar.</p>
-                <div class="line" style="margin: 20px auto; width: 80px; height: 3px; background: var(--accent-color); border-radius: 2px;"></div>
             </div>
         </div>
 
@@ -79,7 +78,7 @@ export default function renderquemSomos() {
                 <p>
                     Cadastre-se agora e comece a aproveitar todos os recursos disponíveis na nossa plataforma.
                 </p>
-                <a href="register" class="btn-primary" style="background: white; color: var(--primary-color); border: none; padding: 15px 40px; border-radius: 50px; font-weight: 600; text-decoration: none; display: inline-block; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+                <a href="register" class="btn btn-primary" style="background: var(--white-color) !important; color: var(--primary-color) !important; border: none; padding: 15px 40px; border-radius: 50px; font-weight: 700; text-decoration: none; display: inline-block; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
                     Criar minha conta
                 </a>
             </div>

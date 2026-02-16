@@ -72,15 +72,14 @@ export default function renderFormContRegister(container) {
     tituloEndereco.className = 'cont-register-section-title';
     secaoEndereco.appendChild(tituloEndereco);
 
-    // Linha 1: cep, Cidade e Bairro lado a lado
-    const linha1 = document.createElement('div');
-    linha1.className = 'cont-register-row-1';
+    // Linha de CEP (Primeiro)
+    const linhaCep = document.createElement('div');
+    linhaCep.className = 'cont-register-row-2'; // largura total para destaque
 
-    // CEP
     const divCep = document.createElement('div');
     divCep.className = 'cont-register-field';
     const labelCep = document.createElement('label');
-    labelCep.textContent = 'CEP';
+    labelCep.textContent = 'CEP *';
     labelCep.className = 'form-label';
 
     const inputCep = document.createElement('input');
@@ -92,7 +91,31 @@ export default function renderFormContRegister(container) {
 
     divCep.appendChild(labelCep);
     divCep.appendChild(inputCep);
-    linha1.appendChild(divCep);
+    linhaCep.appendChild(divCep);
+    secaoEndereco.appendChild(linhaCep);
+
+    // Adiciona funcionalidade de busca de CEP
+    adicionarBuscaCep(inputCep);
+
+    // Linha 1: Estado, Cidade e Bairro
+    const linha1 = document.createElement('div');
+    linha1.className = 'cont-register-row-3'; // Uso row-3 para 3 colunas
+
+    // Estado
+    const divEstado = document.createElement('div');
+    divEstado.className = 'cont-register-field';
+    const labelEstado = document.createElement('label');
+    labelEstado.textContent = 'Estado';
+    labelEstado.className = 'form-label';
+    const inputEstado = document.createElement('input');
+    inputEstado.type = 'text';
+    inputEstado.className = 'form-control';
+    inputEstado.id = 'estado';
+    inputEstado.placeholder = 'Estado';
+    inputEstado.required = true;
+    divEstado.appendChild(labelEstado);
+    divEstado.appendChild(inputEstado);
+    linha1.appendChild(divEstado);
 
     // Cidade
     const divCidade = document.createElement('div');
@@ -151,19 +174,19 @@ export default function renderFormContRegister(container) {
 
     // Linha 3: Número e Complemento lado a lado
     const linha3 = document.createElement('div');
-    linha3.className = 'cont-register-row-3';
+    linha3.className = 'cont-register-row-1'; // row-1 para 2 colunas
 
     // Número
     const divNumero = document.createElement('div');
     divNumero.className = 'cont-register-field';
     const labelNumero = document.createElement('label');
-    labelNumero.textContent = 'Número';
+    labelNumero.textContent = 'Número *';
     labelNumero.className = 'form-label';
     const inputNumero = document.createElement('input');
     inputNumero.type = 'text';
     inputNumero.className = 'form-control';
     inputNumero.id = 'numero';
-    inputNumero.placeholder = 'Número do endereço';
+    inputNumero.placeholder = 'Nº';
     inputNumero.required = true;
     divNumero.appendChild(labelNumero);
     divNumero.appendChild(inputNumero);
@@ -179,7 +202,7 @@ export default function renderFormContRegister(container) {
     inputComplemento.type = 'text';
     inputComplemento.className = 'form-control';
     inputComplemento.id = 'complemento';
-    inputComplemento.placeholder = 'Apartamento, casa, etc.';
+    inputComplemento.placeholder = 'Ex: Ap 12, Bloco B';
     divComplemento.appendChild(labelComplemento);
     divComplemento.appendChild(inputComplemento);
     linha3.appendChild(divComplemento);
@@ -203,26 +226,6 @@ export default function renderFormContRegister(container) {
                 </div>
             `;
     formulario.appendChild(secaoContato);
-
-    // Adiciona funcionalidade de busca de CEP
-    adicionarBuscaCep(inputCep);
-
-    // Estado (será preenchido automaticamente)
-    const divEstado = document.createElement('div');
-    divEstado.className = 'cont-register-field';
-    const labelEstado = document.createElement('label');
-    labelEstado.textContent = 'Estado';
-    labelEstado.className = 'form-label';
-    const inputEstado = document.createElement('input');
-    inputEstado.type = 'text';
-    inputEstado.className = 'form-control';
-    inputEstado.id = 'estado';
-    inputEstado.placeholder = 'Estado';
-    inputEstado.readOnly = true;
-    inputEstado.style.backgroundColor = '#f8f9fa';
-    divEstado.appendChild(labelEstado);
-    divEstado.appendChild(inputEstado);
-    secaoEndereco.appendChild(divEstado);
 
     formulario.appendChild(secaoEndereco);
 
@@ -546,6 +549,12 @@ function adicionarBuscaCep(inputCep) {
                 success: (dados) => {
                     // Formata o CEP no campo
                     inputCep.value = CepAPI.formatarCep(cep);
+
+                    // Bloqueia campos preenchidos
+                    document.getElementById('rua').readOnly = true;
+                    document.getElementById('cidade').readOnly = true;
+                    document.getElementById('bairro').readOnly = true;
+                    document.getElementById('estado').readOnly = true;
 
                     // Foca no próximo campo (número)
                     const campoNumero = document.getElementById('numero');
