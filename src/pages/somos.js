@@ -1,5 +1,6 @@
 import NavBar from "../components/NavBar.js";
 import Footer from "../components/Footer.js";
+import renderRegisterPage from "./register.js";
 
 export default function renderquemSomos() {
     const Divroot = document.getElementById('root');
@@ -7,26 +8,28 @@ export default function renderquemSomos() {
 
     const nav = document.getElementById('navbar');
     nav.innerHTML = '';
-    const navbar = NavBar();
-    nav.appendChild(navbar);
+    nav.appendChild(NavBar());
 
-    // Hero section
-    const fundoPrincipal = document.createElement('div');
-    fundoPrincipal.className = 'fund-principal fade-in';
+    const page = document.createElement('div');
+    page.className = 'sobre-container fade-in';
 
-    fundoPrincipal.innerHTML = `
-        <h1 style="font-size: 2.8rem; font-weight: 700;">
-            Quem somos nós?
-        </h1>
-        <p style="font-size: 1rem; font-weight: 500;">
-            Conheça nossa empresa
-        </p>
-        <div class="line"></div>
+    page.innerHTML = `
+        <!-- HERO -->
+        <section class="sobre-hero">
+            <div class="sobre-hero-content">
+                <h1>Conectando beleza, tecnologia e pessoas</h1>
+                <p>
+                    Conheça a GlowUp, a plataforma que conecta você aos melhores
+                    profissionais de beleza e bem-estar da sua região.
+                </p>
+                <div class="hero-line"></div>
+            </div>
+        </section>
 
         <!-- MISSÃO, VISÃO E VALORES -->
         <section class="sobre-mvv section">
             <div class="content-wrapper">
-                <h2>Missão, Visão e Valores</h2>
+                <h2 class="section-title">Missão, Visão e Valores</h2>
 
                 <div class="mvv-cards">
                     <div class="mvv-card">
@@ -35,8 +38,8 @@ export default function renderquemSomos() {
                         </div>
                         <h3>Missão</h3>
                         <p>
-                            Conectar pessoas com profissionais de beleza e bem-estar de forma simples,
-                            segura e acessível, promovendo autoestima e confiança.
+                            Conectar pessoas com profissionais de beleza e bem-estar
+                            de forma simples, segura e acessível, promovendo autoestima e confiança.
                         </p>
                     </div>
 
@@ -46,8 +49,8 @@ export default function renderquemSomos() {
                         </div>
                         <h3>Visão</h3>
                         <p>
-                            Ser a principal plataforma de beleza e bem-estar, reconhecida pela qualidade,
-                            confiabilidade e proximidade com nossos usuários.
+                            Ser a principal plataforma de beleza e bem-estar,
+                            reconhecida pela qualidade, confiabilidade e proximidade com nossos usuários.
                         </p>
                     </div>
 
@@ -75,21 +78,19 @@ export default function renderquemSomos() {
                 <p>
                     Cadastre-se agora e comece a aproveitar todos os recursos disponíveis na nossa plataforma.
                 </p>
-                <a href="/GlowUp/register" class="btn-primary">
-                    Criar minha conta
-                </a>
+                <a href="#" class="btn-primary" id="btn-register">Criar minha conta</a>
             </div>
         </section>
+
     `;
 
-    Divroot.appendChild(fundoPrincipal);
+    Divroot.appendChild(page);
 
-    // Footer
-    const footerContainer = document.getElementById('footer');
-    footerContainer.innerHTML = '';
-    footerContainer.style.marginTop = '0';
-    const footer = Footer();
-    footerContainer.appendChild(footer);
+    const btnRegister = document.getElementById('btn-register');
+    btnRegister?.addEventListener('click', (e) => {
+        e.preventDefault();  
+        renderRegisterPage(); 
+    });
 
     // Botão WhatsApp flutuante
     if (!document.querySelector('.whatsapp-float')) {
@@ -108,4 +109,8 @@ export default function renderquemSomos() {
         whatsappFloat.appendChild(whatsappLink);
         document.body.appendChild(whatsappFloat);
     }
+
+    const footerContainer = document.getElementById('footer');
+    footerContainer.innerHTML = '';
+    footerContainer.appendChild(Footer());
 }
