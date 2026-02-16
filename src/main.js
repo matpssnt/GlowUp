@@ -8,7 +8,7 @@ import renderPerfilPage from './pages/perfil.js';
 import renderMinhaAgendaPage from './pages/minhaAgenda.js';
 import renderDashboardPage from './pages/dashboard.js';
 import renderServicosPage from './pages/servicos.js';
-import renderConfiguracoesLojaPage from './pages/configLoja.js';
+import renderConfiguracoesLojaPage from './pages/configuracoes-loja.js';
 import renderSegurancaPage from './pages/seguranca.js';
 import renderExplorarPage from './pages/explorar.js';
 import renderProfissionaisPage from './pages/profissionais.js';
