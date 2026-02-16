@@ -7,17 +7,28 @@ export default function ServiceCard(servico, profissional = null) {
   const preco = servico.preco ? parseFloat(servico.preco).toFixed(2).replace('.', ',') : null;
   const duracao = servico.duracao || servico.tempo_estimado || null;
 
-  // Formata duração legível
+  // Formata duração legível (aceita HH:MM:SS ou minutos)
   let duracaoTexto = '';
   if (duracao) {
-    const min = parseInt(duracao);
-    if (min >= 60) {
-      const h = Math.floor(min / 60);
-      const m = min % 60;
-      duracaoTexto = m > 0 ? `${h}h ${m}min` : `${h}h`;
+    let horas = 0, minutos = 0;
+
+    if (String(duracao).includes(':')) {
+      const parts = String(duracao).split(':');
+      horas = parseInt(parts[0]) || 0;
+      minutos = parseInt(parts[1]) || 0;
     } else {
-      duracaoTexto = `${min} min`;
+      const totalMinutos = parseInt(duracao) || 0;
+      horas = Math.floor(totalMinutos / 60);
+      minutos = totalMinutos % 60;
     }
+
+    if (horas > 0) {
+      duracaoTexto = minutos > 0 ? `${horas}h ${minutos}min` : `${horas}h`;
+    } else {
+      duracaoTexto = `${minutos} min`;
+    }
+  } else {
+    duracaoTexto = '30 min'; // Fallback padrão
   }
 
   card.innerHTML = `
@@ -30,7 +41,8 @@ export default function ServiceCard(servico, profissional = null) {
     </div>
     <div class="service-card-content">
       <h4 class="service-card-title">${servico.nome || 'Serviço'}</h4>
-      ${servico.descricao ? `<p class="service-card-desc">${servico.descricao}</p>` : ''}
+      <p class="service-card-desc">${servico.descricao || 'Nenhuma descrição disponível.'}</p>
+      
       <div class="service-card-details">
         ${preco ? `
           <div class="service-card-price">
@@ -44,6 +56,7 @@ export default function ServiceCard(servico, profissional = null) {
           </div>
         ` : ''}
       </div>
+
       <button class="service-card-btn btn-agendar" data-servico-id="${servico.id || ''}">
         <i class="fas fa-calendar-check"></i> Agendar
       </button>

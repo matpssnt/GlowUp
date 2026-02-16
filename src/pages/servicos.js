@@ -392,14 +392,8 @@ export default function renderServicosPage() {
         }
 
         // Validação e Correção de Duração
-        // Workaround para coluna DATETIME: Prepend data dummy se necessário
         let duracao = normalizarDuracaoParaBackend(payload.duracao);
-
-        // Se estiver num formato HH:MM:SS, adicionamos data dummy
-        // Se já tiver data (improvável no input), deixa
-        if (!duracao.includes(' ')) {
-            payload.duracao = `2000-01-01 ${duracao}`;
-        }
+        payload.duracao = duracao;
 
         try {
             if (id) {

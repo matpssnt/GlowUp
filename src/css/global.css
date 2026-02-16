@@ -49,7 +49,7 @@ html {
 
 .navbar.navbar-expand-lg.bg-body-tertiary {
     background: linear-gradient(135deg, var(--secondary-color) 0%, rgba(255, 255, 255, 0.9) 100%);
-    padding: 1px 0;
+    padding: 10px 0;
     box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(10px);
     position: sticky;
@@ -74,10 +74,10 @@ html {
 }
 
 .logo-text {
-    font-size: 2rem; 
+    font-size: 2rem;
     font-weight: 600;
     color: var(--primary-color);
-    letter-spacing: 1px; 
+    letter-spacing: 1px;
 }
 
 
@@ -178,24 +178,31 @@ html {
     transition: transform 0.3s ease;
 }
 
-/* Ações da navbar */
-.navbar-actions {
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
 /* Responsividade navbar */
-@media (max-width: 450px) {
+@media (max-width: 991.98px) {
+    .navbar-collapse {
+        background: var(--white-color);
+        padding: 1rem;
+        border-radius: 15px;
+        margin-top: 10px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
     .navbar-actions {
         width: 100%;
-        justify-content: flex-start;
-        margin-top: 0.5rem;
         flex-direction: column;
+        align-items: stretch !important;
+        gap: 10px;
+        margin-top: 15px;
     }
 
     .navbar-actions .btn {
-        margin: 0.25rem;
         width: 100%;
+        margin: 0 !important;
+    }
+
+    .nav-item {
+        margin-bottom: 5px;
     }
 }
 
@@ -605,11 +612,11 @@ textarea.form-control:focus {
     margin-bottom: 20px;
 }
 
-@media (min-width: 450px) {
+@media (min-width: 768px) {
     .sidebar {
         width: 250px;
         position: sticky;
-        top: 20px;
+        top: 90px;
         height: fit-content;
         margin-bottom: 0;
     }
@@ -619,15 +626,14 @@ textarea.form-control:focus {
 .fund-principal {
     padding: 20px;
     width: 100%;
-    height: 50vh;
+    min-height: 50vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: radial-gradient(circle, #fac37c, #c7824dff);
+    background-color: var(--primary-color);
     background-size: cover;
     background-position: center;
-    background-repeat: no-repeat;
 }
 
 /* ============================================
@@ -729,7 +735,7 @@ textarea.form-control:focus {
 }
 
 /* Responsividade das notificações */
-@media (max-width: 450px) {
+@media (max-width: 576px) {
     .notifications-container {
         right: 10px;
         left: 10px;
@@ -742,31 +748,6 @@ textarea.form-control:focus {
         width: 100%;
         padding: 12px;
         font-size: 0.9rem;
-        transform: translateY(-20px);
-    }
-
-    .notification.show {
-        transform: translateY(0);
-    }
-
-    .notification.hide {
-        transform: translateY(-20px);
-        opacity: 0;
-    }
-
-    .notification-icon {
-        font-size: 1.2rem;
-    }
-
-    .notification-message {
-        font-size: 0.85rem;
-        line-height: 1.4;
-    }
-
-    .notification-close {
-        font-size: 1.2rem;
-        width: 20px;
-        height: 20px;
     }
 }
 

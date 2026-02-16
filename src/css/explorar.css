@@ -76,19 +76,30 @@
    SIDEBAR DE FILTROS
    ============================================ */
 .explorar-sidebar {
-    width: 300px;
-    min-width: 300px;
+    width: 280px;
+    min-width: 280px;
     flex-shrink: 0;
-    background: var(--bg-card);
+    background: #fff;
     border-radius: 16px;
     padding: 24px;
     height: fit-content;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
     border: 1px solid rgba(0, 0, 0, 0.04);
-    overflow-y: auto;
     position: sticky;
     top: 90px;
     max-height: calc(100vh - 120px);
+}
+
+@media (max-width: 991.98px) {
+    .explorar-sidebar {
+        display: none;
+        /* Oculta no mobile em favor do modal/offcanvas */
+    }
+
+    .explorar-content {
+        padding: 15px;
+        flex-direction: column;
+    }
 }
 
 .explorar-sidebar::-webkit-scrollbar {
@@ -597,7 +608,7 @@
    ============================================ */
 .explorar-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 24px;
     transition: all 0.3s ease;
 }
@@ -627,6 +638,7 @@
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -932,6 +944,7 @@
     0% {
         background-position: -200% 0;
     }
+
     100% {
         background-position: 200% 0;
     }
@@ -1116,6 +1129,7 @@
 }
 
 @media (min-width: 769px) {
+
     /* Garante que o modal de filtros não apareça no desktop */
     .filters-modal,
     .filters-modal-overlay {

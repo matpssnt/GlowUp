@@ -72,15 +72,14 @@ export default function renderFormContRegister(container) {
     tituloEndereco.className = 'cont-register-section-title';
     secaoEndereco.appendChild(tituloEndereco);
 
-    // Linha 1: cep, Cidade e Bairro lado a lado
-    const linha1 = document.createElement('div');
-    linha1.className = 'cont-register-row-1';
+    // Linha de CEP (Primeiro)
+    const linhaCep = document.createElement('div');
+    linhaCep.className = 'cont-register-row-2'; // largura total para destaque
 
-     // CEP
     const divCep = document.createElement('div');
     divCep.className = 'cont-register-field';
     const labelCep = document.createElement('label');
-    labelCep.textContent = 'CEP';
+    labelCep.textContent = 'CEP *';
     labelCep.className = 'form-label';
 
     const inputCep = document.createElement('input');
@@ -92,7 +91,31 @@ export default function renderFormContRegister(container) {
 
     divCep.appendChild(labelCep);
     divCep.appendChild(inputCep);
-    linha1.appendChild(divCep);
+    linhaCep.appendChild(divCep);
+    secaoEndereco.appendChild(linhaCep);
+
+    // Adiciona funcionalidade de busca de CEP
+    adicionarBuscaCep(inputCep);
+
+    // Linha 1: Estado, Cidade e Bairro
+    const linha1 = document.createElement('div');
+    linha1.className = 'cont-register-row-3'; // Uso row-3 para 3 colunas
+
+    // Estado
+    const divEstado = document.createElement('div');
+    divEstado.className = 'cont-register-field';
+    const labelEstado = document.createElement('label');
+    labelEstado.textContent = 'Estado';
+    labelEstado.className = 'form-label';
+    const inputEstado = document.createElement('input');
+    inputEstado.type = 'text';
+    inputEstado.className = 'form-control';
+    inputEstado.id = 'estado';
+    inputEstado.placeholder = 'Estado';
+    inputEstado.required = true;
+    divEstado.appendChild(labelEstado);
+    divEstado.appendChild(inputEstado);
+    linha1.appendChild(divEstado);
 
     // Cidade
     const divCidade = document.createElement('div');
@@ -151,19 +174,19 @@ export default function renderFormContRegister(container) {
 
     // Linha 3: Número e Complemento lado a lado
     const linha3 = document.createElement('div');
-    linha3.className = 'cont-register-row-3';
+    linha3.className = 'cont-register-row-1'; // row-1 para 2 colunas
 
     // Número
     const divNumero = document.createElement('div');
     divNumero.className = 'cont-register-field';
     const labelNumero = document.createElement('label');
-    labelNumero.textContent = 'Número';
+    labelNumero.textContent = 'Número *';
     labelNumero.className = 'form-label';
     const inputNumero = document.createElement('input');
     inputNumero.type = 'text';
     inputNumero.className = 'form-control';
     inputNumero.id = 'numero';
-    inputNumero.placeholder = 'Número do endereço';
+    inputNumero.placeholder = 'Nº';
     inputNumero.required = true;
     divNumero.appendChild(labelNumero);
     divNumero.appendChild(inputNumero);
@@ -179,32 +202,30 @@ export default function renderFormContRegister(container) {
     inputComplemento.type = 'text';
     inputComplemento.className = 'form-control';
     inputComplemento.id = 'complemento';
-    inputComplemento.placeholder = 'Apartamento, casa, etc.';
+    inputComplemento.placeholder = 'Ex: Ap 12, Bloco B';
     divComplemento.appendChild(labelComplemento);
     divComplemento.appendChild(inputComplemento);
     linha3.appendChild(divComplemento);
 
     secaoEndereco.appendChild(linha3);
 
-    // Adiciona funcionalidade de busca de CEP
-    adicionarBuscaCep(inputCep);
-
-    // Estado (será preenchido automaticamente)
-    const divEstado = document.createElement('div');
-    divEstado.className = 'cont-register-field';
-    const labelEstado = document.createElement('label');
-    labelEstado.textContent = 'Estado';
-    labelEstado.className = 'form-label';
-    const inputEstado = document.createElement('input');
-    inputEstado.type = 'text';
-    inputEstado.className = 'form-control';
-    inputEstado.id = 'estado';
-    inputEstado.placeholder = 'Estado';
-    inputEstado.readOnly = true;
-    inputEstado.style.backgroundColor = '#f8f9fa';
-    divEstado.appendChild(labelEstado);
-    divEstado.appendChild(inputEstado);
-    secaoEndereco.appendChild(divEstado);
+    // Seção: Contato (Telefone)
+    const secaoContato = document.createElement('div');
+    secaoContato.className = 'cont-register-section';
+    secaoContato.innerHTML = `
+                <h4 class="cont-register-section-title">Contato Principal</h4>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">DDD *</label>
+                        <input type="text" id="ddd" class="form-control" placeholder="15" maxlength="2" required>
+                    </div>
+                    <div class="col-md-9">
+                        <label class="form-label">WhatsApp/Celular *</label>
+                        <input type="text" id="telefone" class="form-control" placeholder="99999-9999" maxlength="10" required>
+                    </div>
+                </div>
+            `;
+    formulario.appendChild(secaoContato);
 
     formulario.appendChild(secaoEndereco);
 
@@ -284,7 +305,7 @@ export default function renderFormContRegister(container) {
         btnFinalizar.textContent = 'Finalizando...';
 
         try {
-            
+
             // Recupera dados básicos do localStorage
             const dadosBasicosStr = localStorage.getItem('dadosBasicos');
             if (!dadosBasicosStr) {
@@ -292,8 +313,9 @@ export default function renderFormContRegister(container) {
             }
 
             const dadosBasicos = JSON.parse(dadosBasicosStr);
-            
+
             const idCadastro = dadosBasicos.idCadastro || dadosBasicos.id;
+            let idProfissional = dadosBasicos.idProfissional;
 
             if (!idCadastro) {
                 throw new Error('ID do cadastro não encontrado. Por favor, refaça o cadastro inicial.');
@@ -302,13 +324,14 @@ export default function renderFormContRegister(container) {
             // Importa e usa a API
             const api = new ApiService();
 
-            // Busca o profissional pelo id_cadastro
-            const profissional = await api.buscarProfissionalPorCadastro(idCadastro);
-            
-            if (!profissional || !profissional.id) {
-                throw new Error('Profissional não encontrado. Por favor, refaça o cadastro inicial.');
+            // Se não tiver o idProfissional no localStorage, busca na API
+            if (!idProfissional) {
+                const profissional = await api.buscarProfissionalPorCadastro(idCadastro);
+                if (!profissional || !profissional.id) {
+                    throw new Error('Não encontramos seu perfil profissional. Por favor, certifique-se de que completou a primeira etapa do cadastro.');
+                }
+                idProfissional = profissional.id;
             }
-            const idProfissional = profissional.id;
 
             // Coleta todos os dados do formulário
             const descricao = document.getElementById('descricao').value.trim();
@@ -319,6 +342,8 @@ export default function renderFormContRegister(container) {
             const cep = document.getElementById('cep').value.replace(/\D/g, '');
             const complemento = document.getElementById('complemento').value.trim();
             const estado = document.getElementById('estado').value.trim();
+            const ddd = document.getElementById('ddd').value.trim();
+            const telefone = document.getElementById('telefone').value.trim();
             const tipoPessoa = document.getElementById('tipo-pessoa').value;
             const cpf = document.getElementById('cpf')?.value.replace(/\D/g, '') || '';
             const cnpj = document.getElementById('cnpj')?.value.replace(/\D/g, '') || '';
@@ -369,21 +394,35 @@ export default function renderFormContRegister(container) {
             try {
                 await api.criarEndereco(dadosEndereco);
             } catch (error) {
-                // console.error('Erro ao criar endereço:', error);
-                // Não bloqueia o cadastro se o endereço falhar
                 console.warn('Endereço não foi criado, mas o cadastro continua');
+            }
+
+            // Cria o telefone e a relação tel_prof
+            if (ddd && telefone) {
+                try {
+                    const respTel = await api.criarTelefone(ddd, telefone);
+                    const idTelefone = respTel?.id || respTel?.idTelefone;
+                    if (idTelefone) {
+                        await api.request('/telProf', 'POST', {
+                            id_profissional_fk: idProfissional,
+                            id_telefone_fk: idTelefone
+                        });
+                    }
+                } catch (error) {
+                    console.warn('Erro ao vincular telefone:', error);
+                }
             }
 
             // Limpa o localStorage
             localStorage.removeItem('dadosBasicos');
-            
+
             // Notifica sucesso
             const { notify } = await import('../components/Notification.js');
             notify.success('Cadastro finalizado com sucesso! Redirecionando para login...');
-            
+
             // Aguarda um pouco antes de redirecionar
             setTimeout(() => {
-            window.location.href = 'login';
+                window.location.href = 'login';
             }, 1500);
 
         } catch (error) {
@@ -410,7 +449,7 @@ function adicionarAlternanciaTipoPessoa(selectTipo, container) {
         container.classList.remove('d-none');
         container.classList.add('show');
 
-         // Função para formatar CPF
+        // Função para formatar CPF
         function formatarCPF(valor) {
             valor = valor.replace(/\D/g, ""); // remove tudo que não é número
             valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
@@ -418,7 +457,7 @@ function adicionarAlternanciaTipoPessoa(selectTipo, container) {
             valor = valor.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
             return valor;
         }
- 
+
         // Função para formatar CNPJ
         function formatarCNPJ(valor) {
             valor = valor.replace(/\D/g, "");
@@ -428,10 +467,10 @@ function adicionarAlternanciaTipoPessoa(selectTipo, container) {
             valor = valor.replace(/(\d{4})(\d{1,2})$/, "$1-$2");
             return valor;
         }
- 
-     
+
+
         if (tipo === 'fisica') {
-             // Campo CPF
+            // Campo CPF
             const divCampo = document.createElement('div');
             divCampo.className = 'cont-register-field';
             const label = document.createElement('label');
@@ -445,17 +484,17 @@ function adicionarAlternanciaTipoPessoa(selectTipo, container) {
             divCampo.appendChild(label);
             divCampo.appendChild(input);
             container.appendChild(divCampo);
- 
+
             input.addEventListener('input', function (e) {
                 e.target.value = formatarCPF(e.target.value);
             });
- 
+
             // Opcional: limitar a 14 caracteres (11 números + 3 pontos + 1 traço)
             input.maxLength = 14;
         }
- 
+
         else if (tipo === 'juridica') {
-              // Campo CNPJ
+            // Campo CNPJ
             const divCampo = document.createElement('div');
             divCampo.className = 'cont-register-field';
             const label = document.createElement('label');
@@ -469,11 +508,11 @@ function adicionarAlternanciaTipoPessoa(selectTipo, container) {
             divCampo.appendChild(label);
             divCampo.appendChild(input);
             container.appendChild(divCampo);
- 
+
             input.addEventListener('input', function (e) {
                 e.target.value = formatarCNPJ(e.target.value);
             });
- 
+
             // Opcional: limitar a 18 caracteres
             input.maxLength = 18;
         }
@@ -510,6 +549,12 @@ function adicionarBuscaCep(inputCep) {
                 success: (dados) => {
                     // Formata o CEP no campo
                     inputCep.value = CepAPI.formatarCep(cep);
+
+                    // Bloqueia campos preenchidos
+                    document.getElementById('rua').readOnly = true;
+                    document.getElementById('cidade').readOnly = true;
+                    document.getElementById('bairro').readOnly = true;
+                    document.getElementById('estado').readOnly = true;
 
                     // Foca no próximo campo (número)
                     const campoNumero = document.getElementById('numero');

@@ -4,29 +4,32 @@ import Footer from "../components/Footer.js";
 export default function renderquemSomos() {
     const Divroot = document.getElementById('root');
     Divroot.innerHTML = '';
+    // Limpa possíveis estilos/classes herdados de outras páginas (como dashboard)
+    Divroot.style = '';
+    Divroot.className = '';
 
     const nav = document.getElementById('navbar');
     nav.innerHTML = '';
     const navbar = NavBar();
     nav.appendChild(navbar);
 
-    // Hero section
-    const fundoPrincipal = document.createElement('div');
-    fundoPrincipal.className = 'fund-principal fade-in';
+    // Container Principal da Página - Seguindo a estrutura de sobre.css
+    const sobreContainer = document.createElement('div');
+    sobreContainer.className = 'sobre-container fade-in';
 
-    fundoPrincipal.innerHTML = `
-        <h1 style="font-size: 2.8rem; font-weight: 700;">
-            Quem somos nós?
-        </h1>
-        <p style="font-size: 1rem; font-weight: 500;">
-            Conheça nossa empresa
-        </p>
-        <div class="line"></div>
+    sobreContainer.innerHTML = `
+        <!-- HERO SECTION -->
+        <div class="sobre-hero">
+            <div class="sobre-hero-content">
+                <h1>Quem somos nós?</h1>
+                <p>Conheça nossa empresa e nossa paixão pela beleza e bem-estar.</p>
+            </div>
+        </div>
 
         <!-- MISSÃO, VISÃO E VALORES -->
         <section class="sobre-mvv section">
             <div class="content-wrapper">
-                <h2>Missão, Visão e Valores</h2>
+                <h2 style="text-align: center; margin-bottom: 40px;">Missão, Visão e Valores</h2>
 
                 <div class="mvv-cards">
                     <div class="mvv-card">
@@ -56,33 +59,33 @@ export default function renderquemSomos() {
                             <i class="fas fa-heart"></i>
                         </div>
                         <h3>Valores</h3>
-                        <ul>
-                            <li>Transparência em todas as relações</li>
-                            <li>Foco no usuário e sua experiência</li>
-                            <li>Inovação constante em serviços</li>
-                            <li>Respeito e inclusão para todos</li>
-                            <li>Compromisso com qualidade</li>
+                        <ul style="list-style: none; padding: 0; text-align: left;">
+                            <li style="margin-bottom: 10px;"><i class="fas fa-check-circle me-2" style="color: var(--accent-color);"></i> Transparência em todas as relações</li>
+                            <li style="margin-bottom: 10px;"><i class="fas fa-check-circle me-2" style="color: var(--accent-color);"></i> Foco no usuário e sua experiência</li>
+                            <li style="margin-bottom: 10px;"><i class="fas fa-check-circle me-2" style="color: var(--accent-color);"></i> Inovação constante em serviços</li>
+                            <li style="margin-bottom: 10px;"><i class="fas fa-check-circle me-2" style="color: var(--accent-color);"></i> Respeito e inclusão para todos</li>
+                            <li style="margin-bottom: 10px;"><i class="fas fa-check-circle me-2" style="color: var(--accent-color);"></i> Compromisso com qualidade</li>
                         </ul>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- CTA -->
+        <!-- CTA SECTION -->
         <section class="sobre-cta">
             <div class="sobre-cta-content">
                 <h2>Faça parte da nossa comunidade</h2>
                 <p>
                     Cadastre-se agora e comece a aproveitar todos os recursos disponíveis na nossa plataforma.
                 </p>
-                <a href="/GlowUp/register" class="btn-primary">
+                <a href="register" class="btn btn-primary" style="background: var(--white-color) !important; color: var(--primary-color) !important; border: none; padding: 15px 40px; border-radius: 50px; font-weight: 700; text-decoration: none; display: inline-block; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
                     Criar minha conta
                 </a>
             </div>
         </section>
     `;
 
-    Divroot.appendChild(fundoPrincipal);
+    Divroot.appendChild(sobreContainer);
 
     // Footer
     const footerContainer = document.getElementById('footer');
