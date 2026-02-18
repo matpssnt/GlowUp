@@ -1,5 +1,6 @@
 import NavBar from "../components/NavBar.js";
 import Footer from "../components/Footer.js";
+import renderRegisterPage from "./register.js";
 
 export default function renderquemSomos() {
     const Divroot = document.getElementById('root');
@@ -51,8 +52,8 @@ export default function renderquemSomos() {
                         </div>
                         <h3>Missão</h3>
                         <p>
-                            Conectar pessoas com profissionais de beleza e bem-estar de forma simples,
-                            segura e acessível, promovendo autoestima e confiança.
+                            Conectar pessoas com profissionais de beleza e bem-estar
+                            de forma simples, segura e acessível, promovendo autoestima e confiança.
                         </p>
                     </div>
 
@@ -62,8 +63,8 @@ export default function renderquemSomos() {
                         </div>
                         <h3>Visão</h3>
                         <p>
-                            Ser a principal plataforma de beleza e bem-estar, reconhecida pela qualidade,
-                            confiabilidade e proximidade com nossos usuários.
+                            Ser a principal plataforma de beleza e bem-estar,
+                            reconhecida pela qualidade, confiabilidade e proximidade com nossos usuários.
                         </p>
                     </div>
 
@@ -96,16 +97,16 @@ export default function renderquemSomos() {
                 </a>
             </div>
         </section>
+
     `;
 
     Divroot.appendChild(sobreContainer);
 
-    // Footer
-    const footerContainer = document.getElementById('footer');
-    footerContainer.innerHTML = '';
-    footerContainer.style.marginTop = '0';
-    const footer = Footer();
-    footerContainer.appendChild(footer);
+    const btnRegister = document.getElementById('btn-register');
+    btnRegister?.addEventListener('click', (e) => {
+        e.preventDefault();  
+        renderRegisterPage(); 
+    });
 
     // Botão WhatsApp flutuante
     if (!document.querySelector('.whatsapp-float')) {
@@ -124,4 +125,8 @@ export default function renderquemSomos() {
         whatsappFloat.appendChild(whatsappLink);
         document.body.appendChild(whatsappFloat);
     }
+
+    const footerContainer = document.getElementById('footer');
+    footerContainer.innerHTML = '';
+    footerContainer.appendChild(Footer());
 }

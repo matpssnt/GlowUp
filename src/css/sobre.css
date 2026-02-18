@@ -252,6 +252,7 @@
     bottom: 0;
     background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.2));
     z-index: 1;
+    pointer-events: none;
 }
 
 .sobre-cta-content {
@@ -259,6 +260,7 @@
     z-index: 2;
     max-width: 600px;
     margin: 0 auto;
+    z-index: 1;
 }
 
 .sobre-cta h2 {
@@ -277,6 +279,8 @@
 }
 
 .sobre-cta .btn-primary {
+    position: relative;
+    z-index: 3;
     display: inline-block;
     padding: 15px 40px;
     background: var(--white-color);
