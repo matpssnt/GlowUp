@@ -284,7 +284,7 @@
     display: inline-block;
     padding: 15px 40px;
     background: var(--white-color);
-    color: var(--white-color);
+    color: var(--primary-color);
     text-decoration: none;
     border-radius: 50px;
     font-weight: 600;
@@ -306,45 +306,45 @@
     .sobre-hero {
         padding: 100px 20px 60px;
     }
-    
+
     .sobre-hero h1 {
         font-size: 2.5rem;
     }
-    
+
     .sobre-hero p {
         font-size: 1.1rem;
     }
-    
+
     .section {
         padding: 60px 0;
     }
-    
+
     .content-wrapper {
         padding: 0 15px;
     }
-    
+
     .sobre-historia h2,
     .sobre-mvv h2 {
         font-size: 2rem;
     }
-    
+
     .mvv-cards {
         grid-template-columns: 1fr;
         gap: 20px;
     }
-    
+
     .mvv-card {
         padding: 30px 20px;
     }
-    
+
     .sobre-cta {
         padding: 80px 15px;
     }
-    
+
     .sobre-cta h2 {
         font-size: 2rem;
     }
-    
+
     .sobre-cta p {
         font-size: 1.1rem;
     }
@@ -354,32 +354,32 @@
     .sobre-hero h1 {
         font-size: 2rem;
     }
-    
+
     .sobre-hero p {
         font-size: 1rem;
     }
-    
+
     .sobre-historia p {
         font-size: 1rem;
     }
-    
+
     .mvv-card {
         padding: 25px 15px;
     }
-    
+
     .mvv-icon {
         width: 60px;
         height: 60px;
     }
-    
+
     .mvv-icon i {
         font-size: 1.5rem;
     }
-    
+
     .sobre-cta h2 {
         font-size: 1.8rem;
     }
-    
+
     .sobre-cta .btn-primary {
         padding: 12px 30px;
         font-size: 1rem;

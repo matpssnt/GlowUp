@@ -30,11 +30,11 @@ export default function PerfilSidebar() {
 
     const minhaSeguranca = userType === 'cliente' ? `
         <a href="seguranca" class="${getLinkClass('seguranca')}">
-            <i class="bi bi-person"></i>
+            <i class="bi bi-shield-lock"></i>
             <span>Privacidade e Segurança</span>
         </a>
     ` : '';
-    
+
     // Menu Profissional Expandido
     const menuProfissional = userType === 'profissional' ? `
         <a href="dashboard" class="${getLinkClass('dashboard')}">
@@ -68,8 +68,8 @@ export default function PerfilSidebar() {
 
             ${menuPerfil}
             ${menuAgendamentos}
-            ${menuProfissional}
             ${minhaSeguranca}
+            ${menuProfissional}
 
             <div class="my-3 border-top mx-3"></div>
             <h6 class="text-uppercase text-muted ms-3 mb-3" style="font-size: 0.75rem; letter-spacing: 1px;">Suporte</h6>

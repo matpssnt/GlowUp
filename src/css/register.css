@@ -237,8 +237,16 @@
 /* Linha 3: Número, CEP e Complemento lado a lado */
 .cont-register-row-3 {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 1rem;
+}
+
+@media (max-width: 576px) {
+
+    .cont-register-row-1,
+    .cont-register-row-3 {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Espaçamento entre campos dentro das seções */
@@ -547,20 +555,23 @@
     }
 }
 
-@media (max-width: 500px){
-    .cont-register-nav-link{
+@media (max-width: 500px) {
+    .cont-register-nav-link {
         width: 100%;
         max-width: 100%;
         margin-left: 0;
         padding: 14px 24px;
     }
-    .cont-register-submit{
+
+    .cont-register-submit {
         padding: 14px 24px;
     }
-    .card-cont-register{
+
+    .card-cont-register {
         margin-top: 1rem !important;
         padding: 1.25rem;
     }
+
     .cont-register-section {
         padding: 1.25rem;
     }
@@ -595,7 +606,17 @@
 }
 
 @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    75% {
+        transform: translateX(5px);
+    }
 }
