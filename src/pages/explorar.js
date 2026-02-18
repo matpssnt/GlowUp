@@ -209,8 +209,7 @@ export default function renderExplorarPage(options = {}) {
                 state.filters.bairro = enderecoCliente.bairro;
             }
         } catch (error) {
-            // Se der erro ao buscar localização do cliente, apenas segue sem travar a página
-            console.error('Erro ao carregar endereço do cliente para filtros de localização:', error);
+            // Erro ao carregar endereço do cliente para filtros
         }
     }
 

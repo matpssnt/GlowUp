@@ -17,7 +17,7 @@ class AuthState {
             this.token = token || null;
             this.user = userStr ? JSON.parse(userStr) : null;
         } catch (error) {
-            console.error('Erro ao carregar estado:', error);
+            // Erro ao carregar estado
             this.isAuthenticated = false;
             this.token = null;
             this.user = null;
@@ -97,7 +97,7 @@ class AuthState {
                     token: this.token
                 });
             } catch (error) {
-                console.error('Erro ao notificar listener:', error);
+                // Erro ao notificar listener
             }
         });
     }

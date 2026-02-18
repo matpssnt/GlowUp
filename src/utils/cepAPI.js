@@ -37,7 +37,7 @@ export class CepAPI {
             return dados;
 
         } catch (error) {
-            // console.error('Erro ao buscar CEP:', error);
+            // Erro ao buscar CEP
             throw error;
         }
     }

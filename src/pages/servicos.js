@@ -250,7 +250,7 @@ export default function renderServicosPage() {
             // 1. Busca Profissional
             try {
                 profissional = await api.buscarProfissionalPorCadastro(profissionalId);
-            } catch (e) { /*console.error('Prof err', e); */ }
+            } catch (e) { /* Erro ao buscar profissional */ }
 
             if (!profissional) {
                 tbody.innerHTML = '<tr><td colspan="5" class="text-danger text-center">Perfil profissional não encontrado.</td></tr>';
@@ -317,7 +317,6 @@ export default function renderServicosPage() {
             });
 
         } catch (error) {
-            console.error(error);
             tbody.innerHTML = '<tr><td colspan="5" class="text-danger text-center">Erro ao carregar lista.</td></tr>';
         }
     }

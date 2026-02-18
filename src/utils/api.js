@@ -25,7 +25,7 @@ export default class ApiService {
      * Método auxiliar para error logging (sempre ativo)
      */
     logError(...args) {
-        // console.error(...args);
+        // Error logging desativado em produção
     }
 
     async request(endpoint, method = 'GET', data = null) {
@@ -158,7 +158,7 @@ export default class ApiService {
                 return cadastros.find(c => c.email === email) || null;
             }
         } catch (error) {
-            // console.error('Erro ao buscar cadastro por email:', error);
+            // Erro ao buscar cadastro por email
         }
         return null;
     }
@@ -292,7 +292,7 @@ export default class ApiService {
                 ) || null;
             }
         } catch (error) {
-            // console.error('Erro ao buscar endereço por cadastro:', error);
+            // Erro ao buscar endereço por cadastro
         }
 
         return null;
@@ -311,7 +311,7 @@ export default class ApiService {
             }
             return null;
         } catch (error) {
-            // console.error('Erro ao buscar telefone do profissional:', error);
+            // Erro ao buscar telefone do profissional
             return null;
         }
     }
@@ -376,6 +376,58 @@ export default class ApiService {
     async listarHorariosDisponiveis(data, idServicoFk) {
         const qs = `?data=${encodeURIComponent(data)}&id_servico_fk=${encodeURIComponent(idServicoFk)}`;
         return await this.request(`/horarios-disponiveis${qs}`, 'GET');
+    }
+
+    /**
+     * Calcula horários disponíveis usando a lógica de negócio completa
+     * @param {string} data - Data no formato YYYY-MM-DD
+     * @param {number} idProfissional - ID do profissional
+     * @param {number} duracaoServico - Duração do serviço em minutos
+     * @returns {Array} Array de horários disponíveis
+     */
+    async calcularHorariosDisponiveis(data, idProfissional, duracaoServico) {
+        try {
+            // Busca escala do profissional na data
+            const escalas = await this.buscarEscalasProfissional(idProfissional);
+            const escalaDia = escalas.find(e => {
+                const dataEscala = new Date(e.data_escala).toISOString().split('T')[0];
+                return dataEscala === data;
+            });
+
+            if (!escalaDia) {
+                throw new Error('Profissional não trabalha nesta data');
+            }
+
+            // Busca agendamentos existentes do profissional na data
+            const todosAgendamentos = await this.listarAgendamentos();
+            const agendamentosDia = todosAgendamentos.filter(a => {
+                const dataAgendamento = new Date(a.data_hora_inicio).toISOString().split('T')[0];
+                return dataAgendamento === data && 
+                       String(a.id_profissional_fk) === String(idProfissional);
+            });
+
+            // Busca duração do serviço se não foi fornecida
+            let duracaoFinal = duracaoServico;
+            if (!duracaoFinal) {
+                // Tenta buscar o serviço do contexto global ou usa default
+                const servicoContext = window.currentService || { duracao: 60, tempo: 60 };
+                duracaoFinal = servicoContext?.duracao || servicoContext?.tempo || 60;
+            }
+
+            // Importa o calculador de horários
+            const HorarioCalculator = (await import('./horarioCalculator.js')).default;
+
+            return HorarioCalculator.calcularHorariosDisponiveis({
+                abertura: escalaDia.horario_abertura,
+                fechamento: escalaDia.horario_fechamento,
+                duracaoServico: duracaoFinal,
+                agendamentosExistentes: agendamentosDia
+            });
+
+        } catch (error) {
+            this.logError('Erro ao calcular horários disponíveis:', error);
+            throw error;
+        }
     }
 
     async trocarSenha(cadastroId, senhaAntiga, senhaNova) {

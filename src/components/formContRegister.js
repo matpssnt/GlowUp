@@ -278,166 +278,166 @@ export default function renderFormContRegister(container) {
     // Adiciona funcionalidade de alternância
     adicionarAlternanciaTipoPessoa(selectTipo, camposDinamicos);
 
-    // Container para os botões
-    const containerBotoes = document.createElement('div');
-    containerBotoes.className = 'cont-register-buttons-container';
+// Container para os botões
+const containerBotoes = document.createElement('div');
+containerBotoes.className = 'cont-register-buttons-container';
 
-    // Botão de finalizar
-    const btnFinalizar = document.createElement('button');
-    btnFinalizar.type = 'submit';
-    btnFinalizar.textContent = 'Finalizar Cadastro Profissional';
-    btnFinalizar.className = 'btn btn-primary cont-register-submit';
+// Botão de finalizar
+const btnFinalizar = document.createElement('button');
+btnFinalizar.type = 'submit';
+btnFinalizar.textContent = 'Finalizar Cadastro Profissional';
+btnFinalizar.className = 'btn btn-primary cont-register-submit';
 
-    const btnVoltar = document.createElement('a');
-    btnVoltar.innerHTML = "Voltar ao cadastro";
-    btnVoltar.href = "register";
-    btnVoltar.className = 'cont-register-nav-link';
-    containerBotoes.appendChild(btnFinalizar);
-    containerBotoes.appendChild(btnVoltar);
-    formulario.appendChild(containerBotoes);
+const btnVoltar = document.createElement('a');
+btnVoltar.innerHTML = "Voltar ao cadastro";
+btnVoltar.href = "register";
+btnVoltar.className = 'cont-register-nav-link';
+containerBotoes.appendChild(btnFinalizar);
+containerBotoes.appendChild(btnVoltar);
+formulario.appendChild(containerBotoes);
 
-    // Adiciona evento de submit
-    formulario.addEventListener('submit', async (e) => {
-        e.preventDefault();
+// Adiciona evento de submit
+formulario.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-        // Desabilita o botão durante a requisição
-        btnFinalizar.disabled = true;
-        btnFinalizar.textContent = 'Finalizando...';
+    // Desabilita o botão durante a requisição
+    btnFinalizar.disabled = true;
+    btnFinalizar.textContent = 'Finalizando...';
 
-        try {
+    try {
 
-            // Recupera dados básicos do localStorage
-            const dadosBasicosStr = localStorage.getItem('dadosBasicos');
-            if (!dadosBasicosStr) {
-                throw new Error('Dados básicos não encontrados. Por favor, refaça o cadastro inicial.');
-            }
-
-            const dadosBasicos = JSON.parse(dadosBasicosStr);
-
-            const idCadastro = dadosBasicos.idCadastro || dadosBasicos.id;
-            let idProfissional = dadosBasicos.idProfissional;
-
-            if (!idCadastro) {
-                throw new Error('ID do cadastro não encontrado. Por favor, refaça o cadastro inicial.');
-            }
-
-            // Importa e usa a API
-            const api = new ApiService();
-
-            // Se não tiver o idProfissional no localStorage, busca na API
-            if (!idProfissional) {
-                const profissional = await api.buscarProfissionalPorCadastro(idCadastro);
-                if (!profissional || !profissional.id) {
-                    throw new Error('Não encontramos seu perfil profissional. Por favor, certifique-se de que completou a primeira etapa do cadastro.');
-                }
-                idProfissional = profissional.id;
-            }
-
-            // Coleta todos os dados do formulário
-            const descricao = document.getElementById('descricao').value.trim();
-            const cidade = document.getElementById('cidade').value.trim();
-            const bairro = document.getElementById('bairro').value.trim();
-            const rua = document.getElementById('rua').value.trim();
-            const numero = document.getElementById('numero').value.trim();
-            const cep = document.getElementById('cep').value.replace(/\D/g, '');
-            const complemento = document.getElementById('complemento').value.trim();
-            const estado = document.getElementById('estado').value.trim();
-            const ddd = document.getElementById('ddd').value.trim();
-            const telefone = document.getElementById('telefone').value.trim();
-            const tipoPessoa = document.getElementById('tipo-pessoa').value;
-            const cpf = document.getElementById('cpf')?.value.replace(/\D/g, '') || '';
-            const cnpj = document.getElementById('cnpj')?.value.replace(/\D/g, '') || '';
-            // Atualiza o profissional com os dados coletados
-            const dadosProfissional = {
-                nome: dadosBasicos.nome,
-                email: dadosBasicos.email,
-                descricao: descricao,
-                acessibilidade: 0, // Valor padrão
-                isJuridica: tipoPessoa === 'juridica' ? 1 : 0,
-                id_cadastro_fk: idCadastro
-            };
-
-            // CPF/CNPJ são obrigatórios na atualização
-            if (tipoPessoa === 'fisica') {
-                if (!cpf) {
-                    throw new Error('CPF é obrigatório para pessoa física');
-                }
-                dadosProfissional.cpf = cpf;
-            } else if (tipoPessoa === 'juridica') {
-                if (!cnpj) {
-                    throw new Error('CNPJ é obrigatório para pessoa jurídica');
-                }
-                dadosProfissional.cnpj = cnpj;
-            }
-
-            // Atualiza o profissional
-            try {
-                await api.atualizarProfissional(idProfissional, dadosProfissional);
-            } catch (error) {
-                // console.error('Erro ao atualizar profissional:', error);
-                throw new Error('Erro ao atualizar dados do profissional: ' + error.message);
-            }
-
-            // Cria o endereço
-            const dadosEndereco = {
-                rua: rua,
-                numero: numero,
-                cep: cep,
-                bairro: bairro,
-                cidade: cidade,
-                estado: estado,
-                complemento: complemento || '',
-                id_profissional_fk: idProfissional
-            };
-
-            // Cria o endereço
-            try {
-                await api.criarEndereco(dadosEndereco);
-            } catch (error) {
-                console.warn('Endereço não foi criado, mas o cadastro continua');
-            }
-
-            // Cria o telefone e a relação tel_prof
-            if (ddd && telefone) {
-                try {
-                    const respTel = await api.criarTelefone(ddd, telefone);
-                    const idTelefone = respTel?.id || respTel?.idTelefone;
-                    if (idTelefone) {
-                        await api.request('/telProf', 'POST', {
-                            id_profissional_fk: idProfissional,
-                            id_telefone_fk: idTelefone
-                        });
-                    }
-                } catch (error) {
-                    console.warn('Erro ao vincular telefone:', error);
-                }
-            }
-
-            // Limpa o localStorage
-            localStorage.removeItem('dadosBasicos');
-
-            // Notifica sucesso
-            const { notify } = await import('../components/Notification.js');
-            notify.success('Cadastro finalizado com sucesso! Redirecionando para login...');
-
-            // Aguarda um pouco antes de redirecionar
-            setTimeout(() => {
-                window.location.href = 'login';
-            }, 1500);
-
-        } catch (error) {
-            // Erro
-            // console.error('Erro completo no cadastro:', error);
-            const mensagemErro = error.message || 'Erro desconhecido ao finalizar cadastro';
-            notify.error('Erro ao finalizar cadastro: ' + mensagemErro);
-        } finally {
-            // Reabilita o botão
-            btnFinalizar.disabled = false;
-            btnFinalizar.textContent = 'Finalizar Cadastro Profissional';
+        // Recupera dados básicos do localStorage
+        const dadosBasicosStr = localStorage.getItem('dadosBasicos');
+        if (!dadosBasicosStr) {
+            throw new Error('Dados básicos não encontrados. Por favor, refaça o cadastro inicial.');
         }
-    });
 
-    container.appendChild(formulario);
+        const dadosBasicos = JSON.parse(dadosBasicosStr);
+
+        const idCadastro = dadosBasicos.idCadastro || dadosBasicos.id;
+        let idProfissional = dadosBasicos.idProfissional;
+
+        if (!idCadastro) {
+            throw new Error('ID do cadastro não encontrado. Por favor, refaça o cadastro inicial.');
+        }
+
+        // Importa e usa a API
+        const api = new ApiService();
+
+        // Se não tiver o idProfissional no localStorage, busca na API
+        if (!idProfissional) {
+            const profissional = await api.buscarProfissionalPorCadastro(idCadastro);
+            if (!profissional || !profissional.id) {
+                throw new Error('Não encontramos seu perfil profissional. Por favor, certifique-se de que completou a primeira etapa do cadastro.');
+            }
+            idProfissional = profissional.id;
+        }
+
+        // Coleta todos os dados do formulário
+        const descricao = document.getElementById('descricao').value.trim();
+        const cidade = document.getElementById('cidade').value.trim();
+        const bairro = document.getElementById('bairro').value.trim();
+        const rua = document.getElementById('rua').value.trim();
+        const numero = document.getElementById('numero').value.trim();
+        const cep = document.getElementById('cep').value.replace(/\D/g, '');
+        const complemento = document.getElementById('complemento').value.trim();
+        const estado = document.getElementById('estado').value.trim();
+        const ddd = document.getElementById('ddd').value.trim();
+        const telefone = document.getElementById('telefone').value.trim();
+        const tipoPessoa = document.getElementById('tipo-pessoa').value;
+        const cpf = document.getElementById('cpf')?.value.replace(/\D/g, '') || '';
+        const cnpj = document.getElementById('cnpj')?.value.replace(/\D/g, '') || '';
+
+        // Atualiza o profissional com os dados coletados
+        const dadosProfissional = {
+            nome: dadosBasicos.nome,
+            email: dadosBasicos.email,
+            descricao: descricao,
+            acessibilidade: 0, // Valor padrão
+            isJuridica: tipoPessoa === 'juridica' ? 1 : 0,
+            id_cadastro_fk: idCadastro
+        };
+
+        // CPF/CNPJ são obrigatórios na atualização
+        if (tipoPessoa === 'fisica') {
+            if (!cpf) {
+                throw new Error('CPF é obrigatório para pessoa física');
+            }
+            dadosProfissional.cpf = cpf;
+        } else if (tipoPessoa === 'juridica') {
+            if (!cnpj) {
+                throw new Error('CNPJ é obrigatório para pessoa jurídica');
+            }
+            dadosProfissional.cnpj = cnpj;
+        }
+
+        // Atualiza o profissional
+        try {
+            await api.atualizarProfissional(idProfissional, dadosProfissional);
+        } catch (error) {
+            throw new Error('Erro ao atualizar dados do profissional: ' + error.message);
+        }
+
+        // Cria o endereço
+        const dadosEndereco = {
+            rua: rua,
+            numero: numero,
+            cep: cep,
+            bairro: bairro,
+            cidade: cidade,
+            estado: estado,
+            complemento: complemento || '',
+            id_profissional_fk: idProfissional
+        };
+
+        // Cria o endereço
+        try {
+            await api.criarEndereco(dadosEndereco);
+        } catch (error) {
+            // Endereço não foi criado, mas o cadastro continua
+        }
+
+        // Cria o telefone e a relação tel_prof
+        if (ddd && telefone) {
+            try {
+                const respTel = await api.criarTelefone(ddd, telefone);
+                const idTelefone = respTel?.id || respTel?.idTelefone;
+                if (idTelefone) {
+                    await api.request('/telProf', 'POST', {
+                        id_profissional_fk: idProfissional,
+                        id_telefone_fk: idTelefone
+                    });
+                }
+            } catch (error) {
+                // Erro ao vincular telefone
+            }
+        }
+
+        // Limpa o localStorage
+        localStorage.removeItem('dadosBasicos');
+
+        // Notifica sucesso
+        const { notify } = await import('../components/Notification.js');
+        notify.success('Cadastro finalizado com sucesso! Redirecionando para login...');
+
+        // Aguarda um pouco antes de redirecionar
+        setTimeout(() => {
+            window.location.href = 'login';
+        }, 1500);
+
+    } catch (error) {
+        // Erro completo no cadastro
+        const mensagemErro = error.message || 'Erro desconhecido ao finalizar cadastro';
+        const { notify } = await import('../components/Notification.js');
+        notify.error('Erro ao finalizar cadastro: ' + mensagemErro);
+    } finally {
+        // Reabilita o botão
+        btnFinalizar.disabled = false;
+        btnFinalizar.textContent = 'Finalizar Cadastro Profissional';
+    }
+});
+
+container.appendChild(formulario);
 }
 
 function adicionarAlternanciaTipoPessoa(selectTipo, container) {
@@ -563,13 +563,11 @@ function adicionarBuscaCep(inputCep) {
                     }
                 },
                 error: (error) => {
-                    // console.error('Erro ao buscar CEP:', error);
                     notify.error('Erro ao buscar CEP: ' + error.message);
                 }
             });
 
         } catch (error) {
-            // console.error('Erro na busca do CEP:', error);
             notify.error('Erro na busca do CEP: ' + error.message);
         }
     };

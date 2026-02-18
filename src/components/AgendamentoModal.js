@@ -4,6 +4,9 @@ import { validateForm } from '../utils/validation.js';
 import ApiService from '../utils/api.js';
 import authState from '../utils/AuthState.js';
 
+// Instancia a API
+const api = new ApiService();
+
 export default function AgendamentoModal(servico, profissional) {
     // Verifica se está logado
     if (!authState.isAuth() || authState.getUserType() !== 'cliente') {
@@ -18,15 +21,14 @@ export default function AgendamentoModal(servico, profissional) {
     modal.setAttribute('aria-labelledby', 'agendamentoModalLabel');
     modal.setAttribute('aria-hidden', 'true');
 
-    const api = new ApiService();
-    let horariosDisponiveis = [];
     let dataSelecionada = null;
+    let horariosDisponiveis = [];
 
-    const formatDateYmd = (dateObj) => {
-        const y = dateObj.getFullYear();
-        const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-        const d = String(dateObj.getDate()).padStart(2, '0');
-        return `${y}-${m}-${d}`;
+    const formatDateYmd = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     };
 
     const addMonths = (dateObj, months) => {
@@ -37,20 +39,100 @@ export default function AgendamentoModal(servico, profissional) {
 
     const availabilityCache = new Map();
 
-    // Busca horários disponíveis APENAS pelo backend (/horarios-disponiveis)
+    // Filtra horários que já estão agendados
+    async function filtrarHorariosDisponiveis(horarios, data, idProfissional) {
+        try {
+            const agendamentos = await api.listarAgendamentos();
+            
+            const horariosFiltrados = horarios.filter(horario => {
+                const dataHora = `${data} ${horario}`;
+                const conflito = agendamentos.find(ag => {
+                    return ag.id_profissional_fk == idProfissional && 
+                           ag.data_hora === dataHora &&
+                           ag.status !== 'Cancelado';
+                });
+                
+                return !conflito; // Mantém apenas horários sem conflito
+            });
+            
+            return horariosFiltrados;
+        } catch (error) {
+            return horarios; // Retorna originais se falhar
+        }
+    }
+
+    // Verifica se já existe agendamento no mesmo horário
+    async function verificarConflitoHorario(data, hora, idProfissional) {
+        try {
+            const dataHora = `${data} ${hora}`;
+            const agendamentos = await api.listarAgendamentos();
+            
+            const conflito = agendamentos.find(ag => {
+                return ag.id_profissional_fk == idProfissional && 
+                       ag.data_hora === dataHora &&
+                       ag.status !== 'Cancelado';
+            });
+            
+            return conflito || null;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    // Busca horários disponíveis - método otimizado
     async function buscarHorariosDisponiveis(data) {
         try {
-            if (servico && servico.id && data) {
-                const horarios = await api.listarHorariosDisponiveis(data, servico.id);
-                if (Array.isArray(horarios)) {
-                    return horarios.map(h => (String(h).length === 5 ? `${h}:00` : String(h)));
+            if (profissional && profissional.id && servico && servico.id && data) {
+                // Tenta primeiro o método antigo (mais estável)
+                try {
+                    const horariosAntigos = await api.listarHorariosDisponiveis(data, servico.id);
+                    
+                    if (Array.isArray(horariosAntigos) && horariosAntigos.length > 0) {
+                        // Filtra horários já agendados
+                        const horariosFiltrados = await filtrarHorariosDisponiveis(
+                            horariosAntigos.map(h => {
+                                let horario = String(h).trim();
+                                // Remove data se vier com formato completo
+                                if (horario.includes(' ')) {
+                                    const partes = horario.split(' ');
+                                    horario = partes[partes.length - 1];
+                                }
+                                // Garante formato HH:MM:SS
+                                if (horario.length === 5) {
+                                    horario += ':00';
+                                }
+                                return horario;
+                            }),
+                            data,
+                            profissional.id
+                        );
+                        
+                        return horariosFiltrados;
+                    }
+                } catch (errorAntigo) {
+                    // Se o antigo falhar, tenta o novo
                 }
+
+                // Se o antigo falhar, tenta o novo
+                try {
+                    const horarios = await api.calcularHorariosDisponiveis(
+                        data, 
+                        profissional.id, 
+                        servico.duracao || servico.tempo || 60
+                    );
+                    
+                    if (Array.isArray(horarios) && horarios.length > 0) {
+                        return horarios;
+                    }
+                } catch (errorNovo) {
+                    // Se ambos falharem, retorna array vazio
+                }
+                
                 return [];
             }
 
             return [];
         } catch (error) {
-            // console.error('Erro ao buscar horários:', error);
             return [];
         }
     }
@@ -112,12 +194,11 @@ export default function AgendamentoModal(servico, profissional) {
                                 <i class="bi bi-calendar-event me-2"></i>Selecione a data *
                             </label>
                             <input 
-                                type="text" 
+                                type="date" 
                                 id="dataAgendamento" 
                                 class="form-control" 
                                 required
-                                placeholder="Clique para selecionar uma data"
-                                readonly
+                                placeholder="Selecione uma data"
                             >
                             <small class="form-text text-muted" id="dataFormatada"></small>
                         </div>
@@ -135,14 +216,14 @@ export default function AgendamentoModal(servico, profissional) {
                         <!-- Observações -->
                         <div class="mb-3">
                             <label for="observacoesAgendamento" class="form-label">
-                                <i class="bi bi-chat-left-text me-2"></i>Observações (opcional)
+                                <i class="bi bi-chat-text me-2"></i>Observações (opcional)
                             </label>
                             <textarea 
-                                id="observacoesAgendamento" 
                                 class="form-control" 
-                                rows="3"
-                                placeholder="Ex: Preferência por corte na tesoura, sem máquina..."
+                                id="observacoesAgendamento" 
+                                rows="3" 
                                 maxlength="500"
+                                placeholder="Alguma informação adicional para o profissional?"
                             ></textarea>
                             <small class="form-text text-muted">
                                 <span id="contadorObservacoes">0</span>/500 caracteres
@@ -176,100 +257,6 @@ export default function AgendamentoModal(servico, profissional) {
         const btnConfirmar = modal.querySelector('#btnConfirmarAgendamento');
         const form = modal.querySelector('#formAgendamento');
 
-        console.log('dataInput encontrado:', dataInput);
-        console.log('dataInput type:', dataInput?.type);
-
-        async function garantirFlatpickr() {
-            if (window.flatpickr) return;
-
-            if (!document.querySelector('link[href*="flatpickr"]')) {
-                const link = document.createElement('link');
-                link.rel = 'stylesheet';
-                link.href = 'https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css';
-                document.head.appendChild(link);
-            }
-
-            await new Promise((resolve, reject) => {
-                const existing = document.querySelector('script[src*="flatpickr"]');
-                if (existing && window.flatpickr) {
-                    resolve();
-                    return;
-                }
-
-                const script = document.createElement('script');
-                script.src = 'https://cdn.jsdelivr.net/npm/flatpickr';
-                script.onload = async () => {
-                    // Carrega o locale em português após carregar o flatpickr
-                    if (!document.querySelector('script[src*="pt.js"]')) {
-                        const localeScript = document.createElement('script');
-                        localeScript.src = 'https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js';
-                        localeScript.onload = resolve;
-                        localeScript.onerror = resolve; // Resolve mesmo se o locale falhar
-                        document.head.appendChild(localeScript);
-                    } else {
-                        resolve();
-                    }
-                };
-                script.onerror = reject;
-                document.head.appendChild(script);
-            });
-        }
-        async function carregarDisponibilidadeDoPeriodo(minDate, maxDate) {
-            const dates = [];
-            const cursor = new Date(minDate);
-            cursor.setHours(0, 0, 0, 0);
-            const end = new Date(maxDate);
-            end.setHours(0, 0, 0, 0);
-
-            while (cursor <= end) {
-                dates.push(formatDateYmd(cursor));
-                cursor.setDate(cursor.getDate() + 1);
-            }
-
-            await Promise.all(
-                dates.map(async (ymd) => {
-                    try {
-                        const horarios = await buscarHorariosDisponiveis(ymd);
-                        availabilityCache.set(ymd, Array.isArray(horarios) ? horarios : []);
-                    } catch {
-                        availabilityCache.set(ymd, []);
-                    }
-                })
-            );
-        }
-
-        function getMonthRange(dateObj) {
-            const start = new Date(dateObj.getFullYear(), dateObj.getMonth(), 1);
-            start.setHours(0, 0, 0, 0);
-            const end = new Date(dateObj.getFullYear(), dateObj.getMonth() + 1, 0);
-            end.setHours(0, 0, 0, 0);
-            return { start, end };
-        }
-
-        async function carregarDisponibilidadeDoMes(instance, baseDate, minDate, maxDate) {
-            const { start, end } = getMonthRange(baseDate);
-
-            const s = start < minDate ? minDate : start;
-            const e = end > maxDate ? maxDate : end;
-            if (s > e) return;
-
-            await carregarDisponibilidadeDoPeriodo(s, e);
-            if (instance && typeof instance.redraw === 'function') {
-                instance.redraw();
-            }
-        }
-
-        // Previne submit do form ao pressionar Enter
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            return false;
-        });
-
-        // Contador de caracteres
-        observacoesInput.addEventListener('input', (e) => {
-            contadorObservacoes.textContent = e.target.value.length;
-        });
-
         // Função auxiliar para selecionar horário (reutilizável)
         function selecionarHorario(btnHorario) {
             // Remove active de todos
@@ -301,8 +288,22 @@ export default function AgendamentoModal(servico, profissional) {
                 const btnHorario = document.createElement('button');
                 btnHorario.type = 'button';
                 btnHorario.className = 'btn btn-outline-primary horario-btn';
-                btnHorario.textContent = horario;
-                btnHorario.dataset.horario = horario;
+                
+                // Remove data se vier com formato completo, mantendo apenas HH:MM:SS
+                let horarioLimpo = String(horario).trim();
+                if (horarioLimpo.includes(' ')) {
+                    // Se vier como "2026-02-26 11:50:00", extrai apenas a hora
+                    const partes = horarioLimpo.split(' ');
+                    horarioLimpo = partes[partes.length - 1]; // Pega a última parte (hora)
+                }
+                
+                // Garante formato HH:MM:SS
+                if (horarioLimpo.length === 5) {
+                    horarioLimpo += ':00';
+                }
+                
+                btnHorario.textContent = horarioLimpo;
+                btnHorario.dataset.horario = horarioLimpo;
                 btnHorario.style.cursor = 'pointer';
                 btnHorario.setAttribute('tabindex', '0');
 
@@ -321,102 +322,61 @@ export default function AgendamentoModal(servico, profissional) {
                 horariosContainer.appendChild(btnHorario);
             });
         }
+
         async function inicializarCalendario() {
             try {
-                dataInput.disabled = true;
-                horariosContainer.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"></div>';
-
-                await garantirFlatpickr();
-
-                if (!window.flatpickr) {
-                    // Fallback nativo
-                    dataInput.type = 'date';
-                    const hoje = new Date();
-                    dataInput.min = formatDateYmd(hoje);
-                    dataInput.disabled = false;
-                    horariosContainer.innerHTML = '<div class="text-muted">Selecione uma data primeiro</div>';
-                    return;
-                }
-
-                if (!document.getElementById('flatpickr-modal-zindex')) {
-                    const style = document.createElement('style');
-                    style.id = 'flatpickr-modal-zindex';
-                    style.textContent = `
-                        .flatpickr-calendar { 
-                            z-index: 99999 !important; 
-                            box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
-                            border: 1px solid #ddd !important;
-                        }
-                        .flatpickr-day { 
-                            color: #333 !important; 
-                            font-weight: 500 !important;
-                        }
-                        .flatpickr-day.flatpickr-disabled, 
-                        .flatpickr-day.flatpickr-disabled:hover {
-                            color: #ccc !important;
-                        }
-                        .flatpickr-current-month, .flatpickr-month {
-                            padding: 5px 0 !important;
-                        }
-                        .flatpickr-weekday {
-                            color: #666 !important;
-                            font-weight: bold !important;
-                        }
-                        #dataAgendamento { cursor: pointer !important; background: #fff !important; }
-                    `;
-                    document.head.appendChild(style);
-                }
-
+                // Configura data mínima como hoje
                 const hoje = new Date();
-                hoje.setHours(0, 0, 0, 0);
-                const max = addMonths(hoje, 2);
-
+                const hojeStr = formatDateYmd(hoje);
+                dataInput.min = hojeStr;
+                
+                // Configura data máxima (3 meses à frente)
+                const maxDate = addMonths(hoje, 3);
+                const maxDateStr = formatDateYmd(maxDate);
+                dataInput.max = maxDateStr;
+                
                 dataInput.disabled = false;
-
-                const fp = window.flatpickr(dataInput, {
-                    dateFormat: 'Y-m-d',
-                    minDate: hoje,
-                    maxDate: max,
-                    disableMobile: true,
-                    clickOpens: true,
-                    locale: 'pt',
-                    // Removido restrições de enable momentaneamente para os números aparecerem claramente
-                    // O sistema já valida os horários ao selecionar a data
-                    onChange: (selectedDates, dateStr) => {
-                        if (!dateStr) return;
-                        dataSelecionada = dateStr;
-                        dataFormatada.textContent = formatarData(dateStr);
-                        renderizarHorariosDoDia(dateStr);
-                    },
-                    onMonthChange: (selectedDates, dateStr, instance) => {
-                        const base = instance.currentMonth != null && instance.currentYear != null
-                            ? new Date(instance.currentYear, instance.currentMonth, 1)
-                            : new Date();
-                        carregarDisponibilidadeDoMes(instance, base, hoje, max);
-                    },
-                    onYearChange: (selectedDates, dateStr, instance) => {
-                        const base = instance.currentMonth != null && instance.currentYear != null
-                            ? new Date(instance.currentYear, instance.currentMonth, 1)
-                            : new Date();
-                        carregarDisponibilidadeDoMes(instance, base, hoje, max);
+                horariosContainer.innerHTML = '<div class="text-muted">Selecione uma data primeiro</div>';
+                
+                // Adiciona evento de change para carregar horários
+                dataInput.addEventListener('change', async (e) => {
+                    const dataSelecionada = e.target.value;
+                    if (dataSelecionada && validarData(dataSelecionada)) {
+                        dataFormatada.textContent = formatarData(dataSelecionada);
+                        
+                        // Busca horários disponíveis
+                        try {
+                            const horarios = await buscarHorariosDisponiveis(dataSelecionada);
+                            availabilityCache.set(dataSelecionada, horarios);
+                            renderizarHorariosDoDia(dataSelecionada);
+                        } catch (error) {
+                            horariosContainer.innerHTML = '<div class="alert alert-danger">Erro ao carregar horários. Tente novamente.</div>';
+                        }
+                    } else {
+                        horariosContainer.innerHTML = '<div class="text-muted">Selecione uma data válida</div>';
                     }
                 });
-
-                // Força abertura ao clicar se o clickOpens falhar
-                dataInput.addEventListener('click', () => fp.open());
-
-                horariosContainer.innerHTML = '<div class="text-muted">Selecione uma data primeiro</div>';
-                carregarDisponibilidadeDoMes(fp, hoje, hoje, max);
+                
             } catch (error) {
-                // console.error('Erro ao inicializar calendário:', error);
                 dataInput.disabled = false;
-                dataInput.type = 'date';
+                horariosContainer.innerHTML = '<div class="text-muted">Selecione uma data primeiro</div>';
             }
         }
 
+        // Previne submit do form ao pressionar Enter
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            return false;
+        });
+
+        // Contador de caracteres
+        observacoesInput.addEventListener('input', (e) => {
+            contadorObservacoes.textContent = e.target.value.length;
+        });
+
         // Confirma agendamento
         btnConfirmar.addEventListener('click', async () => {
-            if (!dataSelecionada) {
+            if (!dataInput.value) {
                 notify.warning('Selecione uma data');
                 dataInput.focus();
                 return;
@@ -448,13 +408,56 @@ export default function AgendamentoModal(servico, profissional) {
 
                 const horarioStr = String(horarioSelecionado.dataset.horario || '').trim();
                 const horarioFinal = horarioStr.length === 5 ? `${horarioStr}:00` : horarioStr;
-                const dataHora = `${dataSelecionada} ${horarioFinal}`;
+                const dataHora = `${dataInput.value} ${horarioFinal}`;
+
+                // Verifica conflito antes de criar agendamento
+                const conflito = await verificarConflitoHorario(dataInput.value, horarioFinal, profissional.id);
+                
+                if (conflito) {
+                    throw new Error(`Este horário já está agendado para o profissional ${profissional.nome}. Por favor, escolha outro horário.`);
+                }
+
+                // Verifica expediente do profissional
+                try {
+                    const escalas = await api.buscarEscalasProfissional(profissional.id);
+                    
+                    const escalaDia = escalas.find(e => {
+                        // Melhor tratamento de data
+                        try {
+                            const dataEscala = new Date(e.data_escala);
+                            const dataSelecionada = new Date(dataInput.value + 'T00:00:00');
+                            
+                            // Compara apenas dia, mês e ano
+                            return dataEscala.getDate() === dataSelecionada.getDate() &&
+                                   dataEscala.getMonth() === dataSelecionada.getMonth() &&
+                                   dataEscala.getFullYear() === dataSelecionada.getFullYear();
+                        } catch (dateError) {
+                            return false;
+                        }
+                    });
+                    
+                    if (escalaDia) {
+                        // Verifica se horário está dentro do expediente
+                        const [hora] = horarioFinal.split(':');
+                        const horaNum = parseInt(hora);
+                        const [aberturaHora] = escalaDia.horario_abertura.split(':');
+                        const [fechamentoHora] = escalaDia.horario_fechamento.split(':');
+                        const aberturaNum = parseInt(aberturaHora);
+                        const fechamentoNum = parseInt(fechamentoHora);
+                        
+                        if (horaNum < aberturaNum || horaNum >= fechamentoNum) {
+                            throw new Error(`Horário ${horarioFinal} está fora do expediente (${escalaDia.horario_abertura} - ${escalaDia.horario_fechamento}).`);
+                        }
+                    }
+                } catch (escalaError) {
+                    // Continua mesmo se falhar verificação de expediente
+                }
 
                 const dadosAgendamento = {
                     id_cliente_fk: clienteId,
                     id_profissional_fk: profissional.id,
                     id_servico_fk: servico.id,
-                    data_hora: dataHora,
+                    data_hora: dataHora, // Backend espera este campo
                     observacoes: observacoesInput.value.trim() || null,
                     status: 'Agendado'
                 };
@@ -496,7 +499,6 @@ export default function AgendamentoModal(servico, profissional) {
         bootstrapModal.show();
 
         // Inicializa o calendário
-        // console.log('Modal adicionado ao DOM, inicializando calendário...');
         inicializarCalendario();
 
     }, 100);

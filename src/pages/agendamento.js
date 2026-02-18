@@ -89,7 +89,7 @@ export default function renderAgendamentoPage() {
 			try {
 				endereco = await api.buscarEnderecoPorProfissional(profissional.id);
 			} catch (error) {
-				console.error('Erro ao buscar endereço:', error);
+				// Erro ao buscar endereço
 			}
 
 			// Busca telefone
@@ -97,7 +97,7 @@ export default function renderAgendamentoPage() {
 			try {
 				telefone = await api.buscarTelefonePorProfissional(profissional.id);
 			} catch (error) {
-				console.error('Erro ao buscar telefone:', error);
+				// Erro ao buscar telefone
 			}
 
 			// Busca serviços do profissional
@@ -113,10 +113,9 @@ export default function renderAgendamentoPage() {
 						       String(servicoProfId) === String(profId);
 					});
 				} else {
-					console.warn('API retornou serviços em formato inválido:', todosServicos);
+					// API retornou serviços em formato inválido
 				}
 			} catch (error) {
-				console.error('Erro ao buscar serviços:', error);
 				handleError(error, 'AgendamentoPage - buscarServicos');
 			}
 

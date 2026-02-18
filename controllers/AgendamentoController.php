@@ -12,26 +12,36 @@ class AgendamentoController
             ['data_hora', 'id_cliente_fk', 'id_servico_fk']
         );
 
-        $hora = trim($data['data_hora']);
-
-
-        if (!preg_match('/^([01]\d|2[0-3]):([0-5]\d)$/', $hora)) {
-            return jsonResponse(['message' => 'Formato de hora inválido (esperado HH:MM)'], 400);
+        // 1. Validação e Normalização da Data/Hora
+        $dataHoraInput = trim($data['data_hora']);
+        
+        // Se receber apenas HH:MM, assume que é para HOJE (comportamento legado)
+        // Se receber YYYY-MM-DD HH:MM:SS ou YYYY-MM-DD HH:MM, usa a data completa
+        if (preg_match('/^(\d{2}):(\d{2})$/', $dataHoraInput)) {
+            $dataCompleta = date('Y-m-d') . ' ' . $dataHoraInput . ':00';
+        } else {
+            // Tenta criar um objeto DateTime para validar o formato completo
+            try {
+                $tempDate = new DateTime($dataHoraInput);
+                $dataCompleta = $tempDate->format('Y-m-d H:i:s');
+            } catch (Exception $e) {
+                return jsonResponse(['message' => 'Formato de data/hora inválido. Use YYYY-MM-DD HH:MM:SS ou HH:MM'], 400);
+            }
         }
 
-        $dataCompleta = date('Y-m-d') . ' ' . $hora . ':00';
-        error_log("[DEBUG CREATE] Data montada: " . $dataCompleta);
+        error_log("[DEBUG CREATE] Data validada: " . $dataCompleta);
 
         $dataObj = new DateTime($dataCompleta);
         $agora = new DateTime();
+        
         error_log("[DEBUG CREATE] Agora: " . $agora->format('Y-m-d H:i:s') . " | Tentativa: " . $dataObj->format('Y-m-d H:i:s'));
+        
         if ($dataObj < $agora) {
             return jsonResponse(['message' => 'Não é possível agendar no passado'], 400);
         }
 
         // 2. Limite de 3 meses à frente
         $maximoPermitido = (clone $agora)->modify('+3 months');
-        // Ajuste para incluir o dia inteiro do último dia permitido
         $maximoPermitido->setTime(23, 59, 59);
 
         if ($dataObj > $maximoPermitido) {

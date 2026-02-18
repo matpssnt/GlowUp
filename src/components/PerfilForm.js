@@ -36,7 +36,7 @@ export default function PerfilForm() {
             try {
                 enderecoData = await api.buscarEnderecoPorCadastro(cadastroId);
             } catch (error) {
-                console.warn('Erro ao carregar endereço:', error);
+                // Erro ao carregar endereço
             }
            
             // Carrega telefone se for profissional
@@ -48,7 +48,7 @@ export default function PerfilForm() {
                         telefoneData = await api.buscarTelefonePorProfissional(profissional.id);
                     }
                 } catch (error) {
-                    console.warn('Erro ao carregar telefone:', error);
+                    // Erro ao carregar telefone
                 }
             }
            
@@ -108,7 +108,7 @@ export default function PerfilForm() {
                 telefoneInput.value = telefoneFormatado;
             }
         } catch (error) {
-            // console.error('Erro ao carregar dados:', error);
+            // Erro ao carregar dados
         }
     }
  
@@ -271,7 +271,6 @@ export default function PerfilForm() {
             }
             
             notify.error('Erro ao salvar: ' + error.message);
-            // console.error('Erro ao salvar perfil:', error);
         } finally {
             // Reabilita botão
             btnSalvar.disabled = false;

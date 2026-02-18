@@ -109,15 +109,30 @@ class ProfissionalModel
             }
 
             $novoTipo = intval($data["isJuridica"]);
-            $existeFisico = $conn->query("SELECT id FROM fisicos WHERE id_profissional_fk = $id")->num_rows > 0;
-            $existeJuridico = $conn->query("SELECT id FROM juridicos WHERE id_profissional_fk = $id")->num_rows > 0;
+            
+            // Verifica existência de registro físico
+            $stmtCheckFisico = $conn->prepare("SELECT id FROM fisicos WHERE id_profissional_fk = ?");
+            $stmtCheckFisico->bind_param("i", $id);
+            $stmtCheckFisico->execute();
+            $existeFisico = $stmtCheckFisico->get_result()->num_rows > 0;
+            $stmtCheckFisico->close();
+
+            // Verifica existência de registro jurídico
+            $stmtCheckJuridico = $conn->prepare("SELECT id FROM juridicos WHERE id_profissional_fk = ?");
+            $stmtCheckJuridico->bind_param("i", $id);
+            $stmtCheckJuridico->execute();
+            $existeJuridico = $stmtCheckJuridico->get_result()->num_rows > 0;
+            $stmtCheckJuridico->close();
 
             if ($novoTipo === 0) {
                 // Se mudou para pessoa física ou já é
                 if ($existeJuridico) {
-                    if (!$conn->query("DELETE FROM juridicos WHERE id_profissional_fk = $id")) {
+                    $stmtDelJur = $conn->prepare("DELETE FROM juridicos WHERE id_profissional_fk = ?");
+                    $stmtDelJur->bind_param("i", $id);
+                    if (!$stmtDelJur->execute()) {
                         throw new Exception("Falha ao remover CNPJ ao migrar para fisico");
                     }
+                    $stmtDelJur->close();
                 }
                 // Se CPF foi fornecido, atualiza ou cria
                 if (!empty($data["cpf"])) {
@@ -139,9 +154,12 @@ class ProfissionalModel
             if ($novoTipo === 1) {
                 // Se mudou para pessoa jurídica ou já é
                 if ($existeFisico) {
-                    if (!$conn->query("DELETE FROM fisicos WHERE id_profissional_fk = $id")) {
+                    $stmtDelFis = $conn->prepare("DELETE FROM fisicos WHERE id_profissional_fk = ?");
+                    $stmtDelFis->bind_param("i", $id);
+                    if (!$stmtDelFis->execute()) {
                         throw new Exception("Falha ao remover CPF ao migrar para juridico");
                     }
+                    $stmtDelFis->close();
                 }
                 // Se CNPJ foi fornecido, atualiza ou cria
                 if (!empty($data["cnpj"])) {
