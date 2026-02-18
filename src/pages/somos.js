@@ -26,6 +26,19 @@ export default function renderquemSomos() {
             </div>
         </div>
 
+            <!-- CTA -->
+        <section class="sobre-cta">
+            <div class="sobre-cta-content">
+                <h2>Faça parte da nossa comunidade</h2>
+                <p>
+                    Cadastre-se agora e comece a aproveitar todos os recursos disponíveis na nossa plataforma.
+                </p>
+                <a href="/GlowUp/register" class="btn-primary">
+                    Criar minha conta
+                </a>
+            </div>
+        </section>
+        
         <!-- MISSÃO, VISÃO E VALORES -->
         <section class="sobre-mvv section">
             <div class="content-wrapper">

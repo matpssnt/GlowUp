@@ -24,7 +24,7 @@
     /* Texto escuro */
     --light-color: #F6F5F2;
     /* Fundo claro */
-    --footer-link: #bd9f78;
+    --footer-link: #b3f4ac;
     --perfil-bio: #666;
 
     --cont-register: #f0ad4e;
@@ -213,7 +213,7 @@ html {
 }
 
 .footer-link:hover {
-    color: #bd9f78 !important;
+    color: #75b16e !important;
     text-decoration: none;
     transform: translateX(5px);
 }
@@ -278,7 +278,7 @@ footer.bg-body-tertiary {
     background: rgba(255, 255, 255, 0.05);
     padding: 1rem;
     border-radius: 8px;
-    border-left: 3px solid #bd9f78;
+    border-left: 3px solid #75b16e;
 }
 
 .testimonial-text {
@@ -289,7 +289,7 @@ footer.bg-body-tertiary {
 }
 
 .testimonial-author {
-    color: #bd9f78;
+    color: #75b16e;
     font-weight: 500;
 }
 
@@ -311,7 +311,7 @@ footer.bg-body-tertiary {
 
 .newsletter-input:focus {
     background: rgba(255, 255, 255, 0.15);
-    border-color: #bd9f78;
+    border-color: #75b16e;
     color: white;
 }
 
@@ -321,8 +321,8 @@ footer.bg-body-tertiary {
 }
 
 .newsletter-btn:hover {
-    background: #bd9f78;
-    border-color: #bd9f78;
+    background: #75b16e;
+    border-color: #75b16e;
     color: white;
 }
 
