@@ -5,45 +5,31 @@ import renderRegisterPage from "./register.js";
 export default function renderquemSomos() {
     const Divroot = document.getElementById('root');
     Divroot.innerHTML = '';
-    // Limpa possíveis estilos/classes herdados de outras páginas (como dashboard)
-    Divroot.style = '';
-    Divroot.className = '';
 
     const nav = document.getElementById('navbar');
     nav.innerHTML = '';
-    const navbar = NavBar();
-    nav.appendChild(navbar);
+    nav.appendChild(NavBar());
 
-    // Container Principal da Página - Seguindo a estrutura de sobre.css
-    const sobreContainer = document.createElement('div');
-    sobreContainer.className = 'sobre-container fade-in';
+    const page = document.createElement('div');
+    page.className = 'sobre-container fade-in';
 
-    sobreContainer.innerHTML = `
-        <!-- HERO SECTION -->
-        <div class="sobre-hero">
+    page.innerHTML = `
+        <!-- HERO -->
+        <section class="sobre-hero">
             <div class="sobre-hero-content">
-                <h1>Quem somos nós?</h1>
-                <p>Conheça nossa empresa e nossa paixão pela beleza e bem-estar.</p>
-            </div>
-        </div>
-
-            <!-- CTA -->
-        <section class="sobre-cta">
-            <div class="sobre-cta-content">
-                <h2>Faça parte da nossa comunidade</h2>
+                <h1>Conectando beleza, tecnologia e pessoas</h1>
                 <p>
-                    Cadastre-se agora e comece a aproveitar todos os recursos disponíveis na nossa plataforma.
+                    Conheça a GlowUp, a plataforma que conecta você aos melhores
+                    profissionais de beleza e bem-estar da sua região.
                 </p>
-                <a href="/GlowUp/register" class="btn-primary">
-                    Criar minha conta
-                </a>
+                <div class="hero-line"></div>
             </div>
         </section>
-        
+
         <!-- MISSÃO, VISÃO E VALORES -->
         <section class="sobre-mvv section">
             <div class="content-wrapper">
-                <h2 style="text-align: center; margin-bottom: 40px;">Missão, Visão e Valores</h2>
+                <h2 class="section-title">Missão, Visão e Valores</h2>
 
                 <div class="mvv-cards">
                     <div class="mvv-card">
@@ -73,34 +59,32 @@ export default function renderquemSomos() {
                             <i class="fas fa-heart"></i>
                         </div>
                         <h3>Valores</h3>
-                        <ul style="list-style: none; padding: 0; text-align: left;">
-                            <li style="margin-bottom: 10px;"><i class="fas fa-check-circle me-2" style="color: var(--accent-color);"></i> Transparência em todas as relações</li>
-                            <li style="margin-bottom: 10px;"><i class="fas fa-check-circle me-2" style="color: var(--accent-color);"></i> Foco no usuário e sua experiência</li>
-                            <li style="margin-bottom: 10px;"><i class="fas fa-check-circle me-2" style="color: var(--accent-color);"></i> Inovação constante em serviços</li>
-                            <li style="margin-bottom: 10px;"><i class="fas fa-check-circle me-2" style="color: var(--accent-color);"></i> Respeito e inclusão para todos</li>
-                            <li style="margin-bottom: 10px;"><i class="fas fa-check-circle me-2" style="color: var(--accent-color);"></i> Compromisso com qualidade</li>
+                        <ul>
+                            <li>Transparência em todas as relações</li>
+                            <li>Foco no usuário e sua experiência</li>
+                            <li>Inovação constante em serviços</li>
+                            <li>Respeito e inclusão para todos</li>
+                            <li>Compromisso com qualidade</li>
                         </ul>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- CTA SECTION -->
+        <!-- CTA -->
         <section class="sobre-cta">
             <div class="sobre-cta-content">
                 <h2>Faça parte da nossa comunidade</h2>
                 <p>
                     Cadastre-se agora e comece a aproveitar todos os recursos disponíveis na nossa plataforma.
                 </p>
-                <a href="register" class="btn btn-primary" style="background: var(--white-color) !important; color: var(--primary-color) !important; border: none; padding: 15px 40px; border-radius: 50px; font-weight: 700; text-decoration: none; display: inline-block; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
-                    Criar minha conta
-                </a>
+                <a href="#" class="btn-primary" id="btn-register">Criar minha conta</a>
             </div>
         </section>
 
     `;
 
-    Divroot.appendChild(sobreContainer);
+    Divroot.appendChild(page);
 
     const btnRegister = document.getElementById('btn-register');
     btnRegister?.addEventListener('click', (e) => {
