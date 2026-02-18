@@ -1,5 +1,4 @@
 import { applyVisualValidation, friendlyMessages } from "../utils/formValidation.js";
-import {validators} from "../utils/validation.js" 
 
 export default function renderFormProf(container) {
 
@@ -79,226 +78,120 @@ export default function renderFormProf(container) {
     passwordConfirmContainer.appendChild(passwordConfirm);
     formulario.appendChild(passwordConfirmContainer);
 
-        // BOTÃO
-        const btnSubmit = document.createElement('button');
-        btnSubmit.type = 'submit';
-        btnSubmit.textContent = 'Cadastrar';
-        btnSubmit.className = 'btn btn-primary mt-2';
-        formulario.appendChild(btnSubmit);
-    
-        // Aplica validação visual aos campos
-        applyVisualValidation(nome, ['required'], {
-            helpText: 'Digite seu nome completo',
-            customMessage: friendlyMessages.required
-        });
-    
-        applyVisualValidation(email, ['required', 'email'], {
-            helpText: 'Digite um e-mail válido',
-            customMessage: friendlyMessages.email
-        });
-    
-        applyVisualValidation(password, ['required', ['minLength', 6]], {
-            helpText: 'A senha deve ter no mínimo 6 caracteres',
-            customMessage: friendlyMessages.password
-        });
-    
-        // ===============================
-        // FUNÇÕES AUXILIARES
-        // ===============================
-        function setFieldError(input, message) {
-            let errorDiv = input.parentElement.querySelector('.invalid-feedback');
-    
-            input.classList.add('is-invalid');
-            input.classList.remove('is-valid');
-    
-            if (!errorDiv) {
-                errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback';
-                input.parentElement.appendChild(errorDiv);
-            }
-    
-            errorDiv.textContent = message;
+    // BOTÃO
+    const btnSubmit = document.createElement('button');
+    btnSubmit.type = 'submit';
+    btnSubmit.textContent = 'Cadastrar';
+    btnSubmit.className = 'btn btn-primary mt-2';
+    formulario.appendChild(btnSubmit);
+
+    // Aplica validação visual aos campos
+    applyVisualValidation(nome, ['required'], {
+        helpText: 'Digite o nome do seu estabelecimento',
+        customMessage: friendlyMessages.required
+    });
+
+    applyVisualValidation(email, ['required', 'email'], {
+        helpText: 'Digite um e-mail válido',
+        customMessage: friendlyMessages.email
+    });
+
+    applyVisualValidation(password, ['required', ['minLength', 6]], {
+        helpText: 'A senha deve ter no mínimo 6 caracteres',
+        customMessage: friendlyMessages.password
+    });
+
+    // Validação customizada para confirmação de senha (igual ao commit original)
+    passwordConfirm.addEventListener('blur', () => {
+        if (passwordConfirm.value !== password.value) {
+            passwordConfirm.classList.add('is-invalid');
+            passwordConfirm.classList.remove('is-valid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback';
+            errorDiv.textContent = friendlyMessages.passwordMatch;
+            passwordConfirm.parentElement.appendChild(errorDiv);
+        } else if (passwordConfirm.value.length > 0) {
+            passwordConfirm.classList.remove('is-invalid');
+            passwordConfirm.classList.add('is-valid');
+            const existingError = passwordConfirm.parentElement.querySelector('.invalid-feedback');
+            if (existingError) existingError.remove();
         }
-    
-        function clearFieldError(input) {
-            input.classList.remove('is-invalid');
-            input.classList.add('is-valid');
-    
-            const errorDiv = input.parentElement.querySelector('.invalid-feedback');
-            if (errorDiv) errorDiv.remove();
+    });
+
+    password.addEventListener('input', () => {
+        if (passwordConfirm.value && passwordConfirm.value !== password.value) {
+            passwordConfirm.classList.add('is-invalid');
+            passwordConfirm.classList.remove('is-valid');
         }
-    
-        // ===============================
-        // VALIDAÇÃO AO SAIR DO CAMPO DE CONFIRMAÇÃO DE SENHA
-        // ===============================
-        passwordConfirm.addEventListener('blur', () => {
-            if (
-                passwordConfirm.value.length > 0 &&
-                passwordConfirm.value !== password.value
-            ) {
-                setFieldError(
-                    passwordConfirm,
-                    friendlyMessages.passwordMatch || 'As senhas não coincidem'
-                );
-            } else if (passwordConfirm.value.length > 0) {
-                clearFieldError(passwordConfirm);
-            }
-        });
-    
-        // ===============================
-        // REVALIDA CONFIRMAÇÃO AO DIGITAR A SENHA
-        // ===============================
-        password.addEventListener('input', () => {
-            if (
-                passwordConfirm.value.length > 0 &&
-                passwordConfirm.value !== password.value
-            ) {
-                setFieldError(
-                    passwordConfirm,
-                    friendlyMessages.passwordMatch || 'As senhas não coincidem'
-                );
-            } else if (passwordConfirm.value.length > 0) {
-                clearFieldError(passwordConfirm);
-            }
-        });
-    
-        // ===============================
-        // FUNÇÃO AUXILIAR DE SENHA
-        // ===============================
-        const validarSenha = (senha) => {
-            const resultado = validators.senha(senha);
-            return resultado === true;
-        };
-    
-        // ===============================
-        // VALIDAÇÃO FINAL NO SUBMIT
-        // ===============================
-        formulario.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            let invalido = false;
-    
-            const resultadoSenha = validators.senha(password.value);
-            if (resultadoSenha !== true) {
-                invalido = true;
-                setFieldError(password, resultadoSenha);
-            } else {
-                clearFieldError(password);
-            }
-    
-            if (
-                passwordConfirm.value.length > 0 &&
-                passwordConfirm.value !== password.value
-            ) {
-                invalido = true;
-                setFieldError(
-                    passwordConfirm,
-                    friendlyMessages.passwordMatch || 'As senhas não coincidem'
-                );
-            } else if (passwordConfirm.value.length > 0) {
-                clearFieldError(passwordConfirm);
-            }
-    
-            if (invalido) return;
+    });
+
+    // SUBMIT
+    formulario.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        let invalido = false;
+
+        // validação manual extra (conforme commit original)
+        if (password.value.length < 6) {
+            invalido = true;
+            password.classList.add("is-invalid");
+        }
+
+        if (passwordConfirm.value !== password.value) {
+            invalido = true;
+            passwordConfirm.classList.add("is-invalid");
+        }
+
+        if (invalido) return;
 
         // Desabilita o botão durante a requisição
         btnSubmit.disabled = true;
         btnSubmit.textContent = 'Cadastrando...';
 
         try {
-            // Importa e usa a API
+            // Importa e usa a API (igual ao commit original)
             const ApiService = (await import('../utils/api.js')).default;
             const api = new ApiService();
 
             let idCadastro = null;
             let idProfissional = null;
-            
-            // Cria cadastro de profissional (sem criar profissional ainda)
-            let responseCadastro;
-            try {
-                responseCadastro = await api.cadastrarProfissional(
-                    nome.value.trim(),
-                    email.value.trim(),
-                    password.value
-                );
-                
-                // Pega o ID do cadastro
-                if (responseCadastro.idCadastro || responseCadastro.id) {
-                    idCadastro = responseCadastro.idCadastro || responseCadastro.id;
-                } else {
-                    throw new Error('Não foi possível obter o ID do cadastro criado.');
-                }
-            } catch (error) {
-                // console.error('Erro ao criar cadastro:', error);
-                throw error;
-            }
-            
-            // Se ainda não temos o ID do cadastro, houve um problema real
+
+            // Cria cadastro
+            const responseCadastro = await api.cadastrarProfissional(
+                nome.value.trim(),
+                email.value.trim(),
+                password.value
+            );
+
+            idCadastro = responseCadastro.idCadastro || responseCadastro.id;
+
             if (!idCadastro) {
-                throw new Error('Não foi possível criar ou encontrar o cadastro. Por favor, verifique se o email já está em uso e tente novamente.');
+                throw new Error('Não foi possível obter o ID do cadastro criado.');
             }
-            
+
             // Cria profissional
             const profissionalData = {
                 nome: nome.value.trim(),
                 email: email.value.trim(),
-                descricao: 'Cadastro em andamento', // Descrição temporária 
+                descricao: 'Cadastro em andamento',
                 acessibilidade: 0,
                 isJuridica: 0,
                 id_cadastro_fk: idCadastro
-                // CPF não é enviado aqui, pois, será preenchido na etapa 2
             };
-            
-            try {
-                const responseProf = await api.criarProfissional(profissionalData);
-                
-                // Aguarda um pouco para o banco processar
-                await new Promise(resolve => setTimeout(resolve, 500));
-                
-                // Busca o profissional criado
-                let tentativas = 0;
-                const maxTentativas = 5;
-                
-                while (tentativas < maxTentativas && !idProfissional) {
-                    try {
-                        await new Promise(resolve => setTimeout(resolve, 300 * (tentativas + 1)));
-                        const profCriado = await api.buscarProfissionalPorCadastro(idCadastro);
-                        if (profCriado && profCriado.id) {
-                            idProfissional = profCriado.id;
-                            break;
-                        }
-                    } catch (e) {
-                    }
-                    tentativas++;
+
+            const responseProf = await api.criarProfissional(profissionalData);
+
+            // Pega o ID (melhoria em relação ao loop do commit original)
+            idProfissional = responseProf.idProfissional || responseProf.id;
+
+            // Se não retornou o ID, tenta o fallback do commit original (opcional)
+            if (!idProfissional) {
+                const profCriado = await api.buscarProfissionalPorCadastro(idCadastro);
+                if (profCriado && profCriado.id) {
+                    idProfissional = profCriado.id;
                 }
-                
-                // Se ainda não encontrou, tenta listar todos e buscar pelo id_cadastro_fk
-                if (!idProfissional) {
-                    try {
-                        const todosProfissionais = await api.listarProfissionais();
-                        if (Array.isArray(todosProfissionais)) {
-                            const profEncontrado = todosProfissionais.find(p => 
-                                p.id_cadastro_fk == idCadastro || 
-                                parseInt(p.id_cadastro_fk) === parseInt(idCadastro)
-                            );
-                            if (profEncontrado && profEncontrado.id) {
-                                idProfissional = profEncontrado.id;
-                            }
-                        }
-                    } catch (e) {
-                        // console.error('Erro ao listar profissionais:', e);
-                    }
-                }
-                
-                if (!idProfissional) {
-                    console.warn('Profissional criado mas não conseguimos obter o ID. Continuando mesmo assim...');
-                    // Continua sem o ID - será buscado na etapa 2
-                }
-            } catch (profError) {
-                // console.error('Erro ao criar profissional:', profError);
-                throw new Error('Não foi possível criar o profissional: ' + (profError.message || 'Erro desconhecido'));
             }
 
-            // Salva no localStorage para o próximo passo do cadastro
+            // Salva no localStorage para o próximo passo do cadastro (exatamente como original)
             const dadosBasicos = {
                 nome: nome.value,
                 email: email.value,
@@ -312,33 +205,19 @@ export default function renderFormProf(container) {
             // Notifica sucesso
             const { notify } = await import('../components/Notification.js');
             notify.success('Cadastro inicial realizado! Complete seus dados na próxima etapa...');
-            
-            // Aguarda um pouco antes de redirecionar
+
+            // Redireciona (estilo original)
             setTimeout(() => {
                 window.location.href = 'cont-register';
             }, 1000);
         } catch (error) {
-            // Erro
-            // console.error('Erro no cadastro:', error);
-            
-            // Importa notificação para mostrar erro amigável
             const { notify } = await import('../components/Notification.js');
-            
-            let mensagemErro = 'Erro ao cadastrar. Por favor, tente novamente.';
-            
-            if (error.message) {
-                if (error.message.includes('email') || error.message.includes('Email')) {
-                    mensagemErro = 'Este e-mail já está em uso. Por favor, use outro e-mail ou faça login.';
-                } else if (error.message.includes('cadastro')) {
-                    mensagemErro = 'Não foi possível criar o cadastro. Verifique os dados e tente novamente.';
-                } else {
-                    mensagemErro = error.message;
-                }
+            let mensagemErro = error.message || 'Erro ao cadastrar. Por favor, tente novamente.';
+            if (mensagemErro.includes('email')) {
+                mensagemErro = 'Este e-mail já está em uso.';
             }
-            
             notify.error(mensagemErro);
         } finally {
-            // Reabilita o botão
             btnSubmit.disabled = false;
             btnSubmit.textContent = 'Cadastrar';
         }

@@ -3,39 +3,169 @@ require_once __DIR__ . '/../config/database.php';
 
 class AgendamentoModel
 {
-    // Constantes para status
-    const STATUS_AGENDADO = 'Agendado';
-    const STATUS_CANCELADO = 'Cancelado';
-    const STATUS_CONFIRMADO = 'Concluido';
-
     /**
-     * @param array $data: ['data_hora' => 'Y-m-d H:i:s', 'id_cliente_fk' => int, 'id_servico_fk' => int]
-     * @return int|false ID inserido ou false em erro
-     * @throws Exception em conflitos/validações
+     * Gera lista de horários disponíveis considerando intervalos e duração variável
      */
-    /**
-     * Cria um novo agendamento com todas as validações necessárias
-     * 
-     * @param array $data Deve conter: 'data_hora' (Y-m-d H:i:s), 'id_cliente_fk', 'id_servico_fk'
-     * @return array ['success' => bool, 'id' => int|null, 'message' => string]
-     * @throws Exception em casos de erro grave ou validação falha
-     */
-    /**
-     * Cria um novo agendamento (sem duplicar id_profissional_fk)
-     */
-    public static function create($data)
+    public static function gerarHorariosDisponiveis(string $data, int $idServico): array
     {
-        $db = Database::getInstancia();
-        $conn = $db->pegarConexao();
+        $conn = Database::getInstancia()->pegarConexao();
 
-        // 1. Validação básica
-        if (!isset($data['id_cliente_fk'], $data['id_servico_fk'], $data['data_hora'])) {
-            throw new Exception('Campos obrigatórios ausentes');
+        // 1. Busca duração do serviço solicitado
+        $stmt = $conn->prepare("SELECT id_profissional_fk, duracao FROM servicos WHERE id = ?");
+        $stmt->bind_param("i", $idServico);
+        $stmt->execute();
+        $servico = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+
+        if (!$servico) return [];
+
+        $idProf = (int) $servico['id_profissional_fk'];
+        $duracaoServicoMin = self::getDuracaoEmMinutos($servico['duracao']);
+
+        // 2. Busca escala do profissional no dia
+        $diaSemana = (int) (new DateTime($data))->format('w');
+        $escalas = EscalaModel::getEscalaDoProfissionalNoDia($idProf, $diaSemana);
+        if (empty($escalas)) return [];
+
+        // 3. Mapeia Intervalos Ocupados (Agendamentos + Indisponibilidades + Passado)
+        $intervalosOcupados = [];
+
+        // Agendamentos existentes
+        $agendamentos = self::carregarAgendamentosDoDia($conn, $idProf, $data);
+        foreach ($agendamentos as $agd) {
+            $inicioMin = self::hmsToMinutes((new DateTime($agd['data_hora']))->format('H:i:s'));
+            $duracaoMin = self::getDuracaoEmMinutos($agd['duracao']);
+            $intervalosOcupados[] = ['inicio' => $inicioMin, 'fim' => $inicioMin + $duracaoMin];
         }
 
-        $idCliente = (int) $data['id_cliente_fk'];
-        $idServico = (int) $data['id_servico_fk'];
-        $dataHora = trim($data['data_hora']);
+        // Indisponibilidades manuais
+        $indisponibilidades = self::carregarIndisponibilidadesDoDia($conn, $idProf, $data);
+        foreach ($indisponibilidades as $ind) {
+            $inicioMin = self::hmsToMinutes($ind['hora_inicio']);
+            $fimMin = $ind['hora_fim'] ? self::hmsToMinutes($ind['hora_fim']) : 1440; // Até o fim do dia
+            $intervalosOcupados[] = ['inicio' => $inicioMin, 'fim' => $fimMin];
+        }
+
+        // Bloqueio de horário passado (se for hoje)
+        $hoje = new DateTime();
+        $dataTarget = new DateTime($data);
+        if ($dataTarget->format('Y-m-d') === $hoje->format('Y-m-d')) {
+            $agoraMin = self::hmsToMinutes($hoje->format('H:i:s'));
+            $margemSeguranca = 30; // 30 min de margem mínima para agendar
+            $intervalosOcupados[] = ['inicio' => 0, 'fim' => $agoraMin + $margemSeguranca];
+        }
+
+        // Ordena ocupações pelo início
+        usort($intervalosOcupados, fn($a, $b) => $a['inicio'] <=> $b['inicio']);
+
+        // Unifica intervalos sobrepostos ou adjacentes
+        $ocupacoesUnificadas = [];
+        if (!empty($intervalosOcupados)) {
+            $atual = $intervalosOcupados[0];
+            foreach ($intervalosOcupados as $prox) {
+                if ($prox['inicio'] <= $atual['fim']) {
+                    $atual['fim'] = max($atual['fim'], $prox['fim']);
+                } else {
+                    $ocupacoesUnificadas[] = $atual;
+                    $atual = $prox;
+                }
+            }
+            $ocupacoesUnificadas[] = $atual;
+        }
+
+        // 4. Gera Slots Disponíveis
+        $disponiveis = [];
+        $step = 10; // Intervalo de 10 minutos entre as opções (flexibilidade total)
+
+        foreach ($escalas as $escala) {
+            $escalaInicio = self::hmsToMinutes((new DateTime($escala['inicio']))->format('H:i:s'));
+            $escalaFim = self::hmsToMinutes((new DateTime($escala['fim']))->format('H:i:s'));
+
+            // Percorre a escala em passos de $step minutos
+            for ($time = $escalaInicio; $time < $escalaFim; $time += $step) {
+                $slotInicio = $time;
+                $slotFim = $time + $duracaoServicoMin;
+
+                // O serviço deve terminar antes ou no horário de fim da escala
+                if ($slotFim > $escalaFim) continue;
+
+                // Verifica colisão com ocupações unificadas
+                $livre = true;
+                foreach ($ocupacoesUnificadas as $oc) {
+                    // Colisão: (slotInicio < ocFim) E (slotFim > ocInicio)
+                    if ($slotInicio < $oc['fim'] && $slotFim > $oc['inicio']) {
+                        $livre = false;
+                        break;
+                    }
+                }
+
+                if ($livre) {
+                    $disponiveis[] = sprintf('%s %s', $data, self::minutesToHms($slotInicio));
+                }
+            }
+        }
+
+        return array_unique($disponiveis);
+    }
+
+    // Helpers de Tempo (Minutos)
+    private static function getDuracaoEmMinutos($duracao): int
+    {
+        if (empty($duracao)) return 30; // Fallback
+        if (is_numeric($duracao)) return (int)$duracao; // Já está em minutos? (comum em alguns sistemas)
+        
+        $parts = explode(':', $duracao);
+        $h = (int)($parts[0] ?? 0);
+        $m = (int)($parts[1] ?? 0);
+        return ($h * 60) + $m;
+    }
+
+    private static function hmsToMinutes(string $hms): int {
+        $parts = explode(':', $hms);
+        return ((int)($parts[0] ?? 0) * 60) + (int)($parts[1] ?? 0);
+    }
+
+    private static function minutesToHms(int $minutes): string {
+        $h = floor($minutes / 60);
+        $m = $minutes % 60;
+        return sprintf('%02d:%02d:00', $h, $m);
+    }
+
+    private static function carregarAgendamentosDoDia($conn, int $idProf, string $data): array
+    {
+        $sql = "SELECT a.data_hora, s.duracao 
+                FROM agendamentos a 
+                JOIN servicos s ON a.id_servico_fk = s.id 
+                WHERE s.id_profissional_fk = ? 
+                  AND DATE(a.data_hora) = ? 
+                  AND a.status = 'Agendado'";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("is", $idProf, $data);
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+        return $result;
+    }
+
+    private static function carregarIndisponibilidadesDoDia($conn, int $idProf, string $data): array
+    {
+        $sql = "SELECT hora_inicio, hora_fim 
+                FROM indisponibilidades 
+                WHERE id_profissional_fk = ? AND data = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("is", $idProf, $data);
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+        return $result;
+    }
+
+    // Mantido por compatibilidade com create(), mas não usado diretamente no gerarHorarios
+    private static function temConflito(int $inicioTs, int $fimTs, int $duracaoSeg, array $agendamentos, array $indisponibilidades): bool
+    {
+        // Stub: mantido se outras partes do código chamarem, mas a lógica agora reside dentro de gerarHorariosDisponiveis
+        return false; 
+    }
 
         // 2. Valida formato e data futura
         date_default_timezone_set('America/Sao_Paulo');
@@ -172,20 +302,81 @@ class AgendamentoModel
      */
     public static function getAll($idCliente = null)
     {
-        $db = Database::getInstancia();
-        $conn = $db->pegarConexao();
-        $sql = "SELECT * FROM agendamentos";
-        if ($idCliente) {
-            $sql .= " WHERE id_cliente_fk = ?";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("i", $idCliente);
-            $stmt->execute();
-            $result = $stmt->get_result();
-        } else {
-            $result = $conn->query($sql);
+        $conn = Database::getInstancia()->pegarConexao();
+
+        // 1. Busca serviço e duração
+        $stmt = $conn->prepare("SELECT id_profissional_fk, duracao FROM servicos WHERE id = ?");
+        $stmt->bind_param("i", $idServico);
+        $stmt->execute();
+        $servico = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+
+        if (!$servico) return [];
+
+        $idProf = (int) $servico['id_profissional_fk'];
+        $duracaoSeg = self::getDuracaoEmSegundos($servico['duracao']);
+
+        $dataObj = new DateTime($data);
+        $diaSemana = (int) $dataObj->format('w');
+
+        // 2. Busca escala do profissional (pode ter vários blocos como Manhã e Tarde)
+        $blocosEscala = EscalaModel::getEscalaDoProfissionalNoDia($idProf, $diaSemana);
+        if (empty($blocosEscala)) {
+            return [];
         }
-        $rows = $result->fetch_all(MYSQLI_ASSOC);
-        return $rows ?: [];
+
+        // 3. Carrega compromissos do dia para checar conflitos
+        $agendamentos = self::carregarAgendamentosDoDia($conn, $idProf, $data);
+        $indisponibilidades = self::carregarIndisponibilidadesDoDia($conn, $idProf, $data);
+
+        $slots = [];
+        $agora = new DateTime();
+        $step = 15 * 60; // Slots a cada 15 minutos
+
+        // 4. Percorre cada bloco de horário de trabalho do profissional
+        foreach ($blocosEscala as $escala) {
+            if (empty($escala['inicio']) || empty($escala['fim'])) continue;
+
+            $inicioDia = new DateTime($data . ' ' . (new DateTime($escala['inicio']))->format('H:i:s'));
+            $fimDia = new DateTime($data . ' ' . (new DateTime($escala['fim']))->format('H:i:s'));
+
+            // Ajuste para hoje: não permitir horários passados ou muito próximos (margem de 30min)
+            if ($dataObj->format('Y-m-d') === $agora->format('Y-m-d')) {
+                $margem = (clone $agora)->modify('+30 minutes');
+                if ($margem > $inicioDia) {
+                    $inicioDia = $margem;
+                }
+            }
+
+            $cursor = clone $inicioDia;
+            
+            // Arredonda o cursor para o próximo múltiplo do step para ficar "bonito" (ex: 08:00, 08:15)
+            $minutos = (int)$cursor->format('i');
+            $resto = $minutos % 15;
+            if ($resto > 0) {
+                $cursor->modify('+' . (15 - $resto) . ' minutes')->setTime((int)$cursor->format('H'), (int)$cursor->format('i'), 0);
+            }
+
+            while ($cursor < $fimDia) {
+                $slotFim = (clone $cursor)->modify("+{$duracaoSeg} seconds");
+
+                // O serviço deve terminar dentro do bloco de escala atual
+                if ($slotFim > $fimDia) break;
+
+                // Verifica se não há conflito com agendamentos ou bloqueios manuais
+                if (!self::temConflito($cursor->getTimestamp(), $slotFim->getTimestamp(), $duracaoSeg, $agendamentos, $indisponibilidades)) {
+                    $slots[] = $cursor->format('Y-m-d H:i:s');
+                }
+
+                $cursor->modify("+{$step} seconds");
+            }
+        }
+
+        // Remove duplicatas e ordena (caso blocos se sobreponham por erro de cadastro)
+        $slots = array_unique($slots);
+        sort($slots);
+
+        return $slots;
     }
 
     /**

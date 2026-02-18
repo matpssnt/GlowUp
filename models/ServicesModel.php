@@ -8,13 +8,18 @@ class ServicesModel {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
         
-        $sql = "INSERT INTO servicos (nome, descricao, preco, id_profissional_fk, id_categoria_fk)
-                VALUES (?, ?, ?, ?, ?)";
+        // Incluído campo duração
+        $sql = "INSERT INTO servicos (nome, descricao, preco, duracao, id_profissional_fk, id_categoria_fk)
+                VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssdii",
+        
+        $duracao = isset($data['duracao']) ? $data['duracao'] : '00:30:00';
+
+        $stmt->bind_param("ssdsii",
             $data["nome"],
             $data["descricao"],
             $data["preco"],
+            $duracao,
             $data["id_profissional_fk"],
             $data["id_categoria_fk"]
         );
@@ -25,8 +30,9 @@ class ServicesModel {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
         
-        $sql = "SELECT s.*
-                FROM servicos s";
+        $sql = "SELECT s.*, c.nome as categoria_nome 
+                FROM servicos s
+                LEFT JOIN categorias c ON c.id = s.id_categoria_fk";
         $result = $conn->query($sql);
         return $result->fetch_all(MYSQLI_ASSOC);
     }
@@ -48,14 +54,19 @@ class ServicesModel {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
         
+        // Incluído campo duração
         $sql = "UPDATE servicos
-                SET nome = ?, descricao = ?, preco = ?, id_profissional_fk = ?, id_categoria_fk = ?
+                SET nome = ?, descricao = ?, preco = ?, duracao = ?, id_profissional_fk = ?, id_categoria_fk = ?
                 WHERE id = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssdiii",
+        
+        $duracao = isset($data['duracao']) ? $data['duracao'] : '00:30:00';
+
+        $stmt->bind_param("ssdsiii",
             $data["nome"],
             $data["descricao"],
             $data["preco"],
+            $duracao,
             $data["id_profissional_fk"],
             $data["id_categoria_fk"],
             $id

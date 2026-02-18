@@ -191,83 +191,103 @@ export default function renderConfiguracoesLojaPage() {
 
     function renderEscala() {
 
-    const dias = [
-        { id: 0, label: 'Domingo' },
-        { id: 1, label: 'Segunda' },
-        { id: 2, label: 'Terça' },
-        { id: 3, label: 'Quarta' },
-        { id: 4, label: 'Quinta' },
-        { id: 5, label: 'Sexta' },
-        { id: 6, label: 'Sábado' }
-    ];
+        const dias = [
+            { id: 0, label: 'Domingo' },
+            { id: 1, label: 'Segunda' },
+            { id: 2, label: 'Terça' },
+            { id: 3, label: 'Quarta' },
+            { id: 4, label: 'Quinta' },
+            { id: 5, label: 'Sexta' },
+            { id: 6, label: 'Sábado' }
+        ];
 
-    escalaRows.innerHTML = '';
+        escalaRows.innerHTML = '';
 
-    dias.forEach(d => {
-        const existente = Array.isArray(escalas)
-            ? escalas.find(e => String(e.dia_semana) === String(d.id))
-            : null;
+        dias.forEach(d => {
 
-        const tr = document.createElement('tr');
-        tr.dataset.dia = d.id;
+            const existente = Array.isArray(escalas)
+                ? escalas.find(e => String(e.dia_semana) === String(d.id))
+                : null;
 
-        if (existente && existente.id) {
-            tr.dataset.escalaId = existente.id;
-        }
+            const tr = document.createElement('tr');
+            tr.dataset.dia = d.id;
 
-        const inicio = extrairHora(existente?.inicio);
-        const fim = extrairHora(existente?.fim);
+            if (existente?.id) {
+                tr.dataset.escalaId = existente.id;
+            }
 
-        tr.innerHTML = `
+            const inicio = extrairHora(existente?.inicio);
+            const fim = extrairHora(existente?.fim);
+
+            tr.innerHTML = `
             <td><strong>${d.label}</strong></td>
             <td>
-                <input type="time" step="60" class="form-control" name="inicio_${d.id}" value="${inicio}">
+                <input type="time" step="60" class="form-control" name="inicio_${d.id}" value="${inicio || ''}">
             </td>
             <td>
-                <input type="time" step="60" class="form-control" name="fim_${d.id}" value="${fim}">
+                <input type="time" step="60" class="form-control" name="fim_${d.id}" value="${fim || ''}">
             </td>
             <td class="text-end">
                 <button type="button" class="btn btn-outline-danger btn-sm" data-action="limpar">Limpar</button>
             </td>
         `;
 
-        const inputInicio = tr.querySelector(`input[name="inicio_${d.id}"]`);
-        const inputFim = tr.querySelector(`input[name="fim_${d.id}"]`);
-        const btnLimpar = tr.querySelector('[data-action="limpar"]');
+            const inputInicio = tr.querySelector(`input[name="inicio_${d.id}"]`);
+            const inputFim = tr.querySelector(`input[name="fim_${d.id}"]`);
+            const btnLimpar = tr.querySelector('[data-action="limpar"]');
 
-        // 🔒 Ajusta o mínimo do fechamento ao carregar
-        if (inicio) {
-            inputFim.min = inicio;
-        }
-
-        // 🔥 Se vier inválido do banco (fim menor ou igual início), limpa
-        if (inicio && fim && fim <= inicio) {
-            inputFim.value = '';
-        }
-
-        // 🔁 Quando alterar a abertura
-        inputInicio.addEventListener('change', () => {
+            // 🔒 Ajusta mínimo do fechamento ao carregar
             if (inputInicio.value) {
+                inputFim.min = inputInicio.value;
+            }
+
+            // 🔥 Limpa se vier inválido do banco
+            if (inputInicio.value && inputFim.value && inputFim.value <= inputInicio.value) {
+                inputFim.value = '';
+            }
+
+            // 🔁 Quando alterar abertura
+            inputInicio.addEventListener('input', () => {
+
+                if (!inputInicio.value) {
+                    inputFim.min = '';
+                    return;
+                }
+
                 inputFim.min = inputInicio.value;
 
                 if (inputFim.value && inputFim.value <= inputInicio.value) {
+                    notify.warning('O horário de fechamento deve ser maior que o de abertura');
                     inputFim.value = '';
                 }
-            } else {
+            });
+
+            // 🔒 Bloqueio imediato no fechamento
+            inputFim.addEventListener('input', () => {
+
+                if (!inputInicio.value) {
+                    notify.warning('Defina primeiro o horário de abertura');
+                    inputFim.value = '';
+                    return;
+                }
+
+                if (inputFim.value <= inputInicio.value) {
+                    notify.warning('O horário de fechamento deve ser maior que o de abertura');
+                    inputFim.value = '';
+                }
+            });
+
+            // 🧹 Botão limpar
+            btnLimpar.addEventListener('click', () => {
+                inputInicio.value = '';
+                inputFim.value = '';
                 inputFim.min = '';
-            }
-        });
+            });
 
-        // 🧹 Botão limpar
-        btnLimpar.addEventListener('click', () => {
-            inputInicio.value = '';
-            inputFim.value = '';
-            inputFim.min = '';
+            escalaRows.appendChild(tr);
         });
+    }
 
-        escalaRows.appendChild(tr);
-    });
-}
 
 
     form.addEventListener('submit', async (e) => {
@@ -310,7 +330,7 @@ export default function renderConfiguracoesLojaPage() {
                 } else {
                     // cria telefone
                     const resp = await api.criarTelefone(ddd, digitos);
-                    const idTelefone = resp?.id;
+                    const idTelefone = resp?.id || resp?.idTelefone;
                     if (idTelefone) {
                         await api.request('/telProf', 'POST', { id_profissional_fk: profissional.id, id_telefone_fk: idTelefone });
                     }
