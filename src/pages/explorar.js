@@ -6,13 +6,8 @@ import authState from "../utils/AuthState.js";
 const ITEMS_PER_PAGE = 15;
 
 /**
- Renderiza a página Explorar.
-  @param {Object} options - Opções de configuração
-  @param {string|null} options.tipoFiltro - 'pf' para Pessoa Física, 'pj' para Pessoa Jurídica, null para todos
-  @param {string} options.titulo - Título do banner
-  @param {string} options.subtitulo - Subtítulo do banner
-  @param {string} options.icone - Classe do ícone FontAwesome
-  @param {string} options.labelEntidade - Label para exibição (ex: "profissional", "estabelecimento")
+ * Renderiza a página Explorar (Profissionais ou Estabelecimentos)
+ * @param {Object} options - Configurações da página
  */
 export default function renderExplorarPage(options = {}) {
     const {
@@ -23,21 +18,90 @@ export default function renderExplorarPage(options = {}) {
         labelEntidade = 'profissional'
     } = options;
 
-    const divRoot = document.getElementById('root');
-    divRoot.innerHTML = '';
-    divRoot.style.display = 'flex';
-    divRoot.style.flexDirection = 'column';
+    // Root principal
+    const root = document.getElementById('root');
+    if (!root) {
+        console.error('Elemento #root não encontrado');
+        return;
+    }
 
-    // NavBar
-    const nav = document.getElementById('navbar');
-    nav.innerHTML = '';
-    nav.appendChild(NavBar());
+    root.innerHTML = '';
+    root.style.minHeight = '100vh';
+    root.style.display = 'flex';
+    root.style.flexDirection = 'column';
 
-    // Container principal
+    // Navbar
+    const navContainer = document.getElementById('navbar');
+    if (navContainer) {
+        navContainer.innerHTML = '';
+        navContainer.appendChild(NavBar());
+    }
+
+    // Container da página inteira
     const page = document.createElement('div');
     page.className = 'explorar-page';
+    page.style.flex = '1';
+    page.style.display = 'flex';
+    page.style.flexDirection = 'column';
 
-    // Estado da página
+    // Banner (parte verde)
+    const banner = document.createElement('div');
+    banner.className = 'explorar-banner';
+    banner.style.backgroundColor = '#2e7d32'; // ajuste a cor se necessário
+    banner.style.color = 'white';
+    banner.style.padding = '60px 20px 40px';
+    banner.style.textAlign = 'center';
+    banner.style.width = '100%';
+    banner.innerHTML = `
+        <h1 style="margin: 0; font-size: 2.8rem;">${titulo}</h1>
+        <p style="margin: 10px 0 0; font-size: 1.2rem; opacity: 0.9;">${subtitulo}</p>
+    `;
+
+    // Wrapper flex para sidebar + conteúdo principal
+    const contentWrapper = document.createElement('div');
+    contentWrapper.className = 'explorar-content';
+    contentWrapper.style.flex = '1';
+    contentWrapper.style.display = 'flex';
+    contentWrapper.style.maxWidth = '1400px';
+    contentWrapper.style.margin = '0 auto';
+    contentWrapper.style.padding = '30px 20px';
+    contentWrapper.style.gap = '30px';
+    contentWrapper.style.width = '100%';
+    contentWrapper.style.boxSizing = 'border-box';
+
+    // Sidebar (desktop)
+    const sidebar = document.createElement('aside');
+    sidebar.className = 'explorar-sidebar';
+    sidebar.id = 'sidebarDesktop';
+    sidebar.style.flex = '0 0 320px';
+    sidebar.style.background = 'white';
+    sidebar.style.borderRadius = '12px';
+    sidebar.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
+    sidebar.style.padding = '20px';
+    sidebar.style.height = 'fit-content';
+    sidebar.style.position = 'sticky';
+    sidebar.style.top = '20px';
+    sidebar.style.alignSelf = 'flex-start';
+    sidebar.style.maxHeight = 'calc(100vh - 140px)'; // navbar + padding + margem de segurança
+    sidebar.style.overflowY = 'auto';
+
+    const sidebarInner = document.createElement('div');
+    sidebarInner.className = 'sidebar-card';
+    sidebarInner.innerHTML = `
+        <h3 class="sidebar-title">
+            <i class="fas fa-sliders-h"></i> Filtros
+        </h3>
+        <div id="sidebarFiltersContent"></div>
+    `;
+    sidebar.appendChild(sidebarInner);
+
+    // Área principal
+    const mainArea = document.createElement('div');
+    mainArea.className = 'explorar-main';
+    mainArea.style.flex = '1';
+    mainArea.style.minWidth = '0';
+
+    // Estado da aplicação
     const state = {
         profissionais: [],
         categorias: [],
@@ -55,91 +119,53 @@ export default function renderExplorarPage(options = {}) {
             precoMax: '',
             bairro: '',
             distancia: '',
-            ordenacao: 'nome' // Padrão: ordenar por nome (A-Z)
+            ordenacao: 'nome'
         }
     };
 
-    // Renderiza a estrutura base
-    page.innerHTML = `
-        <!-- Banner -->
-        <div class="explorar-banner">
-            <h1>${titulo}</h1>
-            <p>${subtitulo}</p>
-        </div>
-
-        <!-- Conteúdo principal -->
-        <div class="explorar-content">
-            <!-- Sidebar de filtros (desktop) -->
-            <aside class="explorar-sidebar" id="sidebarDesktop">
-                <div class="sidebar-card">
-                    <h3 class="sidebar-title">
-                        <i class="fas fa-sliders-h"></i> Filtros
-                    </h3>
-                    <div id="sidebarFiltersContent"></div>
-                </div>
-            </aside>
-
-            <!-- Área principal -->
-            <div class="explorar-main">
-                <!-- Toolbar -->
-                <div class="results-toolbar">
-                    <div class="toolbar-left">
-                        <button class="btn-mobile-filters" id="btnMobileFilters">
-                            <i class="fas fa-sliders-h"></i> Filtros
-                        </button>
-                        <span class="results-count" id="resultsCount">
-                            Carregando...
-                        </span>
-                    </div>
-                    <div class="results-sort">
-                        <label for="sortSelect">Ordenar por:</label>
-                        <select id="sortSelect">
-                            <option value="nome">Nome (A-Z)</option>
-                            <option value="menor_preco">Menor preço</option>
-                            <option value="maior_preco">Maior preço</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Grid de cards -->
-                <div class="explorar-grid" id="explorarGrid"></div>
-
-                <!-- Paginação -->
-                <div class="explorar-pagination" id="explorarPagination"></div>
+    mainArea.innerHTML = `
+        <div class="results-toolbar">
+            <div class="toolbar-left">
+                <button class="btn-mobile-filters" id="btnMobileFilters">
+                    <i class="fas fa-sliders-h"></i> Filtros
+                </button>
+                <span class="results-count" id="resultsCount">Carregando...</span>
+            </div>
+            <div class="results-sort">
+                <label for="sortSelect">Ordenar por:</label>
+                <select id="sortSelect">
+                    <option value="nome">Nome (A-Z)</option>
+                    <option value="menor_preco">Menor preço</option>
+                    <option value="maior_preco">Maior preço</option>
+                </select>
             </div>
         </div>
 
-        <!-- Modal de filtros (mobile) -->
-        <div class="filters-modal-overlay" id="filtersOverlay"></div>
-        <div class="filters-modal" id="filtersModal">
-            <div class="filters-modal-header">
-                <h3><i class="fas fa-sliders-h"></i> Filtros</h3>
-                <button class="filters-modal-close" id="closeFiltersModal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="filters-modal-body" id="mobileFiltersContent"></div>
-            <div class="filters-modal-footer">
-                <button class="btn-clear-mobile" id="btnClearMobile">
-                    <i class="fas fa-eraser"></i> Limpar
-                </button>
-                <button class="btn-apply-filters" id="btnApplyFilters">
-                    Aplicar Filtros
-                </button>
-            </div>
-        </div>
+        <div class="explorar-grid" id="explorarGrid"></div>
+        <div class="explorar-pagination" id="explorarPagination"></div>
     `;
 
-    divRoot.appendChild(page);
+    // Monta estrutura
+    contentWrapper.appendChild(sidebar);
+    contentWrapper.appendChild(mainArea);
+    page.appendChild(banner);
+    page.appendChild(contentWrapper);
+    root.appendChild(page);
 
     // Footer
     const footerContainer = document.getElementById('footer');
-    footerContainer.innerHTML = '';
-    footerContainer.style.marginTop = '0';
-    footerContainer.appendChild(Footer());
+    if (footerContainer) {
+        footerContainer.innerHTML = '';
+        footerContainer.style.marginTop = 'auto';
+        footerContainer.appendChild(Footer());
+    }
 
     // Inicialização
     init();
+
+    // ────────────────────────────────────────────────
+    // Funções auxiliares
+    // ────────────────────────────────────────────────
 
     async function init() {
         renderSkeletons();
@@ -150,7 +176,6 @@ export default function renderExplorarPage(options = {}) {
         setupEventListeners();
     }
 
-    // Carregamento de dados
     async function carregarDados() {
         const api = new ApiService();
 
@@ -164,7 +189,6 @@ export default function renderExplorarPage(options = {}) {
 
             let allProfissionais = getSettledValue(profissionais, []);
 
-            // Filtro por tipo PF/PJ
             if (tipoFiltro === 'pf') {
                 allProfissionais = allProfissionais.filter(p => p.isJuridica == 0);
             } else if (tipoFiltro === 'pj') {
@@ -176,7 +200,6 @@ export default function renderExplorarPage(options = {}) {
             state.servicos = getSettledValue(servicos, []);
             state.enderecos = getSettledValue(enderecos, []);
 
-            // Extrair bairros únicos
             if (Array.isArray(state.enderecos)) {
                 const bairrosSet = new Set();
                 state.enderecos.forEach(e => {
@@ -185,11 +208,9 @@ export default function renderExplorarPage(options = {}) {
                 state.bairros = Array.from(bairrosSet).sort();
             }
 
-            // Define filtros iniciais de localização com base no endereço do cliente (quando existir)
             await carregarLocalizacaoCliente(api);
 
             state.loading = false;
-
         } catch (error) {
             state.loading = false;
             state.profissionais = [];
@@ -204,12 +225,10 @@ export default function renderExplorarPage(options = {}) {
             const enderecoCliente = await api.buscarEnderecoPorCadastro(cadastroId);
             if (!enderecoCliente || !enderecoCliente.bairro) return;
 
-            // Se o bairro do cliente existir na lista de bairros atendidos, usa como filtro inicial
             if (state.bairros.includes(enderecoCliente.bairro)) {
                 state.filters.bairro = enderecoCliente.bairro;
             }
         } catch (error) {
-            // Se der erro ao buscar localização do cliente, apenas segue sem travar a página
             console.error('Erro ao carregar endereço do cliente para filtros de localização:', error);
         }
     }
@@ -229,14 +248,10 @@ export default function renderExplorarPage(options = {}) {
         return fallback;
     }
 
-    // ============================
-    // RENDERIZAÇÃO DE FILTROS
-    // ============================
     function renderFilters(containerId) {
         const container = document.getElementById(containerId);
         if (!container) return;
 
-        // Contar profissionais por categoria (apenas os do tipo filtrado)
         const contadorCategorias = {};
         if (Array.isArray(state.servicos) && Array.isArray(state.categorias)) {
             const profIds = new Set(state.profissionais.map(p => String(p.id)));
@@ -250,7 +265,6 @@ export default function renderExplorarPage(options = {}) {
         }
 
         container.innerHTML = `
-            <!-- Busca -->
             <div class="filter-group">
                 <div class="filter-group-title">Buscar</div>
                 <div class="filter-search">
@@ -262,7 +276,6 @@ export default function renderExplorarPage(options = {}) {
                 </div>
             </div>
 
-            <!-- Categorias -->
             <div class="filter-group">
                 <div class="filter-group-title">Categorias</div>
                 <div class="filter-categories">
@@ -280,7 +293,6 @@ export default function renderExplorarPage(options = {}) {
                 </div>
             </div>
 
-            <!-- Faixa de Preço -->
             <div class="filter-group">
                 <div class="filter-group-title">Faixa de Preço</div>
                 <div class="price-range-inputs">
@@ -304,7 +316,6 @@ export default function renderExplorarPage(options = {}) {
                 </div>
             </div>
 
-            <!-- Localização -->
             <div class="filter-group">
                 <div class="filter-group-title">Localização</div>
                 <div class="filter-localizacao">
@@ -323,7 +334,6 @@ export default function renderExplorarPage(options = {}) {
                 </div>
             </div>
 
-            <!-- Botão limpar filtros -->
             <button class="btn-clear-filters btn-clear-all">
                 <i class="fas fa-eraser"></i> Limpar filtros
             </button>
@@ -399,7 +409,6 @@ export default function renderExplorarPage(options = {}) {
                 syncFilters();
                 state.currentPage = 1;
                 
-                // Centralizar cards quando filtro de distância é ativado
                 const grid = document.getElementById('explorarGrid');
                 if (state.filters.distancia && state.filters.distancia !== '') {
                     grid.classList.add('grid-centered');
@@ -467,14 +476,12 @@ export default function renderExplorarPage(options = {}) {
         state.currentPage = 1;
         syncFilters();
         
-        // Remover centralização quando limpa filtros
         const grid = document.getElementById('explorarGrid');
         grid.classList.remove('grid-centered');
         
         applyFilters();
     }
 
-    // Aplicar filtros e ordenação
     function applyFilters() {
         let results = [...state.profissionais];
 
@@ -560,7 +567,6 @@ export default function renderExplorarPage(options = {}) {
         return state.enderecos.find(e => e.id_profissional_fk == profId) || null;
     }
 
-    // Renderização do grid
     function renderGrid() {
         const grid = document.getElementById('explorarGrid');
         if (!grid) return;
@@ -651,9 +657,6 @@ export default function renderExplorarPage(options = {}) {
         grid.innerHTML = skeletons;
     }
 
-    // ============================
-    // PAGINAÇÃO
-    // ============================
     function renderPagination() {
         const container = document.getElementById('explorarPagination');
         if (!container) return;
@@ -663,9 +666,7 @@ export default function renderExplorarPage(options = {}) {
             return;
         }
 
-        let html = '';
-
-        html += `
+        let html = `
             <button class="pagination-btn pagination-arrow" 
                     data-page="${state.currentPage - 1}"
                     ${state.currentPage === 1 ? 'disabled' : ''}>
@@ -744,9 +745,6 @@ export default function renderExplorarPage(options = {}) {
         }
     }
 
-    // ============================
-    // EVENT LISTENERS
-    // ============================
     function setupEventListeners() {
         const sortSelect = document.getElementById('sortSelect');
         if (sortSelect) {
