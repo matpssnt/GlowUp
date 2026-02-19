@@ -13,7 +13,7 @@ export default function renderMinhaAgendaPage() {
         window.location.href = '/login';
         return;
     }
-    
+
     // Verifica se é cliente
     const userType = authState.getUserType();
     if (userType !== 'cliente') {
@@ -59,7 +59,7 @@ export default function renderMinhaAgendaPage() {
     // Container para lista de agendamentos
     const listaContainer = document.createElement('div');
     listaContainer.id = 'listaAgendamentos';
-    
+
     // Loading
     const loading = document.createElement('div');
     loading.className = 'text-center';
@@ -94,45 +94,47 @@ export default function renderMinhaAgendaPage() {
         try {
             const api = new ApiService();
             const agendamentos = await api.listarAgendamentos();
-            
+
             // Remove loading
             loading.remove();
-            
+
             // Verifica se retornou array
             if (!Array.isArray(agendamentos)) {
                 listaContainer.appendChild(mensagemVazia);
                 mensagemVazia.classList.remove('d-none');
                 return;
             }
-            
+
             // Filtra agendamentos do cliente logado
-            const cadastroId = authState.getCadastroId() || authState.getUser()?.id;
-            
-            // Filtra por ID do cadastro (tenta múltiplos campos possíveis)
-            const agendamentosCliente = agendamentos.filter(a => 
-                a.id_cliente_fk === cadastroId || 
-                a.id_cliente === cadastroId ||
-                a.idCadastro_fk === cadastroId
+            const user = authState.getUser();
+            const cadastroId = user?.id; // ID da tabela cadastros
+            const clienteId = user?.clienteId; // ID da tabela clientes (FK em agendamentos)
+
+            // Filtra por ID do cliente (FK correta) ou fallback para cadastroId se necessário
+            const agendamentosCliente = agendamentos.filter(a =>
+                (clienteId && a.id_cliente_fk == clienteId) ||
+                a.id_cliente_fk == cadastroId ||
+                a.id_cliente == cadastroId
             );
-            
+
             if (agendamentosCliente.length === 0) {
                 listaContainer.appendChild(mensagemVazia);
                 mensagemVazia.classList.remove('d-none');
                 return;
             }
-            
+
             // Cria cards para cada agendamento
             agendamentosCliente.forEach(agendamento => {
                 const card = AgendamentoCard(agendamento);
                 listaContainer.appendChild(card);
-                
+
                 // Escuta evento de cancelar
                 card.addEventListener('cancelarAgendamento', async (e) => {
                     const id = e.detail.id;
                     await cancelarAgendamento(id);
                 });
             });
-            
+
         } catch (error) {
             loading.remove();
             const erro = document.createElement('div');
@@ -141,7 +143,7 @@ export default function renderMinhaAgendaPage() {
             listaContainer.appendChild(erro);
         }
     }
-    
+
     // Função para cancelar agendamento
     async function cancelarAgendamento(id) {
         try {
@@ -153,7 +155,7 @@ export default function renderMinhaAgendaPage() {
             handleError(error, 'MinhaAgenda - cancelarAgendamento');
         }
     }
-    
+
     // Inicia carregamento
     carregarAgendamentos();
 }

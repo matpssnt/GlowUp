@@ -91,6 +91,10 @@ $horariosLivres = array_filter($slots, function($hora) use ($ocupados) {
     return true;
 });
 
+// Remove duplicatas e reindexa o array
+$horariosLivres = array_unique($horariosLivres);
+$horariosLivres = array_values($horariosLivres);
+
 jsonResponse([
     'message'       => 'Horários disponíveis encontrados',
     'profissional_nome'=> $profissinalNome,

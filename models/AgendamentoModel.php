@@ -3,6 +3,9 @@ require_once __DIR__ . '/../config/database.php';
 
 class AgendamentoModel
 {
+    const STATUS_AGENDADO = 'Agendado';
+    const STATUS_CANCELADO = 'cancelado';
+
     /**
      * Gera lista de horários disponíveis considerando intervalos e duração variável
      */
@@ -167,6 +170,17 @@ class AgendamentoModel
         return false; 
     }
 
+    /**
+     * Cria um novo agendamento
+     */
+    public static function create($data)
+    {
+        $conn = Database::getInstancia()->pegarConexao();
+        
+        $dataHora = $data['data_hora'];
+        $idCliente = $data['id_cliente_fk'];
+        $idServico = $data['id_servico_fk'];
+
         // 2. Valida formato e data futura
         date_default_timezone_set('America/Sao_Paulo');
         if (!DateTime::createFromFormat('Y-m-d H:i:s', $dataHora)) {
@@ -303,80 +317,26 @@ class AgendamentoModel
     public static function getAll($idCliente = null)
     {
         $conn = Database::getInstancia()->pegarConexao();
-
-        // 1. Busca serviço e duração
-        $stmt = $conn->prepare("SELECT id_profissional_fk, duracao FROM servicos WHERE id = ?");
-        $stmt->bind_param("i", $idServico);
+        
+        $sql = "SELECT a.*, s.nome as servico_nome, c.nome as cliente_nome, p.nome as profissional_nome
+                FROM agendamentos a
+                LEFT JOIN servicos s ON a.id_servico_fk = s.id
+                LEFT JOIN clientes c ON a.id_cliente_fk = c.id
+                LEFT JOIN profissionais p ON s.id_profissional_fk = p.id";
+        
+        if ($idCliente) {
+            $sql .= " WHERE a.id_cliente_fk = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("i", $idCliente);
+        } else {
+            $stmt = $conn->prepare($sql);
+        }
+        
         $stmt->execute();
-        $servico = $stmt->get_result()->fetch_assoc();
+        $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
-
-        if (!$servico) return [];
-
-        $idProf = (int) $servico['id_profissional_fk'];
-        $duracaoSeg = self::getDuracaoEmSegundos($servico['duracao']);
-
-        $dataObj = new DateTime($data);
-        $diaSemana = (int) $dataObj->format('w');
-
-        // 2. Busca escala do profissional (pode ter vários blocos como Manhã e Tarde)
-        $blocosEscala = EscalaModel::getEscalaDoProfissionalNoDia($idProf, $diaSemana);
-        if (empty($blocosEscala)) {
-            return [];
-        }
-
-        // 3. Carrega compromissos do dia para checar conflitos
-        $agendamentos = self::carregarAgendamentosDoDia($conn, $idProf, $data);
-        $indisponibilidades = self::carregarIndisponibilidadesDoDia($conn, $idProf, $data);
-
-        $slots = [];
-        $agora = new DateTime();
-        $step = 15 * 60; // Slots a cada 15 minutos
-
-        // 4. Percorre cada bloco de horário de trabalho do profissional
-        foreach ($blocosEscala as $escala) {
-            if (empty($escala['inicio']) || empty($escala['fim'])) continue;
-
-            $inicioDia = new DateTime($data . ' ' . (new DateTime($escala['inicio']))->format('H:i:s'));
-            $fimDia = new DateTime($data . ' ' . (new DateTime($escala['fim']))->format('H:i:s'));
-
-            // Ajuste para hoje: não permitir horários passados ou muito próximos (margem de 30min)
-            if ($dataObj->format('Y-m-d') === $agora->format('Y-m-d')) {
-                $margem = (clone $agora)->modify('+30 minutes');
-                if ($margem > $inicioDia) {
-                    $inicioDia = $margem;
-                }
-            }
-
-            $cursor = clone $inicioDia;
-            
-            // Arredonda o cursor para o próximo múltiplo do step para ficar "bonito" (ex: 08:00, 08:15)
-            $minutos = (int)$cursor->format('i');
-            $resto = $minutos % 15;
-            if ($resto > 0) {
-                $cursor->modify('+' . (15 - $resto) . ' minutes')->setTime((int)$cursor->format('H'), (int)$cursor->format('i'), 0);
-            }
-
-            while ($cursor < $fimDia) {
-                $slotFim = (clone $cursor)->modify("+{$duracaoSeg} seconds");
-
-                // O serviço deve terminar dentro do bloco de escala atual
-                if ($slotFim > $fimDia) break;
-
-                // Verifica se não há conflito com agendamentos ou bloqueios manuais
-                if (!self::temConflito($cursor->getTimestamp(), $slotFim->getTimestamp(), $duracaoSeg, $agendamentos, $indisponibilidades)) {
-                    $slots[] = $cursor->format('Y-m-d H:i:s');
-                }
-
-                $cursor->modify("+{$step} seconds");
-            }
-        }
-
-        // Remove duplicatas e ordena (caso blocos se sobreponham por erro de cadastro)
-        $slots = array_unique($slots);
-        sort($slots);
-
-        return $slots;
+        
+        return $result;
     }
 
     /**
@@ -385,6 +345,7 @@ class AgendamentoModel
      */
     private static function validarCliente($id, $conn)
     {
+        // Valida se o ID existe na tabela de clientes (necessário pois a FK em agendamentos referencia clientes)
         $sql = "SELECT id FROM clientes WHERE id = ?";
         $stmt = $conn->prepare($sql);
         if ($stmt === false) {

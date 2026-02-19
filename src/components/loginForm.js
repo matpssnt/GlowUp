@@ -91,27 +91,34 @@ export default function loginForm() {
 
             // Verifica se o token foi retornado
             if (response && response.token) {
+                // Decodifica o payload do JWT para obter os dados do usuário
+                // O backend retorna no JWT: { id: <cadastro_id>, nome, email, cliente_id: <clientes.id> }
+                let jwtPayload = null;
+                try {
+                    const tokenParts = response.token.split('.');
+                    if (tokenParts.length === 3) {
+                        const base64 = tokenParts[1].replace(/-/g, '+').replace(/_/g, '/');
+                        const padded = base64.padEnd(base64.length + (4 - base64.length % 4) % 4, '=');
+                        jwtPayload = JSON.parse(atob(padded));
+                    }
+                } catch (e) {
+                    // Ignora erro de decodificação
+                }
+
+                const sub = jwtPayload?.sub || {};
+
                 // Prepara dados do usuário para salvar no estado
-                // O ID será buscado depois se necessário (no PerfilForm)
+                // sub.id = ID do cadastro (cadastros.id)
+                // sub.cliente_id = ID real da tabela clientes (clientes.id) - FK usada em agendamentos
+                // sub.profissional_id = ID real da tabela profissionais
                 const userData = {
                     tipoUsuario: response.tipoUsuario || 'cliente',
-                    nome: response.nome || emailValue,
-                    email: emailValue
+                    nome: sub.nome || emailValue,
+                    email: sub.email || emailValue,
+                    id: sub.id || null,
+                    clienteId: sub.cliente_id || null,
+                    profissionalId: sub.profissional_id || null
                 };
-
-                // Tenta buscar ID do cadastro (opcional, não bloqueia o login)
-                try {
-                    const cadastros = await apiService.listarCadastros();
-                    if (Array.isArray(cadastros)) {
-                        const cadastro = cadastros.find(c => c.email === emailValue);
-                        if (cadastro) {
-                            userData.id = cadastro.id;
-                            userData.nome = cadastro.nome || userData.nome;
-                        }
-                    }
-                } catch (error) {
-                    // Ignora erro, continua com dados básicos
-                }
 
                 authState.setUser(userData, response.token);
 

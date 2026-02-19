@@ -13,6 +13,7 @@ if ($method === 'GET') {
     }
 } elseif ($method === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true) ?? [];
+    error_log("[DEBUG] Dados recebidos no route: " . json_encode($data));
     AgendamentoController::create($data);
 } elseif ($method === 'PUT') {
     $data = json_decode(file_get_contents('php://input'), true) ?? [];
