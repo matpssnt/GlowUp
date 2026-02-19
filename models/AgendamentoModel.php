@@ -1,5 +1,4 @@
 <?php
-
 require_once __DIR__ . '/../config/database.php';
 
 class AgendamentoModel
@@ -8,30 +7,10 @@ class AgendamentoModel
     const STATUS_CANCELADO = 'cancelado';
 
     /**
-     * Cria um novo agendamento após todas as validações
-     *
-     * @param string $dataHora     Formato: 'YYYY-MM-DD HH:MM:SS'
-     * @param int    $idCliente
-     * @param int    $idServico
-     * @return array ['success' => bool, 'id' => int, 'message' => string]
-     * @throws Exception
+     * Gera lista de horários disponíveis considerando intervalos e duração variável
      */
-    
-        public static function create(array $dados): array
+    public static function gerarHorariosDisponiveis(string $data, int $idServico): array
     {
-        // Extrai e valida campos
-        $dataHora = trim($dados['data_hora'] ?? '');
-        if (empty($dataHora)) {
-            throw new Exception('data_hora é obrigatório');
-        }
-
-        $idCliente = (int)($dados['id_cliente_fk'] ?? 0);
-        $idServico = (int)($dados['id_servico_fk'] ?? 0);  // ← corrigido aqui!
-
-        if ($idCliente <= 0 || $idServico <= 0) {
-            throw new Exception('IDs de cliente e serviço são obrigatórios e devem ser maiores que zero');
-        }
-
         $conn = Database::getInstancia()->pegarConexao();
 
         // 1. Busca duração do serviço solicitado
@@ -204,18 +183,17 @@ class AgendamentoModel
 
         // 2. Valida formato e data futura
         date_default_timezone_set('America/Sao_Paulo');
-
-        $dt = DateTime::createFromFormat('Y-m-d H:i:s', $dataHora);
-        if ($dt === false) {
-            throw new Exception('Formato de data/hora inválido. Use exatamente: Y-m-d H:i:s');
+        if (!DateTime::createFromFormat('Y-m-d H:i:s', $dataHora)) {
+            throw new Exception('Formato de data/hora inválido (use Y-m-d H:i:s)');
         }
-
-        if ($dt->getTimestamp() < time()) {
+        if (strtotime($dataHora) < time()) {
             throw new Exception('Não é permitido agendar para o passado');
         }
 
+        // 3. Valida cliente
         self::validarCliente($idCliente, $conn);
 
+        // 4. Valida serviço e pega o id_profissional_fk (só pra checar conflitos)
         $servico = self::validarServico($idServico, $conn);
         $idProfissional = (int) ($servico['id_profissional_fk'] ?? 0);
 
@@ -223,15 +201,16 @@ class AgendamentoModel
             throw new Exception('Este serviço não está associado a nenhum profissional');
         }
 
+        // 5. Checa conflitos usando o profissional do serviço
         $conflitos = self::checagemConflitos($idProfissional, $dataHora, $conn);
         if ($conflitos > 0) {
-            throw new Exception('Horário indisponível: profissional já tem agendamento próximo nesse período');
+            throw new Exception('Horário indisponível: profissional já tem agendamento próximo');
         }
 
-        // INSERT
+        // 6. INSERT (sem id_profissional_fk na tabela!)
         $sql = "INSERT INTO agendamentos 
-                (data_hora, status, id_cliente_fk, id_servico_fk) 
-                VALUES (?, ?, ?, ?)";
+            (data_hora, status, id_cliente_fk, id_servico_fk) 
+            VALUES (?, ?, ?, ?)";
 
         $stmt = $conn->prepare($sql);
         if ($stmt === false) {
@@ -239,8 +218,8 @@ class AgendamentoModel
             throw new Exception('Erro interno ao preparar agendamento');
         }
 
-        $status = self::STATUS_AGENDADO;
-        $stmt->bind_param("ssii", $dataHora, $status, $idCliente, $idServico);
+        $statusInicial = self::STATUS_AGENDADO;
+        $stmt->bind_param("ssii", $dataHora, $statusInicial, $idCliente, $idServico);
 
         if (!$stmt->execute()) {
             $erro = $stmt->error;
@@ -255,19 +234,87 @@ class AgendamentoModel
 
         return [
             'success' => true,
-            'id'      => $idInserido,
+            'id' => $idInserido,
             'message' => 'Agendamento criado com sucesso'
         ];
     }
+    /**
+     * Atualiza agendamento (ex: status, data)
+     * @param int $id
+     * @param array $data
+     * @return bool
+     */
+    public static function update($id, $data)
+    {
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
+
+        if (empty($data)) {
+            return false;
+        }
+
+        $sql = "UPDATE agendamentos SET ";
+        $params = [];
+        $types = "";
+
+        foreach ($data as $key => $value) {
+            $sql .= "$key = ?, ";
+            $params[] = $value;
+            $types .= "s";
+        }
+        $sql = rtrim($sql, ", ") . " WHERE id = ?";
+        $params[] = $id;
+        $types .= "i";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param($types, ...$params);
+
+        $result = $stmt->execute();
+        $stmt->close();
+        return $result;
+    }
 
     /**
-     * Gera lista de horários disponíveis para um serviço em uma data específica
-     *
-     * @param string $data      Formato: YYYY-MM-DD
-     * @param int    $idServico
-     * @return array Lista de strings no formato 'YYYY-MM-DD HH:MM:SS'
+     * Cancela agendamento (soft-delete: atualiza status)
+     * @param int $id
+     * @return bool
      */
-    public static function gerarHorariosDisponiveis(string $data, int $idServico): array
+    public static function cancelar($id)
+    {
+        $data = ['status' => strtolower(self::STATUS_CANCELADO)];
+        $sucesso = self::update($id, $data);
+        if ($sucesso) {
+            error_log("[CANCEL OK] ID $id -> status = 'cancelado'");
+        } else {
+            error_log("[CANCEL FALHA] ID $id não mudou");
+        }
+        return self::update($id, $data);
+    }
+
+    /**
+     * Busca por ID
+     * @param int $id
+     * @return array|false
+     */
+    public static function getById($id)
+    {
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
+        $sql = "SELECT * FROM agendamentos WHERE id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        return $result ?: false;
+    }
+
+    /**
+     * Busca todos (com filtro opcional por cliente para privacidade)
+     * @param int|null $idCliente
+     * @return array
+     */
+    public static function getAll($idCliente = null)
     {
         $conn = Database::getInstancia()->pegarConexao();
         
@@ -293,9 +340,10 @@ class AgendamentoModel
     }
 
     /**
-     * Atualiza um agendamento
+     * Valida se cliente existe
+     * @throws Exception se não
      */
-    public static function update(int $id, array $data): bool
+    private static function validarCliente($id, $conn)
     {
         // Valida se o ID existe na tabela de clientes (necessário pois a FK em agendamentos referencia clientes)
         $sql = "SELECT id FROM clientes WHERE id = ?";
@@ -304,142 +352,72 @@ class AgendamentoModel
             error_log("[ERRO prepare validarCliente] SQL: $sql | MySQL Error: " . $conn->error);
             throw new Exception('Erro interno ao validar cliente: ' . $conn->error);
         }
-
-        $conn = Database::getInstancia()->pegarConexao();
-
-        $sets = [];
-        $params = [];
-        $types = '';
-
-        foreach ($data as $campo => $valor) {
-            $sets[] = "$campo = ?";
-            $params[] = $valor;
-            $types .= 's';
-        }
-
-        $sql = "UPDATE agendamentos SET " . implode(', ', $sets) . " WHERE id = ?";
-        $params[] = $id;
-        $types .= 'i';
-
-        $stmt = $conn->prepare($sql);
-        if (!$stmt) {
-            return false;
-        }
-
-        $stmt->bind_param($types, ...$params);
-        $result = $stmt->execute();
-        $stmt->close();
-
-        return $result;
-    }
-
-    /**
-     * Cancela agendamento (soft delete via status)
-     */
-    public static function cancelar(int $id): bool
-    {
-        return self::update($id, ['status' => self::STATUS_CANCELADO]);
-    }
-
-    /**
-     * Busca agendamento por ID
-     */
-    public static function getById(int $id): ?array
-    {
-        $conn = Database::getInstancia()->pegarConexao();
-        $stmt = $conn->prepare("SELECT * FROM agendamentos WHERE id = ?");
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $result = $stmt->get_result()->fetch_assoc();
         $stmt->close();
-
-        return $result ?: null;
-    }
-
-    /**
-     * Retorna horários ocupados de um profissional em determinada data
-     */
-    public static function getHorariosOcupados(int $idProfissional, string $data): array
-    {
-        $conn = Database::getInstancia()->pegarConexao();
-
-        $sql = "
-            SELECT a.data_hora
-            FROM agendamentos a
-            INNER JOIN servicos s ON a.id_servico_fk = s.id
-            WHERE s.id_profissional_fk = ?
-              AND DATE(a.data_hora) = ?
-              AND a.status != ?
-        ";
-
-        $stmt = $conn->prepare($sql);
-        $statusCancelado = self::STATUS_CANCELADO;
-        $stmt->bind_param("iss", $idProfissional, $data, $statusCancelado);
-        $stmt->execute();
-        $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        $stmt->close();
-
-        return array_column($result, 'data_hora');
-    }
-
-    // ────────────────────────────────────────────────
-    //               MÉTODOS PRIVADOS / HELPERS
-    // ────────────────────────────────────────────────
-
-    private static function validarCliente(int $id, mysqli $conn): array
-    {
-        $stmt = $conn->prepare("SELECT id FROM clientes WHERE id = ?");
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-        $result = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
-
         if (!$result) {
             throw new Exception('Cliente não encontrado');
         }
-
         return $result;
     }
 
-    private static function validarServico(int $id, mysqli $conn): array
+    /**
+     * Valida se serviço existe e retorna dados (inclui prof)
+     * @throws Exception se não
+     */
+    public static function validarServico($id, $conn)
     {
-        $stmt = $conn->prepare("SELECT * FROM servicos WHERE id = ?");
+        $sql = "SELECT * FROM servicos WHERE id = ?";
+        $stmt = $conn->prepare($sql);
+        if ($stmt === false) {
+            error_log("[ERRO prepare validarServico] SQL: $sql | MySQL Error: " . $conn->error);
+            throw new Exception('Erro interno ao validar serviço: ' . $conn->error);
+        }
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $result = $stmt->get_result()->fetch_assoc();
         $stmt->close();
-
         if (!$result) {
             throw new Exception('Serviço não encontrado');
         }
-
         return $result;
     }
-
-    private static function checagemConflitos(int $idProf, string $dataHora, mysqli $conn): int
+    /**
+     * Checa conflitos de horário (janela de 1h) usando JOIN com servicos
+     * @return int COUNT de conflitos
+     */
+    private static function checagemConflitos($idProfissional, $dataHoraCompleta, $conn)
     {
-        $dia = substr($dataHora, 0, 10);
-        $inicio = date('Y-m-d H:i:s', strtotime($dataHora . ' -30 minutes'));
-        $fim    = date('Y-m-d H:i:s', strtotime($dataHora . ' +30 minutes'));
+        $dia = date('Y-m-d', strtotime($dataHoraCompleta));
+        $inicio = date('Y-m-d H:i:s', strtotime($dataHoraCompleta . ' -30 minutes'));
+        $fim = date('Y-m-d H:i:s', strtotime($dataHoraCompleta . ' +30 minutes'));
 
         $sql = "
-            SELECT COUNT(*) as count 
-            FROM agendamentos a
-            INNER JOIN servicos s ON a.id_servico_fk = s.id
-            WHERE s.id_profissional_fk = ?
-              AND DATE(a.data_hora) = ?
-              AND a.data_hora BETWEEN ? AND ?
-              AND a.status != ?
-        ";
+        SELECT COUNT(*) as count 
+        FROM agendamentos a
+        INNER JOIN servicos s ON a.id_servico_fk = s.id
+        WHERE s.id_profissional_fk = ?
+          AND DATE(a.data_hora) = ?
+          AND a.data_hora BETWEEN ? AND ?
+          AND a.status != ?
+    ";
 
         $stmt = $conn->prepare($sql);
-        $statusCancelado = self::STATUS_CANCELADO;
-        $stmt->bind_param("issss", $idProf, $dia, $inicio, $fim, $statusCancelado);
+        if ($stmt === false) {
+            throw new Exception('Erro ao preparar checagem: ' . $conn->error);
+        }
+
+        $cancelado = self::STATUS_CANCELADO;  // 'cancelado' ou 'Cancelado' conforme seu ENUM
+        $stmt->bind_param("issss", $idProfissional, $dia, $inicio, $fim, $cancelado);
         $stmt->execute();
         $row = $stmt->get_result()->fetch_assoc();
         $stmt->close();
 
-        return (int)($row['count'] ?? 0);
+        $count = (int) $row['count'];
+        error_log("[CONFLITOS] Prof $idProfissional | Dia $dia | Count: $count");
+
+        return $count;
     }
 
     public static function getHorariosOcupados($idProfissional, $data)
