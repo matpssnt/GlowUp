@@ -15,16 +15,33 @@ export default function renderHomePage() {
     const navbar = NavBar();
     nav.appendChild(navbar);
 
-    //Conteudo Principal
+
     const fundoPrincipal = document.createElement('div');
-    fundoPrincipal.innerHTML = `
-    <h1 class="hero-title">Bem-vindo à Glow Up</h1>
-        <p class="hero-subtitle">Sua plataforma de beleza e bem-estar.</p>
+    fundoPrincipal.className = 'text-center fade-in hero';
+
+    const estaLogado = authState.isAuth();  
+
+    let botoesHTML = `
+    <div class="d-flex justify-content-center gap-3 mt-3">
+        <a href="perfil" class="btn btn-outline-primary register-btn">Meu Perfil</a>
+        <a href="explorar" class="btn btn-outline-primary register-btn">Explorar</a>
+    </div>
+`;
+
+    if (!estaLogado) {
+        botoesHTML = `
         <div class="d-flex justify-content-center gap-3 mt-3">
             <a href="login" class="btn btn-outline-primary register-btn">Login</a>
-            <a href="#" class="btn btn-outline-primary register-btn">Veja como funciona</a>
+            <a href="explorar" class="btn btn-outline-primary register-btn">Explorar</a>
         </div>
     `;
+    }
+
+    fundoPrincipal.innerHTML = `
+    <h1 class="hero-title">Bem-vindo à Glow Up</h1>
+    <p class="hero-subtitle">Sua plataforma de beleza e bem-estar.</p>
+    ${botoesHTML}
+`;
     fundoPrincipal.className = 'text-center fade-in hero';
 
     const informacoes = document.createElement('div');
