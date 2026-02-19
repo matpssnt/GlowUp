@@ -31,7 +31,8 @@ require_once "helpers/token_jwt.php";
         "seguranca", 
         "services", 
         "telefone", 
-        "telprof"
+        "telprof",
+        "portifolio"
         
         ])){
             require "routes/{$subRoute}.php";
