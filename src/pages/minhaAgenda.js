@@ -1,11 +1,9 @@
 import NavBar from "../components/NavBar.js";
 import Footer from "../components/Footer.js";
 import PerfilSidebar from "../components/PerfilSidebar.js";
-import AgendamentoCard from "../components/AgendamentoCard.js";
 import ApiService from "../utils/api.js";
 import authState from "../utils/AuthState.js";
 import { notify } from "../components/Notification.js";
-import { handleError } from "../utils/errorHandler.js";
 
 export default function renderMinhaAgendaPage() {
     // Verifica se está autenticado
@@ -36,127 +34,243 @@ export default function renderMinhaAgendaPage() {
     const navbar = NavBar();
     nav.appendChild(navbar);
 
-    // Container principal com sidebar e conteúdo
-    const mainContainer = document.createElement('div');
-    mainContainer.className = 'd-flex';
-    mainContainer.style.minHeight = 'calc(100vh - 200px)';
-    mainContainer.style.padding = '20px';
-    mainContainer.style.gap = '20px';
+    // Main Wrapper
+    const mainWrapper = document.createElement('div');
+    mainWrapper.className = 'main-content-wrapper';
 
     // Sidebar
     const sidebar = PerfilSidebar();
+    mainWrapper.appendChild(sidebar);
 
-    // Container de conteúdo (título + lista de agendamentos)
-    const contentContainer = document.createElement('div');
-    contentContainer.className = 'flex-grow-1';
-    contentContainer.style.flex = '1';
+    // Content Area
+    const contentArea = document.createElement('div');
+    contentArea.className = 'content-area';
 
-    // Título
-    const titulo = document.createElement('h1');
-    titulo.className = 'mb-4';
-    titulo.textContent = 'Minha Agenda';
+    // --- Header ---
+    const header = document.createElement('div');
+    header.className = 'd-flex justify-content-between align-items-center mb-4';
+    header.innerHTML = `
+        <div>
+            <h2 class="fw-bold mb-1">Minha Agenda</h2>
+            <p class="text-muted mb-0">Acompanhe seus agendamentos</p>
+        </div>
+    `;
+    contentArea.appendChild(header);
 
-    // Container para lista de agendamentos
-    const listaContainer = document.createElement('div');
-    listaContainer.id = 'listaAgendamentos';
+    // --- Stats Row ---
+    const resumoContainer = document.createElement('div');
+    resumoContainer.className = 'row g-3 mb-4';
+    resumoContainer.id = 'resumoCards';
+    contentArea.appendChild(resumoContainer);
 
-    // Loading
-    const loading = document.createElement('div');
-    loading.className = 'text-center';
-    loading.innerHTML = '<div class="spinner-border" role="status"><span class="visually-hidden">Carregando...</span></div>';
+    // --- Agendamentos Section ---
+    const agendamentosContainer = document.createElement('div');
+    agendamentosContainer.id = 'agendamentosContainer';
+    // Conteúdo inicial de loading
+    agendamentosContainer.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div></div>';
 
-    // Mensagem vazia
-    const mensagemVazia = document.createElement('div');
-    mensagemVazia.className = 'alert alert-info d-none';
-    mensagemVazia.textContent = 'Você não possui agendamentos.';
+    contentArea.appendChild(agendamentosContainer);
 
-    // Monta estrutura do conteúdo
-    contentContainer.appendChild(titulo);
-    contentContainer.appendChild(listaContainer);
-
-    // Monta layout: sidebar + conteúdo
-    mainContainer.appendChild(sidebar);
-    mainContainer.appendChild(contentContainer);
-    root.appendChild(mainContainer);
+    // Monta Layout Final
+    mainWrapper.appendChild(contentArea);
+    root.appendChild(mainWrapper);
 
     // Footer
     const footerContainer = document.getElementById('footer');
     footerContainer.innerHTML = '';
-    footerContainer.style.marginTop = 'auto';
-    const footer = Footer();
-    footerContainer.appendChild(footer);
+    footerContainer.appendChild(Footer());
 
-    // Carrega agendamentos
-    async function carregarAgendamentos() {
-        listaContainer.innerHTML = '';
-        listaContainer.appendChild(loading);
+    // --- Helpers de Renderização ---
 
-        try {
-            const api = new ApiService();
-            const agendamentos = await api.listarAgendamentos();
-
-            // Remove loading
-            loading.remove();
-
-            // Verifica se retornou array
-            if (!Array.isArray(agendamentos)) {
-                listaContainer.appendChild(mensagemVazia);
-                mensagemVazia.classList.remove('d-none');
-                return;
-            }
-
-            // Filtra agendamentos do cliente logado
-            const user = authState.getUser();
-            const cadastroId = user?.id; // ID da tabela cadastros
-            const clienteId = user?.clienteId; // ID da tabela clientes (FK em agendamentos)
-
-            // Filtra por ID do cliente (FK correta) ou fallback para cadastroId se necessário
-            const agendamentosCliente = agendamentos.filter(a =>
-                (clienteId && a.id_cliente_fk == clienteId) ||
-                a.id_cliente_fk == cadastroId ||
-                a.id_cliente == cadastroId
-            );
-
-            if (agendamentosCliente.length === 0) {
-                listaContainer.appendChild(mensagemVazia);
-                mensagemVazia.classList.remove('d-none');
-                return;
-            }
-
-            // Cria cards para cada agendamento
-            agendamentosCliente.forEach(agendamento => {
-                const card = AgendamentoCard(agendamento);
-                listaContainer.appendChild(card);
-
-                // Escuta evento de cancelar
-                card.addEventListener('cancelarAgendamento', async (e) => {
-                    const id = e.detail.id;
-                    await cancelarAgendamento(id);
-                });
-            });
-
-        } catch (error) {
-            loading.remove();
-            const erro = document.createElement('div');
-            erro.className = 'alert alert-danger';
-            erro.textContent = 'Erro ao carregar agendamentos: ' + error.message;
-            listaContainer.appendChild(erro);
-        }
+    function criarCardResumo(titulo, valor, icone, cor = 'primary') {
+        const card = document.createElement('div');
+        card.className = 'col-md-3 col-sm-6';
+        card.innerHTML = `
+            <div class="dashboard-card h-100 p-4 d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-value">${valor}</div>
+                    <div class="stat-label">${titulo}</div>
+                </div>
+                <div class="stat-icon-wrapper" style="color: var(--${cor}-color, var(--primary-color))">
+                    <i class="bi ${icone}"></i>
+                </div>
+            </div>
+        `;
+        return card;
     }
 
-    // Função para cancelar agendamento
+    function criarCardAgendamento(agendamento) {
+        const card = document.createElement('div');
+        card.className = 'content-card mb-3 p-4';
+
+        const dataHora = agendamento.data_hora ? new Date(agendamento.data_hora) : null;
+        const dataFormatada = dataHora && !isNaN(dataHora.getTime())
+            ? dataHora.toLocaleDateString('pt-BR')
+            : '--/--';
+        const horaFormatada = dataHora && !isNaN(dataHora.getTime())
+            ? dataHora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+            : '--:--';
+
+        const status = (agendamento.status || 'agendado').toLowerCase();
+        let badgeClass = 'badge-primary';
+        if (status === 'cancelado') badgeClass = 'badge-danger';
+        if (status.includes('conclui')) badgeClass = 'badge-success';
+        if (status === 'pendente') badgeClass = 'badge-warning';
+
+        const nomeProfissional = agendamento.profissional_nome || agendamento.servico?.profissional?.nome || 'Profissional';
+        const nomeServico = agendamento.servico?.nome || agendamento.nome_servico || 'Serviço';
+
+        // Cliente só pode cancelar agendamentos não finalizados
+        const podeCancelar = status === 'agendado' || status === 'pendente' || status === 'confirmado';
+
+        card.innerHTML = `
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="d-flex align-items-center gap-3">
+                     <div class="stat-icon-wrapper bg-light rounded-circle" style="width: 50px; height: 50px;">
+                        <span class="fw-bold fs-5">${dataFormatada.split('/')[0]}</span>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0 text-dark">${nomeProfissional}</h5>
+                        <div class="text-muted small"><i class="bi bi-scissors me-1"></i>${nomeServico}</div>
+                    </div>
+                </div>
+                <span class="badge-custom ${badgeClass}">${status}</span>
+            </div>
+            
+            <div class="row g-2 mb-3 ps-sm-5 ms-sm-2">
+                <div class="col-auto me-4">
+                    <small class="text-muted d-block text-uppercase" style="font-size:0.7rem">Data</small>
+                    <span class="fw-medium text-dark">${dataFormatada}</span>
+                </div>
+                <div class="col-auto">
+                    <small class="text-muted d-block text-uppercase" style="font-size:0.7rem">Horário</small>
+                    <span class="fw-medium text-dark">${horaFormatada}</span>
+                </div>
+                 ${agendamento.observacoes ? `
+                <div class="col-12 mt-2">
+                     <small class="text-muted d-block text-uppercase" style="font-size:0.7rem">Observação</small>
+                     <span class="text-dark small">${agendamento.observacoes}</span>
+                </div>` : ''}
+            </div>
+
+            ${podeCancelar ? `
+            <div class="d-flex justify-content-end gap-2 border-top pt-3">
+                <button class="btn btn-outline-custom btn-sm btn-cancelar text-danger border-danger-subtle">
+                    <i class="bi bi-x-lg me-1"></i>Cancelar
+                </button>
+            </div>
+            ` : ''}
+        `;
+
+        // Event Listeners
+        const btnCancelar = card.querySelector('.btn-cancelar');
+
+        if (btnCancelar) btnCancelar.onclick = () => {
+            if (confirm('Cancelar este agendamento?')) cancelarAgendamento(agendamento.id);
+        };
+
+        return card;
+    }
+
+    // --- Lógica de Dados ---
     async function cancelarAgendamento(id) {
         try {
             const api = new ApiService();
             await api.cancelarAgendamento(id);
-            notify.success('Agendamento cancelado com sucesso!');
-            carregarAgendamentos(); // Recarrega lista
+            notify.success('Agendamento cancelado!');
+            carregarDados();
         } catch (error) {
-            handleError(error, 'MinhaAgenda - cancelarAgendamento');
+            notify.error('Erro ao cancelar: ' + error.message);
         }
     }
 
-    // Inicia carregamento
-    carregarAgendamentos();
+    async function carregarDados() {
+        try {
+            const api = new ApiService();
+            const user = authState.getUser();
+            const cadastroId = user?.id || authState.getCadastroId();
+
+            // 1. Buscar todos os agendamentos
+            const todosAgendamentos = await api.listarAgendamentos();
+
+            // 2. Filtrar agendamentos do cliente
+            const agendamentosCliente = Array.isArray(todosAgendamentos)
+                ? todosAgendamentos.filter(a => {
+                    // Filtra por ID do cliente (FK correta)
+                    return a.id_cliente_fk == cadastroId || a.id_cliente == cadastroId;
+                })
+                : [];
+
+            // 3. Cálculos das estatísticas
+            const agora = new Date();
+            const hoje = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), 0, 0, 0, 0);
+
+            const hojeAgendamentos = agendamentosCliente.filter(a => {
+                if (!a.data_hora) return false;
+                const d = new Date(a.data_hora);
+                const dZero = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
+                return dZero.getTime() === hoje.getTime();
+            });
+
+            const confirmados = agendamentosCliente.filter(a => {
+                const status = (a.status || '').toLowerCase();
+                return status.includes('confir') || status.includes('confirm');
+            });
+
+            const cancelados = agendamentosCliente.filter(a => {
+                const status = (a.status || '').toLowerCase();
+                return status.includes('cancel');
+            });
+
+            const concluidos = agendamentosCliente.filter(a => {
+                const status = (a.status || '').toLowerCase();
+                return status.includes('conclu') || status.includes('concluid');
+            });
+
+            // 4. Renderizar cards de resumo
+            resumoContainer.innerHTML = '';
+            resumoContainer.appendChild(criarCardResumo('Confirmados', confirmados.length, 'bi-check-circle', 'success'));
+            resumoContainer.appendChild(criarCardResumo('Cancelados', cancelados.length, 'bi-x-circle', 'danger'));
+            resumoContainer.appendChild(criarCardResumo('Concluídos', concluidos.length, 'bi-check2-all', 'info'));
+            resumoContainer.appendChild(criarCardResumo('Hoje', hojeAgendamentos.length, 'bi-calendar-date', 'accent'));
+
+            // 5. Renderizar lista de próximos agendamentos
+            const futuros = agendamentosCliente.filter(a => {
+                if (!a.data_hora) return false;
+                const d = new Date(a.data_hora);
+                const status = (a.status || '').toLowerCase();
+                return d >= hoje && status !== 'cancelado';
+            }).sort((a, b) => new Date(a.data_hora) - new Date(b.data_hora));
+
+            agendamentosContainer.innerHTML = '';
+            if (futuros.length === 0) {
+                agendamentosContainer.innerHTML = `
+                    <div class="content-card text-center p-5">
+                        <i class="bi bi-calendar-x text-muted mb-3" style="font-size: 2rem"></i>
+                        <p class="text-muted">Nenhum agendamento futuro encontrado.</p>
+                    </div>`;
+            } else {
+                const title = document.createElement('h5');
+                title.className = 'mb-3 fw-bold text-dark';
+                title.textContent = 'Meus Agendamentos';
+                agendamentosContainer.appendChild(title);
+
+                futuros.forEach((ag, index) => {
+                    agendamentosContainer.appendChild(criarCardAgendamento(ag));
+                });
+            }
+
+        } catch (error) {
+            agendamentosContainer.innerHTML = `
+                <div class="alert alert-danger">
+                    <h5>❌ Erro ao carregar dados</h5>
+                    <p>${error.message}</p>
+                    <small>Verifique o console para mais detalhes.</small>
+                </div>
+            `;
+        }
+    }
+
+    carregarDados();
 }
 

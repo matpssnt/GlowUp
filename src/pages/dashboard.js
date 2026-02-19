@@ -1,18 +1,12 @@
-import NavBar from "../components/NavBar.js";
-import Footer from "../components/Footer.js";
-import PerfilSidebar from "../components/PerfilSidebar.js";
-import ApiService from "../utils/api.js";
-import authState from "../utils/AuthState.js";
-import { notify } from "../components/Notification.js";
-import { handleError } from "../utils/errorHandler.js";
+import authState from '../utils/AuthState.js';
+import ApiService from '../utils/api.js';
+import PerfilSidebar from '../components/PerfilSidebar.js';
+import NavBar from '../components/NavBar.js';
+import Footer from '../components/Footer.js';
+import { notify } from '../components/Notification.js';
+import Loading from '../components/Loading.js';
 
-// Carrega o CSS específico
-const link = document.createElement('link');
-link.rel = 'stylesheet';
-link.href = 'src/css/.css';
-document.head.appendChild(link);
-
-export default function renderPage() {
+export default function renderDashboardPage() {
     // Verifica se está autenticado
     if (!authState.isAuth()) {
         window.location.href = '/login';
@@ -20,29 +14,33 @@ export default function renderPage() {
     }
 
     // Verifica se é profissional
-    const userType = authState.getUserType();
-    if (userType !== 'profissional') {
+    if (authState.getUserType() !== 'profissional') {
         window.location.href = '/home';
         return;
     }
 
     const root = document.getElementById('root');
     root.innerHTML = '';
-    // Limpa estilos inline antigos e usa classes
-    root.style = '';
-    root.className = '-wrapper';
+    root.style.display = 'flex';
+    root.style.flexDirection = 'column';
+    root.style.minHeight = '100vh';
+    root.style.width = '100%';
+    root.style.boxSizing = 'border-box';
+    root.style.backgroundColor = '#f5f5f5';
 
     // NavBar
     const nav = document.getElementById('navbar');
     nav.innerHTML = '';
-    nav.appendChild(NavBar());
+    const navbar = NavBar();
+    nav.appendChild(navbar);
 
-    // Main Layout (Flex Container)
+    // Main Wrapper
     const mainWrapper = document.createElement('div');
     mainWrapper.className = 'main-content-wrapper';
 
     // Sidebar
-    mainWrapper.appendChild(PerfilSidebar());
+    const sidebar = PerfilSidebar();
+    mainWrapper.appendChild(sidebar);
 
     // Content Area
     const contentArea = document.createElement('div');
@@ -50,12 +48,12 @@ export default function renderPage() {
 
     // --- Header ---
     const header = document.createElement('div');
-    header.className = 'mb-4';
+    header.className = 'd-flex justify-content-between align-items-center mb-4';
     header.innerHTML = `
-        <h1 class="h3 fw-bold text-dark mb-1">
-            <i class="bi bi-speedometer2 me-2 text-primary"></i>
-        </h1>
-        <p class="text-muted">Visão geral do seu negócio e agenda.</p>
+        <div>
+            <h2 class="fw-bold mb-1">Dashboard</h2>
+            <p class="text-muted mb-0">Gerencie seus agendamentos</p>
+        </div>
     `;
     contentArea.appendChild(header);
 
@@ -82,7 +80,6 @@ export default function renderPage() {
     footerContainer.innerHTML = '';
     footerContainer.appendChild(Footer());
 
-
     // --- Helpers de Renderização ---
 
     function criarCardResumo(titulo, valor, icone, cor = 'primary') {
@@ -91,7 +88,7 @@ export default function renderPage() {
         const card = document.createElement('div');
         card.className = 'col-md-3 col-sm-6';
         card.innerHTML = `
-            <div class="-card h-100 p-4 d-flex justify-content-between align-items-center">
+            <div class="dashboard-card h-100 p-4 d-flex justify-content-between align-items-center">
                 <div>
                     <div class="stat-value">${valor}</div>
                     <div class="stat-label">${titulo}</div>
@@ -124,7 +121,10 @@ export default function renderPage() {
 
         const nomeCliente = agendamento.cliente?.nome || agendamento.nome_cliente || 'Cliente';
         const nomeServico = agendamento.servico?.nome || agendamento.nome_servico || 'Serviço';
-        const podeAcao = status === 'agendado' || status === 'pendente';
+
+        // Verifica se usuário pode alterar status
+        const userType = authState.getUserType();
+        const podeAcao = userType === 'profissional' && (status === 'agendado' || status === 'pendente' || status === 'confirmado');
 
         card.innerHTML = `
             <div class="d-flex justify-content-between align-items-start mb-3">
@@ -158,24 +158,26 @@ export default function renderPage() {
 
             ${podeAcao ? `
             <div class="d-flex justify-content-end gap-2 border-top pt-3">
+                ${userType === 'profissional' ? `
+                    <button class="btn btn-outline-custom btn-sm btn-concluir text-success border-success-subtle">
+                        <i class="bi bi-check2-all me-1"></i>Concluir
+                    </button>
+                ` : ''}
                 <button class="btn btn-outline-custom btn-sm btn-cancelar text-danger border-danger-subtle">
                     <i class="bi bi-x-lg me-1"></i>Cancelar
-                </button>
-                <button class="btn btn-primary-custom btn-sm btn-confirmar py-1 px-3">
-                    <i class="bi bi-check-lg me-1"></i>Confirmar
                 </button>
             </div>
             ` : ''}
         `;
 
         // Event Listeners
-        const btnConfirmar = card.querySelector('.btn-confirmar');
         const btnCancelar = card.querySelector('.btn-cancelar');
+        const btnConcluir = card.querySelector('.btn-concluir');
 
-        if (btnConfirmar) btnConfirmar.onclick = () => confirmarAgendamento(agendamento.id);
         if (btnCancelar) btnCancelar.onclick = () => {
             if (confirm('Cancelar este agendamento?')) cancelarAgendamento(agendamento.id);
         };
+        if (btnConcluir) btnConcluir.onclick = () => concluirAgendamento(agendamento.id);
 
         return card;
     }
@@ -185,10 +187,21 @@ export default function renderPage() {
         try {
             const api = new ApiService();
             await api.atualizarAgendamento(id, { status: 'Confirmado' });
-            notify.success('Confirmado!');
+            notify.success('Agendamento confirmado!');
             carregarDados();
         } catch (error) {
-            handleError(error, '');
+            notify.error('Erro ao confirmar: ' + error.message);
+        }
+    }
+
+    async function concluirAgendamento(id) {
+        try {
+            const api = new ApiService();
+            await api.atualizarAgendamento(id, { status: 'Concluído' });
+            notify.success('Agendamento concluído!');
+            carregarDados();
+        } catch (error) {
+            notify.error('Erro ao concluir: ' + error.message);
         }
     }
 
@@ -196,57 +209,107 @@ export default function renderPage() {
         try {
             const api = new ApiService();
             await api.cancelarAgendamento(id);
-            notify.success('Cancelado!');
+            notify.success('Agendamento cancelado!');
             carregarDados();
         } catch (error) {
-            handleError(error, '');
+            notify.error('Erro ao cancelar: ' + error.message);
         }
     }
 
     async function carregarDados() {
+
         try {
             const api = new ApiService();
             const profissionalId = authState.getUser()?.id || authState.getCadastroId();
 
+            // 1. Buscar dados do profissional
             let profissional = null;
-            try { profissional = await api.buscarProfissionalPorCadastro(profissionalId); }
-            catch (e) {  }
+            try {
+                profissional = await api.buscarProfissionalPorCadastro(profissionalId);
+            } catch (e) {
+            }
 
             if (!profissional || !profissional.id) {
-                agendamentosContainer.innerHTML = '<div class="alert alert-warning">Perfil incompleto.</div>';
+                agendamentosContainer.innerHTML = `
+                    <div class="alert alert-warning">
+                        <h5>⚠️ Perfil Incompleto</h5>
+                        <p>Nenhum perfil de profissional encontrado para o cadastro ID ${profissionalId}.</p>
+                        <small>Verifique se você completou seu cadastro como profissional.</small>
+                    </div>
+                `;
                 return;
             }
 
+            // 2. Buscar todos os agendamentos
             const todosAgendamentos = await api.listarAgendamentos();
+
+            // 3. Filtrar agendamentos do profissional - LOGICA CORRIGIDA
             const agendamentosProfissional = Array.isArray(todosAgendamentos)
-                ? todosAgendamentos.filter(a => String(a.id_profissional_fk) === String(profissional.id))
+                ? todosAgendamentos.filter(a => {
+
+                    // Método 1: Usar profissional_nome (se vier do JOIN)
+                    if (a.profissional_nome && profissional.nome &&
+                        a.profissional_nome.toLowerCase() === profissional.nome.toLowerCase()) {
+                        return true;
+                    }
+
+                    // Método 2: Usar objeto servico aninhado
+                    if (a.servico && a.servico.id_profissional_fk == profissional.id) {
+                        return true;
+                    }
+
+                    // Método 3: Buscar serviço por id_servico_fk (fallback)
+                    if (a.id_servico_fk) {
+
+                        // Aqui vamos buscar o serviço separadamente
+                        // Por enquanto, vamos testar se o serviço pertence ao profissional
+                        return false; // Temporariamente false até implementarmos a busca
+                    }
+
+                    return false;
+                })
                 : [];
 
-            // Cálculos Resumo
-            const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+
+            // 4. Cálculos das estatísticas
+            const agora = new Date();
+            const hoje = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), 0, 0, 0, 0);
 
             const hojeAgendamentos = agendamentosProfissional.filter(a => {
                 if (!a.data_hora) return false;
-                const d = new Date(a.data_hora); d.setHours(0, 0, 0, 0);
-                return d.getTime() === hoje.getTime();
+                const d = new Date(a.data_hora);
+                const dZero = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
+                return dZero.getTime() === hoje.getTime();
             });
 
-            const pendentes = agendamentosProfissional.filter(a => (a.status || '').toLowerCase() === 'pendente');
-            const confirmados = agendamentosProfissional.filter(a => (a.status || '').toLowerCase().includes('confir'));
+            const confirmados = agendamentosProfissional.filter(a => {
+                const status = (a.status || '').toLowerCase();
+                return status.includes('confir') || status.includes('confirm');
+            });
 
-            // Render Resumo
+            const cancelados = agendamentosProfissional.filter(a => {
+                const status = (a.status || '').toLowerCase();
+                return status.includes('cancel');
+            });
+
+            const concluidos = agendamentosProfissional.filter(a => {
+                const status = (a.status || '').toLowerCase();
+                return status.includes('conclu') || status.includes('concluid');
+            });
+
+            // 5. Renderizar cards de resumo
             resumoContainer.innerHTML = '';
-            resumoContainer.appendChild(criarCardResumo('Total', agendamentosProfissional.length, 'bi-calendar-range', 'primary'));
-            resumoContainer.appendChild(criarCardResumo('Hoje', hojeAgendamentos.length, 'bi-calendar-date', 'accent'));
             resumoContainer.appendChild(criarCardResumo('Confirmados', confirmados.length, 'bi-check-circle', 'success'));
-            resumoContainer.appendChild(criarCardResumo('Pendentes', pendentes.length, 'bi-hourglass-split', 'warning'));
+            resumoContainer.appendChild(criarCardResumo('Cancelados', cancelados.length, 'bi-x-circle', 'danger'));
+            resumoContainer.appendChild(criarCardResumo('Concluídos', concluidos.length, 'bi-check2-all', 'info'));
+            resumoContainer.appendChild(criarCardResumo('Hoje', hojeAgendamentos.length, 'bi-calendar-date', 'accent'));
 
-            // Render Lista (Próximos)
-            // Filtra futuros e ordena
+            // 6. Renderizar lista de próximos agendamentos
             const futuros = agendamentosProfissional.filter(a => {
-                const d = a.data_hora ? new Date(a.data_hora) : new Date(0);
-                // Inclui hoje
-                return d >= hoje && (a.status || '').toLowerCase() !== 'cancelado';
+                if (!a.data_hora) return false;
+                const d = new Date(a.data_hora);
+                const status = (a.status || '').toLowerCase();
+                return d >= hoje && status !== 'cancelado';
             }).sort((a, b) => new Date(a.data_hora) - new Date(b.data_hora));
 
             agendamentosContainer.innerHTML = '';
@@ -262,11 +325,19 @@ export default function renderPage() {
                 title.textContent = 'Próximos Agendamentos';
                 agendamentosContainer.appendChild(title);
 
-                futuros.forEach(ag => agendamentosContainer.appendChild(criarCardAgendamento(ag)));
+                futuros.forEach((ag, index) => {
+                    agendamentosContainer.appendChild(criarCardAgendamento(ag));
+                });
             }
 
         } catch (error) {
-            handleError(error, ' Load');
+            agendamentosContainer.innerHTML = `
+                <div class="alert alert-danger">
+                    <h5>❌ Erro ao carregar dados</h5>
+                    <p>${error.message}</p>
+                    <small>Verifique o console para mais detalhes.</small>
+                </div>
+            `;
         }
     }
 
