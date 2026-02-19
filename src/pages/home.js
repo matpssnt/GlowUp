@@ -22,7 +22,7 @@ export default function renderHomePage() {
         <p class="hero-subtitle">Sua plataforma de beleza e bem-estar.</p>
         <div class="d-flex justify-content-center gap-3 mt-3">
             <a href="login" class="btn btn-outline-primary register-btn">Login</a>
-            <a href="#" class="btn btn-outline-primary register-btn">Veja como funciona</a>
+            <a href="explorar" class="btn btn-outline-primary register-btn">Explorar</a>
         </div>
     `;
     fundoPrincipal.className = 'text-center fade-in hero';
