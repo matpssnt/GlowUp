@@ -41,16 +41,17 @@ export default function AgendamentoModal(servico, profissional) {
     async function buscarHorariosDisponiveis(data) {
         try {
             if (servico && servico.id && data) {
-                const horarios = await api.listarHorariosDisponiveis(data, servico.id);
-                if (Array.isArray(horarios)) {
-                    return horarios.map(h => (String(h).length === 5 ? `${h}:00` : String(h)));
+                const response = await api.listarHorariosDisponiveis(data, servico.id);
+                // A API retorna um objeto com a propriedade 'horarios'
+                if (response && response.horarios && Array.isArray(response.horarios)) {
+                    return response.horarios.map(h => (String(h).length === 5 ? `${h}:00` : String(h)));
                 }
                 return [];
             }
 
             return [];
         } catch (error) {
-            // console.error('Erro ao buscar horários:', error);
+            console.error('Erro ao buscar horários:', error);
             return [];
         }
     }
@@ -176,8 +177,6 @@ export default function AgendamentoModal(servico, profissional) {
         const btnConfirmar = modal.querySelector('#btnConfirmarAgendamento');
         const form = modal.querySelector('#formAgendamento');
 
-        console.log('dataInput encontrado:', dataInput);
-        console.log('dataInput type:', dataInput?.type);
 
         async function garantirFlatpickr() {
             if (window.flatpickr) return;
@@ -441,7 +440,47 @@ export default function AgendamentoModal(servico, profissional) {
             btnConfirmar.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Agendando...';
 
             try {
-                const clienteId = authState.getCadastroId();
+                // Pega o ID do cliente diretamente do authState (já foi salvo no login)
+                const user = authState.getUser();
+                // clienteId é o ID da tabela 'clientes' (clientes.id) - necessário como FK em agendamentos
+                // NÃO usar user.id que é o ID da tabela 'cadastros'
+                let clienteId = user?.clienteId;
+
+                // Se não tiver clienteId, busca diretamente na tabela clientes (fallback)
+                if (!clienteId) {
+                    try {
+                        const clientes = await api.request('/client', 'GET');
+                        if (Array.isArray(clientes)) {
+                            const cadastroId = user?.id;
+                            const cliente = clientes.find(c => c.id_cadastro_fk == cadastroId);
+                            clienteId = cliente?.id;
+                        }
+                    } catch (e) {
+                        // Fallback final: tenta listar cadastros e buscar o cliente_id
+                    }
+                }
+
+                // Fallback final por email
+                if (!clienteId) {
+                    try {
+                        const cadastros = await api.listarCadastros();
+                        if (Array.isArray(cadastros)) {
+                            const userEmail = user?.email;
+                            const cadastro = cadastros.find(c => c.email === userEmail && c.isProfissional === 0);
+                            // Nota: cadastros.id ≠ clientes.id. Precisamos buscar na tabela clientes.
+                            if (cadastro) {
+                                const clientes2 = await api.request('/client', 'GET');
+                                if (Array.isArray(clientes2)) {
+                                    const cli = clientes2.find(c => c.id_cadastro_fk == cadastro.id);
+                                    clienteId = cli?.id;
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        // Ignora
+                    }
+                }
+
                 if (!clienteId) {
                     throw new Error('ID do cliente não encontrado. Faça login novamente.');
                 }
@@ -452,11 +491,8 @@ export default function AgendamentoModal(servico, profissional) {
 
                 const dadosAgendamento = {
                     id_cliente_fk: clienteId,
-                    id_profissional_fk: profissional.id,
                     id_servico_fk: servico.id,
-                    data_hora: dataHora,
-                    observacoes: observacoesInput.value.trim() || null,
-                    status: 'Agendado'
+                    data_hora: dataHora
                 };
 
                 await api.criarAgendamento(dadosAgendamento);
