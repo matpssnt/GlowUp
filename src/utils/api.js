@@ -241,7 +241,16 @@ export default class ApiService {
     }
 
     async buscarProfissionalPorCadastro(idCadastro) {
-        return await this.request(`/profissional/cadastro/${idCadastro}`, 'GET');
+        try {
+            return await this.request(`/profissional/cadastro/${idCadastro}`, 'GET');
+        } catch (error) {
+            // Se for 404 (profissional não encontrado), retorna null em vez de lançar erro
+            if (error.message.includes('Recurso não encontrado')) {
+                return null;
+            }
+            // Para outros erros, lança normalmente
+            throw error;
+        }
     }
 
     async criarProfissional(dados) {
@@ -278,7 +287,11 @@ export default class ApiService {
                 return await this.buscarEnderecoPorProfissional(profissional.id);
             }
         } catch (error) {
-            // Se não for profissional, continua
+            // Se não for profissional (404) ou der outro erro, continua silenciosamente
+            // 404 é esperado quando o usuário não é profissional
+            if (!error.message.includes('Recurso não encontrado')) {
+                // Usuário não é profissional ou erro ao buscar (removido console.log)
+            }
         }
 
         // Se não encontrou como profissional, busca todos os endereços
