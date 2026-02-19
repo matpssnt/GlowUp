@@ -416,4 +416,7 @@ export default class ApiService {
     async deletarEscala(id) {
         return await this.request('/escala', 'DELETE', { id });
     }
+
+
+
 }
