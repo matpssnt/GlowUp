@@ -51,7 +51,7 @@ export default function PerfilSidebar() {
         </a>
         <a href="seguranca" class="${getLinkClass('seguranca')}">
             <i class="bi bi-shield-lock"></i>
-            <span>Privacidade / Segurança</span>
+            <span>Privacidade e Segurança</span>
         </a>
     ` : '';
 
