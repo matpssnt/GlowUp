@@ -289,11 +289,9 @@ export default function renderFormContRegister(container) {
     btnFinalizar.className = 'btn btn-primary cont-register-submit';
 
     const btnVoltar = document.createElement('a');
-    btnVoltar.innerHTML = "Voltar ao cadastro";
     btnVoltar.href = "register";
     btnVoltar.className = 'cont-register-nav-link';
     containerBotoes.appendChild(btnFinalizar);
-    containerBotoes.appendChild(btnVoltar);
     formulario.appendChild(containerBotoes);
 
     // Adiciona evento de submit

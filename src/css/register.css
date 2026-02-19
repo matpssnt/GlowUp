@@ -139,18 +139,112 @@
     }
 }
 
-/* Responsividade específica do registro */
-@media (max-width: 768px) {
-    .card-register {
-        margin: 10px;
-        max-width: calc(100% - 20px);
+
+/* ==============================
+BREAKPOINTS UNIVERSAIS
+(Android + iOS + Tablets)
+   ============================== */
+
+/* 📱 Celulares pequenos */
+@media (max-width: 360px) {
+
+    .hero {
+        padding: 60px 15px;
+        min-height: 45vh;
+        background-attachment: scroll;
+    }
+
+    .hero-title {
+        font-size: 1.6rem;
+    }
+
+    .hero-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .info-section-title {
+        font-size: 1.6rem;
+    }
+
+    .info-card {
+        padding: 1.8rem 1.3rem;
+    }
+}
+
+
+/* 📱 Celulares padrão */
+@media (max-width: 576px) {
+
+    .hero {
+        padding: 70px 20px;
+        min-height: 50vh;
+        background-attachment: scroll;
+    }
+
+    .hero-title {
+        font-size: 1.9rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+
+    .partners-info {
         padding: 1.5rem;
     }
 
-    .base-title {
-        font-size: 20px;
-        margin-bottom: 20px;
+    .card-partner {
+        width: 100%;
+        max-width: 320px;
+        margin: auto;
     }
+
+    .home-parceiros-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 0 16px;
+    }
+}
+
+
+/* 📱 Tablets pequenos */
+@media (max-width: 768px) {
+
+    .cards {
+        gap: 25px;
+    }
+
+    .info-card {
+        padding: 2rem;
+    }
+
+    .home-parceiros-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+
+/* 📱 Tablets grandes / iPad */
+@media (max-width: 1024px) {
+
+    .home-parceiros-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .hero-title {
+        font-size: 2.4rem;
+    }
+}
+
+
+/* 💻 Laptops menores */
+@media (max-width: 1200px) {
+
+    .home-parceiros-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
 }
 
 @media (max-width: 576px) {

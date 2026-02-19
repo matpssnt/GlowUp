@@ -165,35 +165,101 @@
     display: block !important;
 }
 
-/* Responsividade */
-@media (max-width: 450px) {
+/* ======================================
+   RESPONSIVIDADE UNIVERSAL FORMULÁRIO
+   (Android + iOS + Tablets)
+   ====================================== */
+
+
+/* 📱 Celulares pequenos */
+@media (max-width: 360px) {
+
+    .cont-register-form {
+        padding: 15px;
+    }
+
+    .cont-register-section-title {
+        font-size: 1.2rem;
+    }
+
+    .cont-register-field .form-control {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+    }
+
+    .cont-register-submit {
+        font-size: 1rem;
+        padding: 10px;
+    }
+}
+
+
+/* 📱 Celulares padrão */
+@media (max-width: 576px) {
+
+    .cont-register-form {
+        padding: 18px;
+    }
+
     .cont-register-section-horizontal {
         flex-direction: column;
-    }
-
-    .cont-register-field {
-        max-width: 100%;
-    }
-
-    .cont-register-dynamic.show {
-        flex-direction: column;
+        gap: 15px;
     }
 
     .cont-register-row-1,
     .cont-register-row-3 {
         grid-template-columns: 1fr;
-        gap: 1rem;
     }
 
     .cep-container {
         flex-direction: column;
-        gap: 8px;
     }
 
     .btn-buscar-cep {
         width: 100%;
-        justify-content: center;
-        padding: 12px 16px;
+    }
+
+    .cont-register-submit {
+        max-width: 100%;
+    }
+}
+
+
+/* 📱 Tablets pequenos */
+@media (max-width: 768px) {
+
+    .cont-register-row-1 {
+        grid-template-columns: 1fr;
+    }
+
+    .cont-register-row-3 {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .cont-register-section-title {
+        font-size: 1.35rem;
+    }
+}
+
+
+/* 📱 Tablets grandes / iPad */
+@media (max-width: 1024px) {
+
+    .cont-register-form {
+        max-width: 95%;
+    }
+
+    .cont-register-row-3 {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+
+/* 💻 Telas médias */
+@media (max-width: 1200px) {
+
+    .cont-register-form {
+        max-width: 1000px;
     }
 }
 
