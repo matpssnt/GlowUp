@@ -13,7 +13,7 @@ require_once "helpers/token_jwt.php";
 
     if($route != "api"){
         require __DIR__ . "/public/index.html";
-        // require "teste.php";
+        //require "teste.php";
         exit;
         
     }elseif($route === "api"){
