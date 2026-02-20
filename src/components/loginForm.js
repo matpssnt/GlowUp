@@ -112,7 +112,7 @@ export default function loginForm() {
                 // sub.cliente_id = ID real da tabela clientes (clientes.id) - FK usada em agendamentos
                 // sub.profissional_id = ID real da tabela profissionais
                 const userData = {
-                    tipoUsuario: response.tipoUsuario || 'cliente',
+                    tipoUsuario: jwtPayload?.tipoUsuario || response.tipoUsuario || 'cliente',
                     nome: sub.nome || emailValue,
                     email: sub.email || emailValue,
                     id: sub.id || null,

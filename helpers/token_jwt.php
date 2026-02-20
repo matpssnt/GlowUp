@@ -12,7 +12,8 @@ function createToken($user) {
         "iss" => "GlowUp",
         "iat" => time(),
         "exp" => time() + (60 * (60 * 1)),
-        "sub" => $user
+        "sub" => $user,
+        "tipoUsuario" => isset($user['cliente_id']) ? 'cliente' : 'profissional'
     ];
     return JWT::encode($payload, SECRET_KEY, "HS256");
 }
@@ -21,7 +22,7 @@ function validateToken($token) {
     try {
         $key = new Key(SECRET_KEY, 'HS256');
         $decode = JWT::decode($token, $key);
-        return $decode->sub;
+        return $decode;
     }
     catch (Exception $error) {
         return false;
