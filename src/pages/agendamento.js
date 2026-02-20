@@ -145,7 +145,8 @@ export default function renderAgendamentoPage() {
 							nome: servico.nome,
 							descricao: servico.descricao,
 							imagem: servico.imagem || "public/assets/images/botox.jpg",
-							preco: servico.preco || servico.valor
+							preco: servico.preco || servico.valor,
+							duracao: servico.duracao
 						}, profissional);
 						divCards.appendChild(card);
 					});
