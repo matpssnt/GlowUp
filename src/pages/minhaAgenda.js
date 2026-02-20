@@ -57,12 +57,6 @@ export default function renderMinhaAgendaPage() {
     `;
     contentArea.appendChild(header);
 
-    // --- Stats Row ---
-    const resumoContainer = document.createElement('div');
-    resumoContainer.className = 'row g-3 mb-4';
-    resumoContainer.id = 'resumoCards';
-    contentArea.appendChild(resumoContainer);
-
     // --- Agendamentos Section ---
     const agendamentosContainer = document.createElement('div');
     agendamentosContainer.id = 'agendamentosContainer';
@@ -82,23 +76,6 @@ export default function renderMinhaAgendaPage() {
 
     // --- Helpers de Renderização ---
 
-    function criarCardResumo(titulo, valor, icone, cor = 'primary') {
-        const card = document.createElement('div');
-        card.className = 'col-md-3 col-sm-6';
-        card.innerHTML = `
-            <div class="dashboard-card h-100 p-4 d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="stat-value">${valor}</div>
-                    <div class="stat-label">${titulo}</div>
-                </div>
-                <div class="stat-icon-wrapper" style="color: var(--${cor}-color, var(--primary-color))">
-                    <i class="bi ${icone}"></i>
-                </div>
-            </div>
-        `;
-        return card;
-    }
-
     function criarCardAgendamento(agendamento) {
         const card = document.createElement('div');
         card.className = 'content-card mb-3 p-4';
@@ -117,8 +94,8 @@ export default function renderMinhaAgendaPage() {
         if (status.includes('conclui')) badgeClass = 'badge-success';
         if (status === 'pendente') badgeClass = 'badge-warning';
 
-        const nomeProfissional = agendamento.profissional_nome || agendamento.servico?.profissional?.nome || 'Profissional';
-        const nomeServico = agendamento.servico?.nome || agendamento.nome_servico || 'Serviço';
+        const nomeProfissional = agendamento.profissional_nome || 'Profissional';
+        const nomeServico = agendamento.servico_nome || 'Serviço';
 
         // Cliente só pode cancelar agendamentos não finalizados
         const podeCancelar = status === 'agendado' || status === 'pendente' || status === 'confirmado';
@@ -188,7 +165,7 @@ export default function renderMinhaAgendaPage() {
         try {
             const api = new ApiService();
             const user = authState.getUser();
-            const cadastroId = user?.id || authState.getCadastroId();
+            const clienteId = user?.clienteId || authState.getCadastroId();
 
             // 1. Buscar todos os agendamentos
             const todosAgendamentos = await api.listarAgendamentos();
@@ -197,44 +174,14 @@ export default function renderMinhaAgendaPage() {
             const agendamentosCliente = Array.isArray(todosAgendamentos)
                 ? todosAgendamentos.filter(a => {
                     // Filtra por ID do cliente (FK correta)
-                    return a.id_cliente_fk == cadastroId || a.id_cliente == cadastroId;
+                    return a.id_cliente_fk == clienteId || a.id_cliente == clienteId;
                 })
                 : [];
 
-            // 3. Cálculos das estatísticas
+            // 3. Renderizar lista de próximos agendamentos
             const agora = new Date();
             const hoje = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), 0, 0, 0, 0);
 
-            const hojeAgendamentos = agendamentosCliente.filter(a => {
-                if (!a.data_hora) return false;
-                const d = new Date(a.data_hora);
-                const dZero = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
-                return dZero.getTime() === hoje.getTime();
-            });
-
-            const confirmados = agendamentosCliente.filter(a => {
-                const status = (a.status || '').toLowerCase();
-                return status.includes('confir') || status.includes('confirm');
-            });
-
-            const cancelados = agendamentosCliente.filter(a => {
-                const status = (a.status || '').toLowerCase();
-                return status.includes('cancel');
-            });
-
-            const concluidos = agendamentosCliente.filter(a => {
-                const status = (a.status || '').toLowerCase();
-                return status.includes('conclu') || status.includes('concluid');
-            });
-
-            // 4. Renderizar cards de resumo
-            resumoContainer.innerHTML = '';
-            resumoContainer.appendChild(criarCardResumo('Confirmados', confirmados.length, 'bi-check-circle', 'success'));
-            resumoContainer.appendChild(criarCardResumo('Cancelados', cancelados.length, 'bi-x-circle', 'danger'));
-            resumoContainer.appendChild(criarCardResumo('Concluídos', concluidos.length, 'bi-check2-all', 'info'));
-            resumoContainer.appendChild(criarCardResumo('Hoje', hojeAgendamentos.length, 'bi-calendar-date', 'accent'));
-
-            // 5. Renderizar lista de próximos agendamentos
             const futuros = agendamentosCliente.filter(a => {
                 if (!a.data_hora) return false;
                 const d = new Date(a.data_hora);

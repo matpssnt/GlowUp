@@ -28,7 +28,7 @@ export default function ServiceCard(servico, profissional = null) {
       duracaoTexto = `${minutos} min`;
     }
   } else {
-    duracaoTexto = '30 min'; // Fallback padrão
+    duracaoTexto = ''; // Não mostra tempo se não houver duração definida
   }
 
   card.innerHTML = `

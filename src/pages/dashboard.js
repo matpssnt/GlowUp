@@ -183,17 +183,6 @@ export default function renderDashboardPage() {
     }
 
     // --- Lógica de Dados ---
-    async function confirmarAgendamento(id) {
-        try {
-            const api = new ApiService();
-            await api.atualizarAgendamento(id, { status: 'Confirmado' });
-            notify.success('Agendamento confirmado!');
-            carregarDados();
-        } catch (error) {
-            notify.error('Erro ao confirmar: ' + error.message);
-        }
-    }
-
     async function concluirAgendamento(id) {
         try {
             const api = new ApiService();
@@ -282,11 +271,6 @@ export default function renderDashboardPage() {
                 return dZero.getTime() === hoje.getTime();
             });
 
-            const confirmados = agendamentosProfissional.filter(a => {
-                const status = (a.status || '').toLowerCase();
-                return status.includes('confir') || status.includes('confirm');
-            });
-
             const cancelados = agendamentosProfissional.filter(a => {
                 const status = (a.status || '').toLowerCase();
                 return status.includes('cancel');
@@ -299,7 +283,6 @@ export default function renderDashboardPage() {
 
             // 5. Renderizar cards de resumo
             resumoContainer.innerHTML = '';
-            resumoContainer.appendChild(criarCardResumo('Confirmados', confirmados.length, 'bi-check-circle', 'success'));
             resumoContainer.appendChild(criarCardResumo('Cancelados', cancelados.length, 'bi-x-circle', 'danger'));
             resumoContainer.appendChild(criarCardResumo('Concluídos', concluidos.length, 'bi-check2-all', 'info'));
             resumoContainer.appendChild(criarCardResumo('Hoje', hojeAgendamentos.length, 'bi-calendar-date', 'accent'));

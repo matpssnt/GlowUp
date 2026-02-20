@@ -89,8 +89,8 @@ export default function renderHomePage() {
     const exploreBtnContainer = document.createElement('div');
     exploreBtnContainer.className = 'explorar-btn-container';
     exploreBtnContainer.innerHTML = `
-        <a href="profissionais" class="btn-explorar-home">
-            <i class="fas fa-compass"></i> Explorar
+        <a href="explorar" class="btn-explorar-home">
+            <i class="fas fa-compass"></i> Explorar todos
         </a>
     `;
 
@@ -193,8 +193,8 @@ async function loadPartners(gridContainer, loadingElement) {
             return;
         }
 
-        // Embaralha e pega até 8
-        const selected = shuffleArray(professionals).slice(0, 8);
+        // Embaralha e pega até 6
+        const selected = shuffleArray(professionals).slice(0, 6);
 
         selected.forEach((prof, index) => {
             const address = addresses.find(a => a.id_profissional_fk == prof.id);
@@ -202,7 +202,7 @@ async function loadPartners(gridContainer, loadingElement) {
             const minPrice = profServices.length > 0 
                 ? Math.min(...profServices.map(s => parseFloat(s.preco || 0)))
                 : null;
-
+            
             const location = address ? `${address.bairro}, ${address.cidade}` : '';
             const description = prof.descricao || 'Profissional de estética e beleza';
 
