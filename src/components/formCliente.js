@@ -1,4 +1,5 @@
 import ApiService from "../utils/api.js";
+import authState from "../utils/AuthState.js";
 import { applyVisualValidation, friendlyMessages } from "../utils/formValidation.js";
 import { validators } from "../utils/validation.js";
 import { notify } from "./Notification.js";
@@ -227,11 +228,49 @@ export default function renderFormCliente(container) {
             );
 
             notify.success('Cadastro realizado com sucesso!');
-            formulario.reset();
 
-            setTimeout(() => {
+            const emailValue = email.value.trim();
+            const passwordValue = password.value;
+
+            const response = await api.login(emailValue, passwordValue);
+
+            if (response && response.token) {
+                let jwtPayload = null;
+                
+                try {
+                    const token = response.token.split('.');
+                    
+                    if (token.length === 3) {
+                        const base64 = token[1].replace(/-/g, '+').replace(/_/g, '/');
+                        const padded = base64.padEnd(base64.length + (4 - base64.length % 4) % 4, '=');
+                        jwtPayload = JSON.parse(atob(padded));
+                    }
+
+                } catch (e) {
+                    // Ignora erro de decodificação
+                }
+
+                const sub = jwtPayload?.sub || {};
+
+                const userData = {
+                    tipoUsuario: response.tipoUsuario || 'cliente',
+                    nome: sub.nome || '',
+                    email: sub.email || emailValue,
+                    id: sub.id || null,
+                    cliente_id: sub.cliente_id || null
+                };
+
+                authState.setUser(userData, response.token);
+
+                const currentPath = window.location.pathname;
+                const basePath = currentPath.split('/').slice(0, 2).join('/');
+
+                window.location.href = basePath + '/home';
+
+            } else {
+                notify.error('Cadastro realizado, mas não foi possível logar automáticamente. Tente logar manualmente.');
                 window.location.href = 'login';
-            }, 1500);
+            }
 
         } catch (error) {
             notify.error('Erro ao cadastrar: ' + error.message);
