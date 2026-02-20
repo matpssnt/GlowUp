@@ -20,8 +20,8 @@ export default function Footer() {
           <div class="col-md-2 col-lg-2 col-xl-2 mb-4">
             <h6 class="fw-bold mb-3" style="color: #75b16e;">Links Úteis</h6>
             <ul class="list-unstyled">
-              <li class="mb-2"><a href="agendamento" class="text-reset footer-link">Estabelecimentos</a></li>
-              <li class="mb-2"><a href="home" class="text-reset footer-link">Profissionais</a></li>
+              <li class="mb-2"><a href="estabelecimentos" class="text-reset footer-link">Estabelecimentos</a></li>
+              <li class="mb-2"><a href="profissionais" class="text-reset footer-link">Profissionais</a></li>
               <li class="mb-2"><a href="sobre" class="text-reset footer-link">Sobre Nós</a></li>
               <li class="mb-2"><a href="#" class="text-reset footer-link" data-bs-toggle="modal" data-bs-target="#faqModal">FAQ</a></li>
               <li class="mb-2"><a href="#" class="text-reset footer-link" data-bs-toggle="modal" data-bs-target="#termsModal">Termos de Uso</a></li>
