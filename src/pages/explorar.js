@@ -47,16 +47,10 @@ export default function renderExplorarPage(options = {}) {
     // Banner (parte verde)
     const banner = document.createElement('div');
     banner.className = 'explorar-banner';
-    banner.style.backgroundColor = '#2e7d32'; // ajuste a cor se necessário
-    banner.style.color = 'white';
-    banner.style.padding = '60px 20px 40px';
-    banner.style.textAlign = 'center';
-    banner.style.width = '100%';
     banner.innerHTML = `
-        <h1 style="margin: 0; font-size: 2.8rem;">${titulo}</h1>
-        <p style="margin: 10px 0 0; font-size: 1.2rem; opacity: 0.9;">${subtitulo}</p>
+        <h1>${titulo}</h1>
+        <p>${subtitulo}</p>
     `;
-
     // Wrapper flex para sidebar + conteúdo principal
     const contentWrapper = document.createElement('div');
     contentWrapper.className = 'explorar-content';
