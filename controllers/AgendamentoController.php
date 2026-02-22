@@ -6,62 +6,58 @@ require_once __DIR__ . '/../helpers/response.php';
 class AgendamentoController
 {
     public static function create($data)
-{
-    try {
-        ValidadorController::validate_data(
-            $data,
-            ['data_hora', 'id_cliente_fk', 'id_servico_fk']
-        );
+    {
+        try {
+            ValidadorController::validate_data(
+                $data,
+                ['data_hora', 'id_cliente_fk', 'id_servico_fk']
+            );
 
-        $input = trim($data['data_hora']);
+            // Normaliza data_hora para Y-m-d H:i:00
+            $dataHora = self::normalizarDataHora($data['data_hora']);
+            $dataObj = new DateTime($dataHora);
 
-        // Aceita HH:MM ou Y-m-d H:i (ou Y-m-d H:i:s)
-        if (preg_match('/^(\d{4}-\d{2}-\d{2} )?([01]\d|2[0-3]):([0-5]\d)(:\d{2})?$/', $input, $m)) {
-            $dataHora = $input;
-
-            // Se só hora, usa hoje
-            if (empty($m[1])) {
-                $dataHora = date('Y-m-d') . ' ' . $dataHora;
+            if ($dataObj < new DateTime()) {
+                throw new Exception('Não é possível agendar no passado');
             }
 
-            // Garante segundos
-            if (substr_count($dataHora, ':') === 1) {
-                $dataHora .= ':00';
+            // ─── CHECAGEM GLOW UP ───────────────────────────────
+            $dataApenas = $dataObj->format('Y-m-d');
+            $slotsDisponiveis = AgendamentoModel::gerarHorariosDisponiveis(
+                $dataApenas,
+                (int) $data['id_servico_fk']
+            );
+
+            if (!in_array($dataHora, $slotsDisponiveis, true)) {
+                throw new Exception('Horário indisponível. Já foi ocupado ou está fora da escala.');
             }
-        } else {
-            return jsonResponse(['message' => 'Formato inválido. Use HH:MM ou Y-m-d HH:MM'], 400);
+            // ─────────────────────────────────────────────────────
+
+            // Se chegou aqui → seguro para inserir
+            $id = AgendamentoModel::create([
+                'data_hora' => $dataHora,
+                'id_cliente_fk' => $data['id_cliente_fk'],
+                'id_servico_fk' => $data['id_servico_fk'],
+                'status' => 'Agendado'
+            ]);
+
+            jsonResponse([
+                'mensagem' => 'Agendamento criado com sucesso',
+                'id' => $id,
+                'data_hora' => $dataHora
+            ], 201);
+
+        } catch (Exception $e) {
+            $code = str_contains($e->getMessage(), 'indisponível') ? 409 : 400;
+            jsonResponse(['erro' => $e->getMessage()], $code);
         }
-
-        error_log("[DEBUG] Data/hora final: $dataHora");
-
-        $dataObj = new DateTime($dataHora);
-        $agora = new DateTime();
-
-        if ($dataObj < $agora) {
-            return jsonResponse(['message' => 'Não pode agendar no passado'], 400);
-        }
-
-        $maximo = (clone $agora)->modify('+3 months')->setTime(23, 59, 59);
-        if ($dataObj > $maximo) {
-            return jsonResponse(['message' => 'Limite de 3 meses excedido'], 400);
-        }
-
-        $payload = $data;
-        $payload['data_hora'] = $dataHora;  // passa completa pro Model
-
-        $id = AgendamentoModel::create($payload);
-
-        return jsonResponse([
-            'message' => 'Agendamento criado com sucesso',
-            'id' => $id
-        ], 201);
-
-    } catch (Exception $e) {
-        error_log("[ERROR AGENDAMENTO] " . $e->getMessage());
-        $code = stripos($e->getMessage(), 'indisponível') !== false ? 409 : 400;
-        return jsonResponse(['message' => $e->getMessage()], $code);
     }
-}
+
+    private static function normalizarDataHora(string $input): string
+    {
+        $dt = new DateTime($input);
+        return $dt->format('Y-m-d H:i:00');
+    }
 
     public static function update($data, $id)
     {
