@@ -14,6 +14,24 @@ class EscalaModel
         return $hora;
     }
 
+    public static function getAll(): array
+    {
+        $conn = Database::getInstancia()->pegarConexao();
+
+        $sql = "SELECT e.*, p.nome AS profissional_nome 
+                FROM escalas e
+                LEFT JOIN profissionais p ON p.id = e.id_profissional_fk
+                ORDER BY e.dia_semana, e.inicio";
+
+        $result = $conn->query($sql);
+        $escalas = [];
+        while ($row = $result->fetch_assoc()) {
+            $escalas[] = $row;
+        }
+        return $escalas;
+    }
+
+
     public static function create(array $data): int
     {
         $conn = Database::getInstancia()->pegarConexao();
@@ -128,5 +146,23 @@ class EscalaModel
         $stmt->close();
 
         return $result ?: null;
+    }
+
+    public static function delete(int $id): bool
+    {
+        $conn = Database::getInstancia()->pegarConexao();
+
+        $atual = self::getById($id);
+        if (!$atual)
+            return false;
+
+        $sql = "DELETE FROM escalas WHERE id = ?";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $ok = $stmt->execute();
+        $stmt->close();
+
+        return $ok;
     }
 }
