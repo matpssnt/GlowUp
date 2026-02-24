@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/EscalaModel.php';
 
@@ -6,66 +7,65 @@ class AgendamentoModel
 {
     const STATUS_AGENDADO = 'Agendado';
     const STATUS_CANCELADO = 'Cancelado';
+    const STATUS_CONCLUIDO = 'Concluido';
 
     /**
-     * Gera lista de horários disponíveis considerando intervalos e duração variável
+     * Gera lista de horários disponíveis para um serviço em uma data específica
      */
-
     public static function gerarHorariosDisponiveis(string $data, int $idServico): array
     {
         date_default_timezone_set('America/Sao_Paulo');
         $conn = Database::getInstancia()->pegarConexao();
 
-        // 1. Dados do serviço
-        $stmt = $conn->prepare("SELECT s.id_profissional_fk, s.duracao FROM servicos s WHERE s.id = ?");
+        // Buscar dados do serviço
+        $stmt = $conn->prepare("SELECT id_profissional_fk, duracao FROM servicos WHERE id = ?");
         $stmt->bind_param("i", $idServico);
         $stmt->execute();
-        $servico = $stmt->get_result()->fetch_assoc() ?: null;
+        $servico = $stmt->get_result()->fetch_assoc();
         $stmt->close();
 
         if (!$servico) {
-            return ['horarios' => [], 'quantidade' => 0, 'tempo_livre_total' => ['minutos_totais' => 0, 'horas' => 0, 'minutos' => 0, 'formatado' => '0min livres']];
+            return self::respostaVaziaDisponibilidade();
         }
 
         $idProf = (int) $servico['id_profissional_fk'];
         $duracaoMin = self::parseDuracaoMinutos($servico['duracao']);
 
-        // 2. Dia da semana
         $diaSemana = (int) (new DateTime($data))->format('w');
 
-        // 3. Períodos de trabalho (escalas)
+        // Períodos de trabalho (escalas)
         $escalas = EscalaModel::getEscalaDoProfissionalNoDia($idProf, $diaSemana);
-        $trabalho = self::mergeIntervalos(array_map(fn($e) => [
-            self::horaParaMinutos($e['inicio']),
-            self::horaParaMinutos($e['fim'])
-        ], $escalas));
+        $trabalho = self::mergeIntervalos(
+            array_map(fn($e) => [
+                self::horaParaMinutos($e['inicio']),
+                self::horaParaMinutos($e['fim'])
+            ], $escalas)
+        );
 
         if (empty($trabalho)) {
-            return ['horarios' => [], 'quantidade' => 0, 'tempo_livre_total' => ['minutos_totais' => 0, 'horas' => 0, 'minutos' => 0, 'formatado' => '0min livres']];
+            return self::respostaVaziaDisponibilidade();
         }
 
-        // 4. Intervalos ocupados
+        // Intervalos ocupados
         $ocupados = [];
 
         // Agendamentos confirmados
-        $agendamentos = self::getAgendamentosConfirmadosDoDia($conn, $idProf, $data);
-        foreach ($agendamentos as $agd) {
-            $inicio = self::horaParaMinutos($agd['data_hora']);
+        foreach (self::getAgendamentosConfirmadosDoDia($conn, $idProf, $data) as $agd) {
+            $inicio = self::horaParaMinutos((new DateTime($agd['data_hora']))->format('H:i:s'));
             $dur = self::parseDuracaoMinutos($agd['duracao']);
             // REGRA: Bloqueia do início até o fim + 30 minutos (buffer de limpeza)
             $ocupados[] = [$inicio, $inicio + $dur + 30];
         }
 
         // Indisponibilidades
-        $indisponiveis = self::getIndisponibilidadesDoDia($conn, $idProf, $data);
-        foreach ($indisponiveis as $ind) {
+        foreach (self::getIndisponibilidadesDoDia($conn, $idProf, $data) as $ind) {
             $ini = self::horaParaMinutos($ind['hora_inicio']);
             $fim = $ind['hora_fim'] ? self::horaParaMinutos($ind['hora_fim']) : 1440;
             // Buffer também aplicado a indisponibilidades para consistência
             $ocupados[] = [$ini, $fim + 30];
         }
 
-        // Horário passado (hoje + margem 30 min)
+        // Horário passado (margem de 60 minutos se for hoje)
         if (self::ehHoje($data)) {
             $agoraMin = self::horaParaMinutos(date('H:i:s'));
             $ocupados[] = [0, $agoraMin + 60];
@@ -73,10 +73,10 @@ class AgendamentoModel
 
         $ocupados = self::mergeIntervalos($ocupados);
 
-        // 5. Períodos livres
+        // Períodos livres
         $livres = self::subtrairIntervalos($trabalho, $ocupados);
 
-        // 6. Gera slots (Volto para 30 min conforme pedido)
+        // Gerar slots a cada 30 minutos
         $slots = [];
         $step = 30; 
 
@@ -86,9 +86,10 @@ class AgendamentoModel
                 $slots[] = $data . ' ' . self::minutosParaHora($t) . ':00';
             }
         }
+
         $slots = array_unique($slots);
 
-        // 7. Calcula tempo livre total restante (Glow Up principal!)
+        // Tempo total livre
         $totalMinLivres = 0;
         foreach ($livres as [$ini, $fim]) {
             $totalMinLivres += ($fim - $ini);
@@ -109,6 +110,19 @@ class AgendamentoModel
         ];
     }
 
+    private static function respostaVaziaDisponibilidade(): array
+    {
+        return [
+            'horarios' => [],
+            'quantidade' => 0,
+            'tempo_livre_total' => [
+                'minutos_totais' => 0,
+                'horas' => 0,
+                'minutos' => 0,
+                'formatado' => '0min livres'
+            ]
+        ];
+    }
 
     private static function parseDuracaoMinutos($duracao): int
     {
@@ -192,16 +206,17 @@ class AgendamentoModel
 
     private static function getAgendamentosConfirmadosDoDia($conn, int $idProf, string $data): array
     {
-        // Consideramos tudo que NÃO está cancelado para bloquear a agenda
+        $status = self::STATUS_AGENDADO;  // ← crie uma variável!
+
         $stmt = $conn->prepare("
-            SELECT a.data_hora, s.duracao
-            FROM agendamentos a
-            INNER JOIN servicos s ON a.id_servico_fk = s.id
-            WHERE s.id_profissional_fk = ?
-              AND DATE(a.data_hora) = ?
-              AND LOWER(a.status) NOT LIKE 'cancel%'
-        ");
-        $stmt->bind_param("is", $idProf, $data);
+        SELECT a.data_hora, s.duracao
+        FROM agendamentos a
+        INNER JOIN servicos s ON a.id_servico_fk = s.id
+        WHERE s.id_profissional_fk = ?
+          AND DATE(a.data_hora) = ?
+          AND a.status = ?
+    ");
+        $stmt->bind_param("iss", $idProf, $data, $status);  // ← agora $status é variável
         $stmt->execute();
         $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
@@ -223,74 +238,13 @@ class AgendamentoModel
         return $result;
     }
 
-
-
-    // Helpers de Tempo (Minutos)
-    private static function getDuracaoEmMinutos($duracao): int
-    {
-        if (empty($duracao))
-            return 30; // Fallback
-        if (is_numeric($duracao))
-            return (int) $duracao; // Já está em minutos? (comum em alguns sistemas)
-
-        $parts = explode(':', $duracao);
-        $h = (int) ($parts[0] ?? 0);
-        $m = (int) ($parts[1] ?? 0);
-        return ($h * 60) + $m;
-    }
-
-    private static function hmsToMinutes(string $hms): int
-    {
-        $parts = explode(':', $hms);
-        return ((int) ($parts[0] ?? 0) * 60) + (int) ($parts[1] ?? 0);
-    }
-
-    private static function minutesToHms(int $minutes): string
-    {
-        $h = floor($minutes / 60);
-        $m = $minutes % 60;
-        return sprintf('%02d:%02d:00', $h, $m);
-    }
-
-    private static function carregarAgendamentosDoDia($conn, int $idProf, string $data): array
-    {
-        $sql = "SELECT a.data_hora, s.duracao 
-                FROM agendamentos a 
-                JOIN servicos s ON a.id_servico_fk = s.id 
-                WHERE s.id_profissional_fk = ? 
-                  AND DATE(a.data_hora) = ? 
-                  AND a.status = 'Agendado'";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("is", $idProf, $data);
-        $stmt->execute();
-        $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        $stmt->close();
-        return $result;
-    }
-
-    private static function carregarIndisponibilidadesDoDia($conn, int $idProf, string $data): array
-    {
-        $sql = "SELECT hora_inicio, hora_fim 
-                FROM indisponibilidades 
-                WHERE id_profissional_fk = ? AND data = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("is", $idProf, $data);
-        $stmt->execute();
-        $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        $stmt->close();
-        return $result;
-    }
     /**
-     * Cria um novo agendamento com verificação real de disponibilidade
-     * @param array $data ['data_hora', 'id_cliente_fk', 'id_servico_fk']
-     * @return array ['success' => bool, 'id' => int, 'message' => string]
-     * @throws Exception em caso de erro de validação ou indisponibilidade
+     * Cria um novo agendamento com verificação de disponibilidade
      */
-    public static function create($data)
+    public static function create(array $data): array
     {
         $conn = Database::getInstancia()->pegarConexao();
 
-        // Extrai e valida campos obrigatórios
         $dataHora = trim($data['data_hora'] ?? '');
         $idCliente = (int) ($data['id_cliente_fk'] ?? 0);
         $idServico = (int) ($data['id_servico_fk'] ?? 0);
@@ -299,7 +253,6 @@ class AgendamentoModel
             throw new Exception('Campos obrigatórios: data_hora, id_cliente_fk e id_servico_fk');
         }
 
-        // Validação de formato e data futura
         date_default_timezone_set('America/Sao_Paulo');
         $dt = DateTime::createFromFormat('Y-m-d H:i:s', $dataHora);
         if (!$dt) {
@@ -309,9 +262,7 @@ class AgendamentoModel
             throw new Exception('Não é permitido agendar para o passado');
         }
 
-        // Validações de existência
         self::validarCliente($idCliente, $conn);
-
         $servico = self::validarServico($idServico, $conn);
         $idProfissional = (int) ($servico['id_profissional_fk'] ?? 0);
 
@@ -319,42 +270,27 @@ class AgendamentoModel
             throw new Exception('Este serviço não está associado a nenhum profissional');
         }
 
-        // CHECAGEM REAL DE DISPONIBILIDADE (Glow Up principal)
+        // Verificação GlowUp de disponibilidade
         $dataApenas = $dt->format('Y-m-d');
-        $slotsDisponiveis = self::gerarHorariosDisponiveis($dataApenas, $idServico);
+        $slotsDisponiveis = self::gerarHorariosDisponiveis($dataApenas, $idServico)['horarios'] ?? [];
 
-        if (!in_array($dataHora, $slotsDisponiveis['horarios'], true)) {
-            throw new Exception(
-                'Horário indisponível no momento atual do sistema ' .
-                '(já ocupado, fora da escala, sem tempo suficiente ou passou o prazo de segurança)'
-            );
+        if (!in_array($dataHora, $slotsDisponiveis, true)) {
+            throw new Exception('Horário indisponível (já ocupado, fora da escala ou sem tempo suficiente)');
         }
 
-        // Tudo ok → prossegue com o INSERT
-        $sql = "INSERT INTO agendamentos 
-            (data_hora, status, id_cliente_fk, id_servico_fk) 
-            VALUES (?, ?, ?, ?)";
+        $sql = "INSERT INTO agendamentos (data_hora, status, id_cliente_fk, id_servico_fk) 
+                VALUES (?, ?, ?, ?)";
 
         $stmt = $conn->prepare($sql);
-        if ($stmt === false) {
-            error_log("[ERRO prepare INSERT agendamento] " . $conn->error);
-            throw new Exception('Erro interno ao preparar agendamento');
-        }
-
         $statusInicial = self::STATUS_AGENDADO;
         $stmt->bind_param("ssii", $dataHora, $statusInicial, $idCliente, $idServico);
 
         if (!$stmt->execute()) {
-            $erro = $stmt->error;
-            $stmt->close();
-            error_log("[ERRO execute INSERT agendamento] " . $erro);
-            throw new Exception('Falha ao salvar agendamento: ' . $erro);
+            throw new Exception('Falha ao salvar agendamento: ' . $stmt->error);
         }
 
         $idInserido = (int) $conn->insert_id;
         $stmt->close();
-
-        error_log("[SUCESSO] Agendamento ID $idInserido criado | Cliente $idCliente | Serviço $idServico | $dataHora");
 
         return [
             'success' => true,
@@ -363,20 +299,16 @@ class AgendamentoModel
             'data_hora' => $dataHora
         ];
     }
-    /**
-     * Atualiza agendamento (ex: status, data)
-     * @param int $id
-     * @param array $data
-     * @return bool
-     */
-    public static function update($id, $data)
-    {
-        $db = Database::getInstancia();
-        $conn = $db->pegarConexao();
 
-        if (empty($data)) {
+    /**
+     * Atualiza campos de um agendamento
+     */
+    public static function update(int $id, array $data): bool
+    {
+        if (empty($data))
             return false;
-        }
+
+        $conn = Database::getInstancia()->pegarConexao();
 
         $sql = "UPDATE agendamentos SET ";
         $params = [];
@@ -385,94 +317,95 @@ class AgendamentoModel
         foreach ($data as $key => $value) {
             $sql .= "$key = ?, ";
             $params[] = $value;
-            $types .= "s";
+            $types .= is_int($value) ? 'i' : 's';
         }
+
         $sql = rtrim($sql, ", ") . " WHERE id = ?";
         $params[] = $id;
-        $types .= "i";
+        $types .= 'i';
 
         $stmt = $conn->prepare($sql);
         $stmt->bind_param($types, ...$params);
-
         $result = $stmt->execute();
         $stmt->close();
+
         return $result;
     }
 
     /**
-     * Cancela agendamento (soft-delete: atualiza status)
-     * @param int $id
-     * @return bool
+     * Cancela um agendamento (altera status)
      */
-    public static function cancelar($id)
+    public static function cancelar(int $id): bool
     {
-        $data = ['status' => strtolower(self::STATUS_CANCELADO)];
-        $sucesso = self::update($id, $data);
-        if ($sucesso) {
-            error_log("[CANCEL OK] ID $id -> status = 'cancelado'");
-        } else {
-            error_log("[CANCEL FALHA] ID $id não mudou");
-        }
-        return self::update($id, $data);
+        return self::update($id, ['status' => self::STATUS_CANCELADO]);
     }
 
     /**
-     * Busca por ID
-     * @param int $id
-     * @return array|false
+     * Marca um agendamento como concluído
      */
-    public static function getById($id)
+    public static function concluir(int $id): bool
     {
-        $db = Database::getInstancia();
-        $conn = $db->pegarConexao();
-        $sql = "SELECT * FROM agendamentos WHERE id = ?";
-        $stmt = $conn->prepare($sql);
+        $agendamento = self::getById($id);
+        if (!$agendamento) {
+            return false;
+        }
+
+        if ($agendamento['status'] === self::STATUS_CONCLUIDO) {
+            return false; // já concluído
+        }
+
+        if ($agendamento['status'] === self::STATUS_CANCELADO) {
+            return false; // cancelado não pode ser concluído
+        }
+
+        // Opcional: verificar se a data/hora já passou
+        // $dataHora = new DateTime($agendamento['data_hora']);
+        // if ($dataHora > new DateTime()) {
+        //     return false; // ainda não chegou a hora (descomente se quiser bloquear)
+        // }
+
+        return self::update($id, ['status' => self::STATUS_CONCLUIDO]);
+    }
+
+    public static function getById(int $id): ?array
+    {
+        $conn = Database::getInstancia()->pegarConexao();
+        $stmt = $conn->prepare("SELECT * FROM agendamentos WHERE id = ?");
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $result = $stmt->get_result()->fetch_assoc();
         $stmt->close();
-        return $result ?: false;
+        return $result ?: null;
     }
 
-    /**
-     * Busca todos (com filtro opcional por cliente para privacidade)
-     * @param int|null $idCliente
-     * @return array
-     */
-    public static function getAll($idCliente = null, $idProfissional = null)
+    public static function getAll(?int $idCliente = null): array
     {
         $conn = Database::getInstancia()->pegarConexao();
 
-        $sql = "SELECT a.*, s.nome as servico_nome, s.id_profissional_fk, s.duracao, c.nome as cliente_nome, p.nome as profissional_nome
-                FROM agendamentos a
-                LEFT JOIN servicos s ON a.id_servico_fk = s.id
-                LEFT JOIN clientes c ON a.id_cliente_fk = c.id
-                LEFT JOIN profissionais p ON s.id_profissional_fk = p.id";
+        $sql = "
+            SELECT a.*, 
+                   s.nome as servico_nome, 
+                   c.nome as cliente_nome, 
+                   p.nome as profissional_nome
+            FROM agendamentos a
+            LEFT JOIN servicos s ON a.id_servico_fk = s.id
+            LEFT JOIN clientes c ON a.id_cliente_fk = c.id
+            LEFT JOIN profissionais p ON s.id_profissional_fk = p.id
+        ";
 
-        $where = [];
-        $params = [];
         $types = "";
+        $params = [];
 
-        if ($idCliente) {
-            $where[] = "a.id_cliente_fk = ?";
+        if ($idCliente !== null) {
+            $sql .= " WHERE a.id_cliente_fk = ?";
+            $types .= "i";
             $params[] = $idCliente;
-            $types .= "i";
         }
 
-        if ($idProfissional) {
-            $where[] = "s.id_profissional_fk = ?";
-            $params[] = $idProfissional;
-            $types .= "i";
-        }
-
-        if (!empty($where)) {
-            $sql .= " WHERE " . implode(" AND ", $where);
-            $stmt = $conn->prepare($sql);
+        $stmt = $conn->prepare($sql);
+        if ($params) {
             $stmt->bind_param($types, ...$params);
-        } else {
-            $stmt = $conn->prepare($sql);
         }
-
         $stmt->execute();
         $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
@@ -480,68 +413,49 @@ class AgendamentoModel
         return $result;
     }
 
-    /**
-     * Valida se cliente existe
-     * @throws Exception se não
-     */
-    private static function validarCliente($id, $conn)
+    private static function validarCliente(int $id, $conn): void
     {
-        // Valida se o ID existe na tabela de clientes (necessário pois a FK em agendamentos referencia clientes)
-        $sql = "SELECT id FROM clientes WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        if ($stmt === false) {
-            error_log("[ERRO prepare validarCliente] SQL: $sql | MySQL Error: " . $conn->error);
-            throw new Exception('Erro interno ao validar cliente: ' . $conn->error);
-        }
+        $stmt = $conn->prepare("SELECT id FROM clientes WHERE id = ?");
         $stmt->bind_param("i", $id);
         $stmt->execute();
-        $result = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
-        if (!$result) {
+        if (!$stmt->get_result()->fetch_assoc()) {
             throw new Exception('Cliente não encontrado');
         }
-        return $result;
+        $stmt->close();
     }
 
-    /**
-     * Valida se serviço existe e retorna dados (inclui prof)
-     * @throws Exception se não
-     */
-    public static function validarServico($id, $conn)
+    public static function validarServico(int $id, $conn): array
     {
-        $sql = "SELECT * FROM servicos WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        if ($stmt === false) {
-            error_log("[ERRO prepare validarServico] SQL: $sql | MySQL Error: " . $conn->error);
-            throw new Exception('Erro interno ao validar serviço: ' . $conn->error);
-        }
+        $stmt = $conn->prepare("SELECT * FROM servicos WHERE id = ?");
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $result = $stmt->get_result()->fetch_assoc();
         $stmt->close();
+
         if (!$result) {
             throw new Exception('Serviço não encontrado');
         }
+
         return $result;
     }
 
-    public static function getHorariosOcupados($idProfissional, $data)
+    // Método auxiliar ainda mantido (caso esteja sendo usado em outros lugares)
+    public static function getHorariosOcupados(int $idProfissional, string $data): array
     {
         $conn = Database::getInstancia()->pegarConexao();
-        $sql = "
-        SELECT a.data_hora
-        FROM agendamentos a
-        INNER JOIN servicos s ON a.id_servico_fk = s.id
-        WHERE s.id_profissional_fk = ?
-          AND DATE(a.data_hora) = ?
-          AND a.status != 'cancelado'
-    ";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("is", $idProfissional, $data);
+        $stmt = $conn->prepare("
+            SELECT a.data_hora
+            FROM agendamentos a
+            INNER JOIN servicos s ON a.id_servico_fk = s.id
+            WHERE s.id_profissional_fk = ?
+              AND DATE(a.data_hora) = ?
+              AND a.status != ?
+        ");
+        $cancelado = self::STATUS_CANCELADO;
+        $stmt->bind_param("iss", $idProfissional, $data, $cancelado);
         $stmt->execute();
         $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
         return $result;
     }
 }
-?>
