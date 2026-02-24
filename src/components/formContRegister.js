@@ -2,6 +2,7 @@ import NavBar from "../components/NavBar.js";
 import CepAPI from "../utils/cepAPI.js";
 import ApiService from "../utils/api.js";
 import { notify } from "./Notification.js";
+import { addMaskToInput } from "../utils/validation.js";
 
 export default function renderFormContRegister(container) {
     // Cria o formulário
@@ -209,25 +210,39 @@ export default function renderFormContRegister(container) {
 
     secaoEndereco.appendChild(linha3);
 
-    // Seção: Contato (Telefone)
-    const secaoContato = document.createElement('div');
-    secaoContato.className = 'cont-register-section';
-    secaoContato.innerHTML = `
-                <h4 class="cont-register-section-title">Contato Principal</h4>
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <label class="form-label">DDD *</label>
-                        <input type="text" id="ddd" class="form-control" placeholder="15" maxlength="2" required>
-                    </div>
-                    <div class="col-md-9">
-                        <label class="form-label">WhatsApp/Celular *</label>
-                        <input type="text" id="telefone" class="form-control" placeholder="99999-9999" maxlength="10" required>
-                    </div>
-                </div>
-            `;
+// ----------------------------
+// Seção: Contato (Telefone)
+// ----------------------------
+const secaoContato = document.createElement('div');
+secaoContato.className = 'cont-register-section';
+secaoContato.innerHTML = `
+    <h4 class="cont-register-section-title">Contato Principal</h4>
+    <div class="row g-3">
+        <div class="col-md-3">
+            <label class="form-label">DDI *</label>
+            <input type="text" id="ddd" class="form-control" placeholder="Ex: 55" maxlength="2" required>
+        </div>
+        <div class="col-md-9">
+            <label class="form-label">Telefone *</label>
+            <input type="text" id="telefone" class="form-control" placeholder="99999-9999" maxlength="15" required>
+        </div>
+    </div>
+`;
     formulario.appendChild(secaoContato);
 
     formulario.appendChild(secaoEndereco);
+
+        // Aplica máscara nos campos
+    const inputDDD = formulario.querySelector('#ddd');
+    const inputTelefone = formulario.querySelector('#telefone');
+
+    if (inputDDD) {
+        addMaskToInput(inputDDD, 'ddd');
+    }
+
+    if (inputTelefone) {
+        addMaskToInput(inputTelefone, 'telefone');
+    }
 
     // Seção: Documentação
     const secaoDocumento = document.createElement('div');
