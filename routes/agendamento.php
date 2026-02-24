@@ -45,7 +45,7 @@ if ($subPath === 'disponibilidade') {
         jsonResponse([
             'data'                  => $data,
             'id_servico'            => $idServico,
-            'horarios_disponiveis'  => $horarios,
+            'horarios'              => $horarios,
             'quantidade'            => $quantidade,
             'tempo_livre_total'     => $tempoLivre,
             'gerado_em'             => date('Y-m-d H:i:s')

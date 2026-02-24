@@ -5,7 +5,7 @@ import ApiService from '../utils/api.js';
 import authState from '../utils/AuthState.js';
 
 export default function AgendamentoModal(servico, profissional) {
-    // Verifica se está logado
+    // Verifica se esta logado
     if (!authState.isAuth() || authState.getUserType() !== 'cliente') {
         notify.warning('Você precisa estar logado como cliente para agendar');
         return null;
@@ -42,11 +42,27 @@ export default function AgendamentoModal(servico, profissional) {
         try {
             if (servico && servico.id && data) {
                 const response = await api.listarHorariosDisponiveis(data, servico.id);
-                // A API retorna um objeto com a propriedade 'horarios'
-                if (response && response.horarios && Array.isArray(response.horarios)) {
-                    return response.horarios.map(h => (String(h).length === 5 ? `${h}:00` : String(h)));
+
+                // Verifica multiplas chaves possiveis que o backend pode retornar
+                let horariosArray = [];
+
+                if (response && Array.isArray(response.horarios)) {
+                    horariosArray = response.horarios;
+                } else if (response && Array.isArray(response.horarios_disponiveis)) {
+                    horariosArray = response.horarios_disponiveis;
+                } else if (Array.isArray(response)) {
+                    // Fallback: se o backend retornar array direto
+                    horariosArray = response;
                 }
-                return [];
+
+                // Formata os horários garantindo padrão HH:MM:00
+                return horariosArray.map(h => {
+                    const horarioStr = String(h).trim();
+                    if (horarioStr.length === 5) {
+                        return `${horarioStr}:00`;
+                    }
+                    return horarioStr;
+                }).filter(h => h && h !== '');
             }
 
             return [];
@@ -291,16 +307,27 @@ export default function AgendamentoModal(servico, profissional) {
             horariosDisponiveis = Array.isArray(horarios) ? horarios : [];
 
             if (horariosDisponiveis.length === 0) {
-                horariosContainer.innerHTML = '<div class="alert alert-warning">Nenhum horário disponível para esta data</div>';
+                horariosContainer.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Nenhum horário disponível para esta data
+                    </div>
+                `;
                 return;
             }
 
             horariosContainer.innerHTML = '';
+
             horariosDisponiveis.forEach(horario => {
                 const btnHorario = document.createElement('button');
                 btnHorario.type = 'button';
                 btnHorario.className = 'btn btn-outline-primary horario-btn';
-                btnHorario.textContent = horario;
+
+                // Se o horário vier com a data (YYYY-MM-DD HH:MM:SS), extraímos apenas o tempo para o texto
+                const partes = String(horario).split(' ');
+                const apenasTempo = partes.length > 1 ? partes[1] : partes[0];
+                btnHorario.textContent = apenasTempo.substring(0, 5); // Exibe apenas 13:00
+
                 btnHorario.dataset.horario = horario;
                 btnHorario.style.cursor = 'pointer';
                 btnHorario.setAttribute('tabindex', '0');
@@ -442,9 +469,9 @@ export default function AgendamentoModal(servico, profissional) {
             try {
                 // Pega o ID do cliente diretamente do authState (já foi salvo no login)
                 const user = authState.getUser();
-                // clienteId é o ID da tabela 'clientes' (clientes.id) - necessário como FK em agendamentos
+                // cliente_id é o ID da tabela 'clientes' (clientes.id) - necessário como FK em agendamentos
                 // NÃO usar user.id que é o ID da tabela 'cadastros'
-                let clienteId = user?.clienteId;
+                let clienteId = user?.cliente_id || user?.clienteId;
 
                 // Se não tiver clienteId, busca diretamente na tabela clientes (fallback)
                 if (!clienteId) {
@@ -486,8 +513,28 @@ export default function AgendamentoModal(servico, profissional) {
                 }
 
                 const horarioStr = String(horarioSelecionado.dataset.horario || '').trim();
-                const horarioFinal = horarioStr.length === 5 ? `${horarioStr}:00` : horarioStr;
-                const dataHora = `${dataSelecionada} ${horarioFinal}`;
+                let dataHora;
+
+                // Verifica se o horário já veio com a data inclusa (formato do motor de busca robusto)
+                if (horarioStr.includes('-') && horarioStr.includes(' ')) {
+                    dataHora = horarioStr;
+                } else {
+                    // Caso venha apenas o horário, compõe com a data selecionada
+                    let horarioFinal;
+                    if (horarioStr.length === 5) {
+                        horarioFinal = `${horarioStr}:00`;
+                    } else if (horarioStr.length === 8) {
+                        horarioFinal = horarioStr;
+                    } else {
+                        const parts = horarioStr.split(':');
+                        if (parts.length >= 2) {
+                            horarioFinal = `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}:00`;
+                        } else {
+                            throw new Error('Formato de horário inválido');
+                        }
+                    }
+                    dataHora = `${dataSelecionada} ${horarioFinal}`;
+                }
 
                 const dadosAgendamento = {
                     id_cliente_fk: clienteId,
@@ -497,21 +544,20 @@ export default function AgendamentoModal(servico, profissional) {
 
                 await api.criarAgendamento(dadosAgendamento);
                 notify.success('Agendamento realizado com sucesso!');
-
-                const bsModal = bootstrap.Modal.getInstance(modal);
-                if (bsModal) {
-                    bsModal.hide();
+                bootstrapModal.hide();
+                if (typeof onAgendamentoCriado === 'function') {
+                    onAgendamentoCriado();
                 }
-
-                setTimeout(() => {
-                    if (window.location.pathname.includes('agendamento')) {
-                        window.location.reload();
-                    } else {
-                        window.location.href = '/minhaAgenda';
-                    }
-                }, 1000);
-
             } catch (error) {
+                // Tratamento especifico para erro 409 (conflito de horario)
+                if (error.message && error.message.includes('409')) {
+                    notify.error('❌ Horário não disponible! Este horário pode estar ocupado ou fora do expediente. Tente outro horário.');
+                } else if (error.message && error.message.includes('indisponível')) {
+                    notify.error('⚠️ ' + error.message);
+                } else {
+                    notify.error('Erro ao agendar: ' + (error.message || 'Tente novamente'));
+                }
+                throw error;
                 handleError(error, 'AgendamentoModal - confirmar');
                 btnConfirmar.disabled = false;
                 btnConfirmar.innerHTML = '<i class="bi bi-check-circle me-2"></i>Confirmar Agendamento';

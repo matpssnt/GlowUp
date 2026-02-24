@@ -115,9 +115,9 @@ export default function loginForm() {
                     tipoUsuario: response.tipoUsuario || 'cliente',
                     nome: sub.nome || emailValue,
                     email: sub.email || emailValue,
-                    id: sub.id || null,
-                    clienteId: sub.cliente_id || null,
-                    profissionalId: sub.profissional_id || null
+                    id: sub.id || sub.idCadastro || null,
+                    cliente_id: sub.cliente_id || sub.clienteId || null,
+                    profissional_id: sub.profissional_id || sub.profissionalId || null
                 };
 
                 authState.setUser(userData, response.token);

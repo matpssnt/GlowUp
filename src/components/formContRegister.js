@@ -1,6 +1,7 @@
 import NavBar from "../components/NavBar.js";
 import CepAPI from "../utils/cepAPI.js";
 import ApiService from "../utils/api.js";
+import authState from "../utils/AuthState.js";
 import { notify } from "./Notification.js";
 
 export default function renderFormContRegister(container) {
@@ -415,13 +416,48 @@ export default function renderFormContRegister(container) {
             localStorage.removeItem('dadosBasicos');
 
             // Notifica sucesso
-            const { notify } = await import('../components/Notification.js');
-            notify.success('Cadastro finalizado com sucesso! Redirecionando para login...');
+            notify.success('Cadastro finalizado com sucesso! Entrando na sua conta...');
 
-            // Aguarda um pouco antes de redirecionar
-            setTimeout(() => {
+            // Realiza login automático
+            try {
+                const response = await api.login(dadosBasicos.email, dadosBasicos.senha);
+
+                if (response && response.token) {
+                    // Decodifica o token para pegar os dados do usuário
+                    let jwtPayload = {};
+                    try {
+                        const base64Url = response.token.split('.')[1];
+                        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                        jwtPayload = JSON.parse(window.atob(base64));
+                    } catch (e) {
+                        console.error('Erro ao decodificar token:', e);
+                    }
+
+                    const sub = jwtPayload.sub || {};
+                    const userData = {
+                        tipoUsuario: 'profissional',
+                        nome: sub.nome || dadosBasicos.nome,
+                        email: sub.email || dadosBasicos.email,
+                        id: sub.id || sub.idCadastro || dadosBasicos.idCadastro,
+                        profissional_id: sub.profissional_id || idProfissional
+                    };
+
+                    authState.setUser(userData, response.token);
+
+                    // Redireciona para o dashboard
+                    const currentPath = window.location.pathname;
+                    const basePath = currentPath.split('/').slice(0, 2).join('/');
+
+                    setTimeout(() => {
+                        window.location.href = basePath + '/dashboard';
+                    }, 1000);
+                } else {
+                    window.location.href = 'login';
+                }
+            } catch (error) {
+                console.error('Erro no login automático:', error);
                 window.location.href = 'login';
-            }, 1500);
+            }
 
         } catch (error) {
             // Erro

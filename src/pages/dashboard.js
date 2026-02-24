@@ -4,7 +4,6 @@ import PerfilSidebar from '../components/PerfilSidebar.js';
 import NavBar from '../components/NavBar.js';
 import Footer from '../components/Footer.js';
 import { notify } from '../components/Notification.js';
-import Loading from '../components/Loading.js';
 
 export default function renderDashboardPage() {
     // Verifica se está autenticado
@@ -109,22 +108,37 @@ export default function renderDashboardPage() {
         const dataFormatada = dataHora && !isNaN(dataHora.getTime())
             ? dataHora.toLocaleDateString('pt-BR')
             : '--/--';
-        const horaFormatada = dataHora && !isNaN(dataHora.getTime())
+        const horaInicio = dataHora && !isNaN(dataHora.getTime())
             ? dataHora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
             : '--:--';
 
-        const status = (agendamento.status || 'agendado').toLowerCase();
+        // Calcula hora fim baseada na duração
+        let horaFim = '';
+        if (dataHora && agendamento.duracao) {
+            const [h, m] = agendamento.duracao.split(':').map(Number);
+            const dataFim = new Date(dataHora.getTime() + (h * 3600 + m * 60) * 1000);
+            horaFim = dataFim.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        const status = (agendamento.status || 'Agendado');
         let badgeClass = 'badge-primary';
-        if (status === 'cancelado') badgeClass = 'badge-danger';
-        if (status.includes('conclui')) badgeClass = 'badge-success';
-        if (status === 'pendente') badgeClass = 'badge-warning';
 
-        const nomeCliente = agendamento.cliente?.nome || agendamento.nome_cliente || 'Cliente';
-        const nomeServico = agendamento.servico?.nome || agendamento.nome_servico || 'Serviço';
+        // Trata os status exatos retornados pelo backend
+        if (status === 'Cancelado' || status === 'cancelado') badgeClass = 'badge-danger';
+        else if (status === 'Concluido' || status === 'concluido' || status.includes('conclu')) badgeClass = 'badge-success';
+        else if (status === 'Agendado' || status === 'agendado') badgeClass = 'badge-primary';
+        else if (status === 'pendente' || status === 'Pendente') badgeClass = 'badge-warning';
 
-        // Verifica se usuário pode alterar status
+        const nomeCliente = agendamento.cliente_nome || agendamento.nome_cliente || agendamento.cliente?.nome || 'Cliente';
+        const nomeServico = agendamento.servico_nome || agendamento.nome_servico || agendamento.servico?.nome || 'Serviço';
+
+        // Verifica se usuario pode alterar status
         const userType = authState.getUserType();
-        const podeAcao = userType === 'profissional' && (status === 'agendado' || status === 'pendente' || status === 'confirmado');
+        const podeAcao = userType === 'profissional' && (
+            status === 'Agendado' || status === 'agendado' ||
+            status === 'pendente' || status === 'Pendente' ||
+            status === 'confirmado' || status === 'Confirmado'
+        );
 
         card.innerHTML = `
             <div class="d-flex justify-content-between align-items-start mb-3">
@@ -134,7 +148,10 @@ export default function renderDashboardPage() {
                     </div>
                     <div>
                         <h5 class="fw-bold mb-0 text-dark">${nomeCliente}</h5>
-                        <div class="text-muted small"><i class="bi bi-scissors me-1"></i>${nomeServico}</div>
+                        <div class="text-muted small">
+                    <i class="bi bi-scissors me-1"></i>${nomeServico}
+                    ${agendamento.duracao ? `<span class="ms-2"><i class="bi bi-clock me-1"></i>${agendamento.duracao}</span>` : ''}
+                </div>
                     </div>
                 </div>
                 <span class="badge-custom ${badgeClass}">${status}</span>
@@ -147,7 +164,7 @@ export default function renderDashboardPage() {
                 </div>
                 <div class="col-auto">
                     <small class="text-muted d-block text-uppercase" style="font-size:0.7rem">Horário</small>
-                    <span class="fw-medium text-dark">${horaFormatada}</span>
+                    <span class="fw-medium text-dark">${horaInicio}${horaFim ? ` - ${horaFim}` : ''}</span>
                 </div>
                  ${agendamento.observacoes ? `
                 <div class="col-12 mt-2">
@@ -209,13 +226,21 @@ export default function renderDashboardPage() {
 
         try {
             const api = new ApiService();
-            const profissionalId = authState.getUser()?.id || authState.getCadastroId();
+            const user = authState.getUser();
+            const cadastroId = user?.id || authState.getCadastroId();
 
             // 1. Buscar dados do profissional
             let profissional = null;
             try {
-                profissional = await api.buscarProfissionalPorCadastro(profissionalId);
+                // Tenta usar o profissional_id se já estiver no estado, senão busca pelo cadastro
+                const profIdNoEstado = user?.profissional_id || user?.profissionalId;
+                if (profIdNoEstado) {
+                    profissional = await api.buscarProfissional(profIdNoEstado);
+                } else {
+                    profissional = await api.buscarProfissionalPorCadastro(cadastroId);
+                }
             } catch (e) {
+                console.error("Erro ao carregar perfil:", e);
             }
 
             if (!profissional || !profissional.id) {
@@ -229,35 +254,8 @@ export default function renderDashboardPage() {
                 return;
             }
 
-            // 2. Buscar todos os agendamentos
-            const todosAgendamentos = await api.listarAgendamentos();
-
-            // 3. Filtrar agendamentos do profissional - LOGICA CORRIGIDA
-            const agendamentosProfissional = Array.isArray(todosAgendamentos)
-                ? todosAgendamentos.filter(a => {
-
-                    // Método 1: Usar profissional_nome (se vier do JOIN)
-                    if (a.profissional_nome && profissional.nome &&
-                        a.profissional_nome.toLowerCase() === profissional.nome.toLowerCase()) {
-                        return true;
-                    }
-
-                    // Método 2: Usar objeto servico aninhado
-                    if (a.servico && a.servico.id_profissional_fk == profissional.id) {
-                        return true;
-                    }
-
-                    // Método 3: Buscar serviço por id_servico_fk (fallback)
-                    if (a.id_servico_fk) {
-
-                        // Aqui vamos buscar o serviço separadamente
-                        // Por enquanto, vamos testar se o serviço pertence ao profissional
-                        return false; // Temporariamente false até implementarmos a busca
-                    }
-
-                    return false;
-                })
-                : [];
+            // 2. Buscar agendamentos filtrados por profissional (Segurança + Correção)
+            const agendamentosProfissional = await api.listarAgendamentos(profissional.id);
 
 
             // 4. Cálculos das estatísticas
@@ -272,13 +270,13 @@ export default function renderDashboardPage() {
             });
 
             const cancelados = agendamentosProfissional.filter(a => {
-                const status = (a.status || '').toLowerCase();
-                return status.includes('cancel');
+                const status = a.status || '';
+                return status === 'Cancelado' || status === 'cancelado' || status.toLowerCase().includes('cancel');
             });
 
             const concluidos = agendamentosProfissional.filter(a => {
-                const status = (a.status || '').toLowerCase();
-                return status.includes('conclu') || status.includes('concluid');
+                const status = a.status || '';
+                return status === 'Concluido' || status === 'concluido' || status.toLowerCase().includes('conclu');
             });
 
             // 5. Renderizar cards de resumo

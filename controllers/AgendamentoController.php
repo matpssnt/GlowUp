@@ -28,7 +28,7 @@ class AgendamentoController
                 (int) $data['id_servico_fk']
             );
 
-            if (!in_array($dataHora, $slotsDisponiveis, true)) {
+            if (!in_array($dataHora, $slotsDisponiveis['horarios'], true)) {
                 throw new Exception('Horário indisponível. Já foi ocupado ou está fora da escala.');
             }
             // ─────────────────────────────────────────────────────
@@ -118,7 +118,10 @@ class AgendamentoController
 
     public static function getAll()
     {
-        $agendamentos = AgendamentoModel::getAll();
+        $idProfissional = isset($_GET['id_profissional']) ? (int)$_GET['id_profissional'] : null;
+        $idCliente = isset($_GET['id_cliente']) ? (int)$_GET['id_cliente'] : null;
+        
+        $agendamentos = AgendamentoModel::getAll($idCliente, $idProfissional);
         return jsonResponse($agendamentos, 200);
     }
 }

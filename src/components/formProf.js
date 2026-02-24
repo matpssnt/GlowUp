@@ -173,9 +173,9 @@ export default function renderFormProf(container) {
                 nome: nome.value.trim(),
                 email: email.value.trim(),
                 descricao: 'Cadastro em andamento',
-                acessibilidade: 0,
-                isJuridica: 0,
-                id_cadastro_fk: idCadastro
+                acessibilidade: parseInt(0),
+                isJuridica: parseInt(0),
+                id_cadastro_fk: parseInt(idCadastro)
             };
 
             const responseProf = await api.criarProfissional(profissionalData);
@@ -212,6 +212,7 @@ export default function renderFormProf(container) {
             }, 1000);
         } catch (error) {
             const { notify } = await import('../components/Notification.js');
+            
             let mensagemErro = error.message || 'Erro ao cadastrar. Por favor, tente novamente.';
             if (mensagemErro.includes('email')) {
                 mensagemErro = 'Este e-mail já está em uso.';

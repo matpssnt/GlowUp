@@ -46,7 +46,7 @@ export default function renderServicosPage() {
     const contentArea = document.createElement('div');
     contentArea.className = 'content-area';
 
-    // --- Header da Página ---
+    // Header da Página
     const header = document.createElement('div');
     header.className = 'd-flex justify-content-between align-items-center mb-3';
     header.innerHTML = `
@@ -60,7 +60,7 @@ export default function renderServicosPage() {
     `;
     contentArea.appendChild(header);
 
-    // --- Container do Formulário (Oculto inicialmente) ---
+    // Container do Formulário (Oculto inicialmente)
     const formContainer = document.createElement('div');
     formContainer.className = 'content-card mb-4';
     formContainer.style.display = 'none'; // Toggle via JS
@@ -94,9 +94,25 @@ export default function renderServicosPage() {
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Duração</label>
-                        <input type="text" name="duracao" class="form-control" placeholder="00:30" >
-                        <div class="form-text">Ex: 00:30</div>
+                        <label class="form-label">Duração (Horas:Minutos)</label>
+                        <div class="d-flex gap-2">
+                            <select id="duracaoHoras" class="form-select">
+                                <option value="0">0h</option>
+                                <option value="1">1h</option>
+                                <option value="2">2h</option>
+                                <option value="3">3h</option>
+                                <option value="4">4h</option>
+                                <option value="5">5h</option>
+                            </select>
+                            <select id="duracaoMinutos" class="form-select">
+                                <option value="00">00min</option>
+                                <option value="10">10min</option>
+                                <option value="20">20min</option>
+                                <option value="30">30min</option>
+                                <option value="40">40min</option>
+                                <option value="50">50min</option>
+                            </select>
+                        </div>
                     </div>
                     
                     <div class="col-12 d-flex gap-2 justify-content-end mt-4">
@@ -109,7 +125,7 @@ export default function renderServicosPage() {
     `;
     contentArea.appendChild(formContainer);
 
-    // --- Lista de Serviços ---
+    // Lista de Serviços
     const listContainer = document.createElement('div');
     listContainer.className = 'content-card';
     listContainer.innerHTML = `
@@ -145,7 +161,6 @@ export default function renderServicosPage() {
     footerContainer.appendChild(Footer());
 
 
-    // --- Lógica JS ---
     const api = new ApiService();
     const profissionalId = authState.getUser()?.id || authState.getCadastroId();
     let profissional = null;
@@ -189,13 +204,6 @@ export default function renderServicosPage() {
             });
         }
 
-        // Máscara Duração (HH:MM)
-        if (inputDuracao && !maskDuracao) {
-            maskDuracao = IMask(inputDuracao, {
-                mask: '00:00',
-                lazy: false // Mostra os placeholders
-            });
-        }
     }
 
     // Toggle Form
@@ -205,7 +213,8 @@ export default function renderServicosPage() {
         if (!show && reset) {
             form.reset();
             if (maskPreco) maskPreco.value = '';
-            if (maskDuracao) maskDuracao.value = '';
+            document.getElementById('duracaoHoras').value = '0';
+            document.getElementById('duracaoMinutos').value = '00';
             document.getElementById('servicoId').value = '';
             formTitle.textContent = 'Novo Serviço';
         } else if (show) {
@@ -220,10 +229,10 @@ export default function renderServicosPage() {
     btnFechar.onclick = () => toggleForm(false);
     btnCancelar.onclick = () => toggleForm(false);
 
-    // Helper: Formata duração para exibição
+    // Helper: Formata duracao para exibicao
     function formatarDuracaoExibicao(duracaoStr) {
         if (!duracaoStr) return '00:30';
-        // Se vier como DATETIME (YYYY-MM-DD HH:MM:SS), pega só o tempo
+        // Se vier como DATETIME (YYYY-MM-DD HH:MM:SS), pega so o tempo
         if (duracaoStr.includes(' ')) {
             const parts = duracaoStr.split(' ');
             if (parts.length > 1) {
@@ -236,18 +245,10 @@ export default function renderServicosPage() {
         return s;
     }
 
-    function normalizarDuracaoParaBackend(valor) {
-        const v = String(valor || '').trim();
-        if (!v) return '00:30:00';
-        if (v.length === 5) return `${v}:00`;
-        if (v.length === 8) return v;
-        return v;
-    }
-
     // Carregar Dados
     async function carregarDados() {
         try {
-            // 1. Busca Profissional
+            // Busca Profissional
             try {
                 profissional = await api.buscarProfissionalPorCadastro(profissionalId);
             } catch (e) { /*console.error('Prof err', e); */ }
@@ -257,7 +258,7 @@ export default function renderServicosPage() {
                 return;
             }
 
-            // 2. Busca Categorias
+            // Busca Categorias
             const categorias = await api.listarCategorias();
             if (categorias && categorias.length) {
                 selectCategoria.innerHTML = '<option value="">Selecione...</option>';
@@ -266,7 +267,7 @@ export default function renderServicosPage() {
                 });
             }
 
-            // 3. Busca e Lista Serviços
+            // Busca e Lista Serviços
             await atualizarListaServicos();
 
         } catch (error) {
@@ -289,8 +290,28 @@ export default function renderServicosPage() {
             meusServicos.forEach(servico => {
                 const tr = document.createElement('tr');
 
-                // Formata Preço visualmente (Ponto para Vírgula)
+                // Formata Preco visualmente (Ponto para Virgula)
                 const precoVisual = servico.preco ? parseFloat(servico.preco).toFixed(2).replace('.', ',') : '0,00';
+
+                // Formata duracao para exibicao na tabela
+                function formatarDuracaoTabela(duracaoStr) {
+                    if (!duracaoStr) return '00:30';
+
+                    // Se vier como DATETIME, pega so o tempo
+                    if (duracaoStr.includes(' ')) {
+                        const parts = duracaoStr.split(' ');
+                        if (parts.length > 1) {
+                            return parts[1].substring(0, 5); // HH:MM
+                        }
+                    }
+
+                    // Se ja for HH:MM:SS, pega so HH:MM
+                    if (duracaoStr.length >= 5) {
+                        return duracaoStr.substring(0, 5);
+                    }
+
+                    return duracaoStr;
+                }
 
                 tr.innerHTML = `
                     <td>
@@ -299,7 +320,7 @@ export default function renderServicosPage() {
                     </td>
                     <td><span class="badge badge-primary">${servico.categoria_nome || 'Geral'}</span></td>
                     <td>R$ ${precoVisual}</td>
-                    <td>${formatarDuracaoExibicao(servico.duracao)}</td>
+                    <td>${formatarDuracaoTabela(servico.duracao)}</td>
                     <td class="text-end">
                         <button class="action-btn btn-editar" title="Editar"><i class="bi bi-pencil"></i></button>
                         <button class="action-btn delete btn-excluir" title="Excluir"><i class="bi bi-trash"></i></button>
@@ -331,7 +352,7 @@ export default function renderServicosPage() {
         form.querySelector('[name="nome"]').value = servico.nome;
         form.querySelector('[name="descricao"]').value = servico.descricao;
 
-        // Preço com Máscara
+        // Preco com Mascara
         if (maskPreco) {
             const precoNumber = servico.preco !== null && servico.preco !== undefined ? Number(servico.preco) : 0;
             maskPreco.typedValue = isNaN(precoNumber) ? 0 : precoNumber;
@@ -339,14 +360,14 @@ export default function renderServicosPage() {
             form.querySelector('[name="preco"]').value = servico.preco;
         }
 
-        // Duração com Máscara e Tratamento
+        // Duracao com Selects
         let duracaoValor = formatarDuracaoExibicao(servico.duracao);
-        if (maskDuracao) {
-            maskDuracao.value = duracaoValor;
-            maskDuracao.updateValue();
-        } else {
-            form.querySelector('[name="duracao"]').value = duracaoValor;
-        }
+        const [h, m] = duracaoValor.split(':');
+        document.getElementById('duracaoHoras').value = parseInt(h) || 0;
+
+        // Arredonda minutos para o mais próximo de 10 para o select
+        const minArr = String(Math.floor((parseInt(m) || 0) / 10) * 10).padStart(2, '0');
+        document.getElementById('duracaoMinutos').value = minArr;
 
         const catId = servico.id_categoria_fk || (servico.categoria ? servico.categoria.id : '');
         if (catId) selectCategoria.value = catId;
@@ -375,7 +396,7 @@ export default function renderServicosPage() {
         const payload = Object.fromEntries(formData.entries());
         payload.id_profissional_fk = profissional.id;
 
-        // Recupera Valor Real do Preço (sem R$)
+        // Recupera Valor Real do Preco (sem R$)
         if (maskPreco) {
             payload.preco = maskPreco.typedValue;
         } else if (payload.preco) {
@@ -391,9 +412,10 @@ export default function renderServicosPage() {
             }
         }
 
-        // Validação e Correção de Duração
-        let duracao = normalizarDuracaoParaBackend(payload.duracao);
-        payload.duracao = duracao;
+        // Validacao e Correcao de Duracao (Soma selects)
+        const horas = document.getElementById('duracaoHoras').value.padStart(2, '0');
+        const minutos = document.getElementById('duracaoMinutos').value.padStart(2, '0');
+        payload.duracao = `${horas}:${minutos}:00`;
 
         try {
             if (id) {

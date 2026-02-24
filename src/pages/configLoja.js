@@ -183,10 +183,21 @@ export default function renderConfiguracoesLojaPage() {
 
     function extrairHora(valor) {
         if (!valor) return '';
+        
         const s = String(valor);
-        if (s.includes(' ')) return s.split(' ')[1].substring(0, 8);
-        if (s.includes('T')) return s.split('T')[1].substring(0, 8);
-        return s.substring(0, 8);
+        
+        // Se vier como DATETIME (YYYY-MM-DD HH:MM:SS), pega so a hora
+        if (s.includes(' ')) {
+            const timePart = s.split(' ')[1];
+            return timePart ? timePart.substring(0, 5) : ''; // HH:MM
+        }
+        
+        // Se vier como TIME (HH:MM:SS), pega so HH:MM
+        if (s.includes(':')) {
+            return s.substring(0, 5); // HH:MM
+        }
+        
+        return s;
     }
 
     function renderEscala() {
@@ -236,17 +247,17 @@ export default function renderConfiguracoesLojaPage() {
             const inputFim = tr.querySelector(`input[name="fim_${d.id}"]`);
             const btnLimpar = tr.querySelector('[data-action="limpar"]');
 
-            // 🔒 Ajusta mínimo do fechamento ao carregar
+            // Ajusta minimo do fechamento ao carregar
             if (inputInicio.value) {
                 inputFim.min = inputInicio.value;
             }
 
-            // 🔥 Limpa se vier inválido do banco
+            // Limpa se vier invalido do banco
             if (inputInicio.value && inputFim.value && inputFim.value <= inputInicio.value) {
                 inputFim.value = '';
             }
 
-            // 🔁 Quando alterar abertura
+            // Quando alterar abertura
             inputInicio.addEventListener('input', () => {
 
                 if (!inputInicio.value) {
@@ -257,27 +268,27 @@ export default function renderConfiguracoesLojaPage() {
                 inputFim.min = inputInicio.value;
 
                 if (inputFim.value && inputFim.value <= inputInicio.value) {
-                    notify.warning('O horário de fechamento deve ser maior que o de abertura');
+                    notify.warning('O horario de fechamento deve ser maior que o de abertura');
                     inputFim.value = '';
                 }
             });
 
-            // 🔒 Bloqueio imediato no fechamento
+            // Bloqueio imediato no fechamento
             inputFim.addEventListener('input', () => {
 
                 if (!inputInicio.value) {
-                    notify.warning('Defina primeiro o horário de abertura');
+                    notify.warning('Defina primeiro o horario de abertura');
                     inputFim.value = '';
                     return;
                 }
 
-                if (inputFim.value <= inputInicio.value) {
-                    notify.warning('O horário de fechamento deve ser maior que o de abertura');
+                if (inputFim.value && inputFim.value <= inputInicio.value) {
+                    notify.warning('Horario de fechamento deve ser maior que o de abertura');
                     inputFim.value = '';
                 }
             });
 
-            // 🧹 Botão limpar
+            // Botao limpar
             btnLimpar.addEventListener('click', () => {
                 inputInicio.value = '';
                 inputFim.value = '';
@@ -377,8 +388,8 @@ export default function renderConfiguracoesLojaPage() {
 
                 const payload = {
                     dia_semana: dia,
-                    hora_inicio: inicio,
-                    hora_fim: fim,
+                    hora_inicio: inicio + ':00',    // Adiciona :00 para formato HH:MM:SS
+                    hora_fim: fim + ':00',         // Adiciona :00 para formato HH:MM:SS
                     id_profissional_fk: profissional.id
                 };
 

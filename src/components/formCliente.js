@@ -229,46 +229,38 @@ export default function renderFormCliente(container) {
 
             notify.success('Cadastro realizado com sucesso!');
 
-            const emailValue = email.value.trim();
-            const passwordValue = password.value;
-
-            const response = await api.login(emailValue, passwordValue);
+            // Realiza login automático imediatamente
+            const response = await api.login(email.value.trim(), password.value);
 
             if (response && response.token) {
-                let jwtPayload = null;
-                
+                let jwtPayload = {};
                 try {
-                    const token = response.token.split('.');
-                    
-                    if (token.length === 3) {
-                        const base64 = token[1].replace(/-/g, '+').replace(/_/g, '/');
-                        const padded = base64.padEnd(base64.length + (4 - base64.length % 4) % 4, '=');
-                        jwtPayload = JSON.parse(atob(padded));
-                    }
-
+                    const base64Url = response.token.split('.')[1];
+                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                    jwtPayload = JSON.parse(window.atob(base64));
                 } catch (e) {
-                    // Ignora erro de decodificação
+                    console.error('Erro ao decodificar token:', e);
                 }
 
-                const sub = jwtPayload?.sub || {};
-
+                const sub = jwtPayload.sub || {};
                 const userData = {
-                    tipoUsuario: response.tipoUsuario || 'cliente',
-                    nome: sub.nome || '',
-                    email: sub.email || emailValue,
-                    id: sub.id || null,
-                    cliente_id: sub.cliente_id || null
+                    tipoUsuario: 'cliente',
+                    nome: sub.nome || nome.value.trim(),
+                    email: sub.email || email.value.trim(),
+                    id: sub.id || sub.idCadastro || null,
+                    cliente_id: sub.cliente_id || sub.clienteId || null
                 };
 
                 authState.setUser(userData, response.token);
 
+                // Redireciona para home
                 const currentPath = window.location.pathname;
                 const basePath = currentPath.split('/').slice(0, 2).join('/');
 
-                window.location.href = basePath + '/home';
-
+                setTimeout(() => {
+                    window.location.href = basePath + '/home';
+                }, 1000);
             } else {
-                notify.error('Cadastro realizado, mas não foi possível logar automáticamente. Tente logar manualmente.');
                 window.location.href = 'login';
             }
 
