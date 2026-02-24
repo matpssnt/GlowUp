@@ -91,11 +91,20 @@ export default function renderMinhaAgendaPage() {
         const status = (agendamento.status || 'agendado').toLowerCase();
         let badgeClass = 'badge-primary';
         if (status === 'cancelado') badgeClass = 'badge-danger';
-        if (status.includes('conclui')) badgeClass = 'badge-success';
-        if (status === 'pendente') badgeClass = 'badge-warning';
+        else if (status.includes('conclui')) badgeClass = 'badge-success';
+        else if (status === 'pendente') badgeClass = 'badge-warning';
 
-        const nomeProfissional = agendamento.profissional_nome || 'Profissional';
-        const nomeServico = agendamento.servico_nome || 'Serviço';
+        const nomeProfissional = agendamento.profissional_nome || agendamento.nome_profissional || 'Profissional';
+        const nomeServico = agendamento.servico_nome || agendamento.nome_servico || 'Serviço';
+        const precoVisual = agendamento.preco ? parseFloat(agendamento.preco).toFixed(2).replace('.', ',') : (agendamento.servico_preco ? parseFloat(agendamento.servico_preco).toFixed(2).replace('.', ',') : null);
+
+        // Calcula hora fim baseada na duração
+        let horaFim = '';
+        if (dataHora && agendamento.duracao) {
+            const [h, m] = agendamento.duracao.split(':').map(Number);
+            const dataFim = new Date(dataHora.getTime() + (h * 3600 + m * 60) * 1000);
+            horaFim = dataFim.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        }
 
         // Cliente só pode cancelar agendamentos não finalizados
         const podeCancelar = status === 'agendado' || status === 'pendente' || status === 'confirmado';
@@ -108,7 +117,10 @@ export default function renderMinhaAgendaPage() {
                     </div>
                     <div>
                         <h5 class="fw-bold mb-0 text-dark">${nomeProfissional}</h5>
-                        <div class="text-muted small"><i class="bi bi-scissors me-1"></i>${nomeServico}</div>
+                        <div class="text-muted small">
+                            <i class="bi bi-scissors me-1"></i>${nomeServico}
+                            ${precoVisual ? `<span class="ms-2 fw-medium text-success">R$ ${precoVisual}</span>` : ''}
+                        </div>
                     </div>
                 </div>
                 <span class="badge-custom ${badgeClass}">${status}</span>
@@ -121,7 +133,7 @@ export default function renderMinhaAgendaPage() {
                 </div>
                 <div class="col-auto">
                     <small class="text-muted d-block text-uppercase" style="font-size:0.7rem">Horário</small>
-                    <span class="fw-medium text-dark">${horaFormatada}</span>
+                    <span class="fw-medium text-dark">${horaFormatada}${horaFim ? ` - ${horaFim}` : ''}</span>
                 </div>
                  ${agendamento.observacoes ? `
                 <div class="col-12 mt-2">
@@ -165,18 +177,10 @@ export default function renderMinhaAgendaPage() {
         try {
             const api = new ApiService();
             const user = authState.getUser();
-            const clienteId = user?.clienteId || authState.getCadastroId();
+            const clienteId = user?.cliente_id || user?.clienteId || user?.id || authState.getCadastroId();
 
-            // 1. Buscar todos os agendamentos
-            const todosAgendamentos = await api.listarAgendamentos();
-
-            // 2. Filtrar agendamentos do cliente
-            const agendamentosCliente = Array.isArray(todosAgendamentos)
-                ? todosAgendamentos.filter(a => {
-                    // Filtra por ID do cliente (FK correta)
-                    return a.id_cliente_fk == clienteId || a.id_cliente == clienteId;
-                })
-                : [];
+            // 1. Buscar agendamentos filtrados por clienteId (Segurança + Correção)
+            const agendamentosCliente = await api.listarAgendamentos(null, clienteId);
 
             // 3. Renderizar lista de próximos agendamentos
             const agora = new Date();

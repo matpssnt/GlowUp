@@ -13,6 +13,7 @@ class AgendamentoModel
 
     public static function gerarHorariosDisponiveis(string $data, int $idServico): array
     {
+        date_default_timezone_set('America/Sao_Paulo');
         $conn = Database::getInstancia()->pegarConexao();
 
         // 1. Dados do serviço
@@ -49,9 +50,10 @@ class AgendamentoModel
         // Agendamentos confirmados
         $agendamentos = self::getAgendamentosConfirmadosDoDia($conn, $idProf, $data);
         foreach ($agendamentos as $agd) {
-            $inicio = self::horaParaMinutos((new DateTime($agd['data_hora']))->format('H:i:s'));
+            $inicio = self::horaParaMinutos($agd['data_hora']);
             $dur = self::parseDuracaoMinutos($agd['duracao']);
-            $ocupados[] = [$inicio, $inicio + $dur];
+            // REGRA: Bloqueia do início até o fim + 30 minutos (buffer de limpeza)
+            $ocupados[] = [$inicio, $inicio + $dur + 30];
         }
 
         // Indisponibilidades
@@ -59,7 +61,8 @@ class AgendamentoModel
         foreach ($indisponiveis as $ind) {
             $ini = self::horaParaMinutos($ind['hora_inicio']);
             $fim = $ind['hora_fim'] ? self::horaParaMinutos($ind['hora_fim']) : 1440;
-            $ocupados[] = [$ini, $fim];
+            // Buffer também aplicado a indisponibilidades para consistência
+            $ocupados[] = [$ini, $fim + 30];
         }
 
         // Horário passado (hoje + margem 30 min)
@@ -73,11 +76,12 @@ class AgendamentoModel
         // 5. Períodos livres
         $livres = self::subtrairIntervalos($trabalho, $ocupados);
 
-        // 6. Gera slots
+        // 6. Gera slots (Volto para 30 min conforme pedido)
         $slots = [];
-        $step = 30;
+        $step = 30; 
 
         foreach ($livres as [$iniLivre, $fimLivre]) {
+            // O serviço de duração duracaoMin deve CABER dentro do [iniLivre, fimLivre]
             for ($t = $iniLivre; $t + $duracaoMin <= $fimLivre; $t += $step) {
                 $slots[] = $data . ' ' . self::minutosParaHora($t) . ':00';
             }
@@ -108,17 +112,23 @@ class AgendamentoModel
 
     private static function parseDuracaoMinutos($duracao): int
     {
-        if (!$duracao)
-            return 30;
-        if (is_numeric($duracao))
-            return (int) $duracao;
+        if (!$duracao) return 30;
+        if (is_numeric($duracao)) return (int) $duracao;
 
-        $parts = explode(':', $duracao . ':00');
-        return ((int) $parts[0] * 60) + (int) $parts[1];
+        // Trata formatos HH:MM:SS ou HH:MM
+        $parts = explode(':', $duracao);
+        $h = isset($parts[0]) ? (int)$parts[0] : 0;
+        $m = isset($parts[1]) ? (int)$parts[1] : 0;
+        
+        return ($h * 60) + $m;
     }
 
     private static function horaParaMinutos(string $time): int
     {
+        // Se vier DATETIME completo (ex: 2026-02-24 13:00:00), extraímos apenas HH:MM:SS
+        if (strlen($time) > 8) {
+            $time = substr($time, -8);
+        }
         [$h, $m] = explode(':', $time);
         return ((int) $h * 60) + (int) $m;
     }
@@ -132,8 +142,7 @@ class AgendamentoModel
 
     private static function mergeIntervalos(array $intervals): array
     {
-        if (empty($intervals))
-            return [];
+        if (empty($intervals)) return [];
         usort($intervals, fn($a, $b) => $a[0] <=> $b[0]);
 
         $merged = [$intervals[0]];
@@ -150,25 +159,30 @@ class AgendamentoModel
 
     private static function subtrairIntervalos(array $disponiveis, array $ocupados): array
     {
-        $resultado = [];
-        foreach ($disponiveis as [$iniDisp, $fimDisp]) {
-            $cursor = $iniDisp;
-            foreach ($ocupados as [$iniOcup, $fimOcup]) {
-                if ($fimOcup <= $cursor)
-                    continue;
-                if ($iniOcup >= $fimDisp)
-                    break;
+        if (empty($disponiveis)) return [];
+        if (empty($ocupados)) return $disponiveis;
 
-                if ($cursor < $iniOcup) {
-                    $resultado[] = [$cursor, $iniOcup];
+        $resultado = [];
+        foreach ($disponiveis as $d) {
+            $atuais = [$d];
+            foreach ($ocupados as $o) {
+                $proximos = [];
+                foreach ($atuais as $a) {
+                    [$dIni, $dFim] = $a;
+                    [$oIni, $oFim] = $o;
+
+                    if ($oIni >= $dFim || $oFim <= $dIni) {
+                        $proximos[] = $a;
+                    } else {
+                        if ($oIni > $dIni) $proximos[] = [$dIni, $oIni];
+                        if ($oFim < $dFim) $proximos[] = [$oFim, $dFim];
+                    }
                 }
-                $cursor = max($cursor, $fimOcup);
+                $atuais = $proximos;
             }
-            if ($cursor < $fimDisp) {
-                $resultado[] = [$cursor, $fimDisp];
-            }
+            $resultado = array_merge($resultado, $atuais);
         }
-        return $resultado;
+        return self::mergeIntervalos($resultado);
     }
 
     private static function ehHoje(string $data): bool
@@ -178,13 +192,14 @@ class AgendamentoModel
 
     private static function getAgendamentosConfirmadosDoDia($conn, int $idProf, string $data): array
     {
+        // Consideramos tudo que NÃO está cancelado para bloquear a agenda
         $stmt = $conn->prepare("
             SELECT a.data_hora, s.duracao
             FROM agendamentos a
             INNER JOIN servicos s ON a.id_servico_fk = s.id
             WHERE s.id_profissional_fk = ?
               AND DATE(a.data_hora) = ?
-              AND a.status = 'Agendado'
+              AND LOWER(a.status) NOT LIKE 'cancel%'
         ");
         $stmt->bind_param("is", $idProf, $data);
         $stmt->execute();
@@ -199,7 +214,7 @@ class AgendamentoModel
             SELECT hora_inicio, hora_fim
             FROM indisponibilidades
             WHERE id_profissional_fk = ?
-              AND DATE(hora_inicio) = ?
+              AND data = ?
         ");
         $stmt->bind_param("is", $idProf, $data);
         $stmt->execute();
@@ -308,7 +323,7 @@ class AgendamentoModel
         $dataApenas = $dt->format('Y-m-d');
         $slotsDisponiveis = self::gerarHorariosDisponiveis($dataApenas, $idServico);
 
-        if (!in_array($dataHora, $slotsDisponiveis, true)) {
+        if (!in_array($dataHora, $slotsDisponiveis['horarios'], true)) {
             throw new Exception(
                 'Horário indisponível no momento atual do sistema ' .
                 '(já ocupado, fora da escala, sem tempo suficiente ou passou o prazo de segurança)'
@@ -424,20 +439,36 @@ class AgendamentoModel
      * @param int|null $idCliente
      * @return array
      */
-    public static function getAll($idCliente = null)
+    public static function getAll($idCliente = null, $idProfissional = null)
     {
         $conn = Database::getInstancia()->pegarConexao();
 
-        $sql = "SELECT a.*, s.nome as servico_nome, c.nome as cliente_nome, p.nome as profissional_nome
+        $sql = "SELECT a.*, s.nome as servico_nome, s.id_profissional_fk, s.duracao, c.nome as cliente_nome, p.nome as profissional_nome
                 FROM agendamentos a
                 LEFT JOIN servicos s ON a.id_servico_fk = s.id
                 LEFT JOIN clientes c ON a.id_cliente_fk = c.id
                 LEFT JOIN profissionais p ON s.id_profissional_fk = p.id";
 
+        $where = [];
+        $params = [];
+        $types = "";
+
         if ($idCliente) {
-            $sql .= " WHERE a.id_cliente_fk = ?";
+            $where[] = "a.id_cliente_fk = ?";
+            $params[] = $idCliente;
+            $types .= "i";
+        }
+
+        if ($idProfissional) {
+            $where[] = "s.id_profissional_fk = ?";
+            $params[] = $idProfissional;
+            $types .= "i";
+        }
+
+        if (!empty($where)) {
+            $sql .= " WHERE " . implode(" AND ", $where);
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("i", $idCliente);
+            $stmt->bind_param($types, ...$params);
         } else {
             $stmt = $conn->prepare($sql);
         }

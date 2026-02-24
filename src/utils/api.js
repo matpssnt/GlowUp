@@ -361,8 +361,14 @@ export default class ApiService {
     }
 
     // Métodos para Agendamento
-    async listarAgendamentos() {
-        return await this.request('/agendamento', 'GET');
+    async listarAgendamentos(idProfissional = null, idCliente = null) {
+        let qs = '';
+        const params = [];
+        if (idProfissional) params.push(`id_profissional=${idProfissional}`);
+        if (idCliente) params.push(`id_cliente=${idCliente}`);
+        if (params.length > 0) qs = '?' + params.join('&');
+
+        return await this.request(`/agendamento${qs}`, 'GET');
     }
 
     async buscarAgendamento(id) {
@@ -389,6 +395,16 @@ export default class ApiService {
     async listarHorariosDisponiveis(data, idServicoFk) {
         const qs = `?data=${encodeURIComponent(data)}&id_servico_fk=${encodeURIComponent(idServicoFk)}`;
         return await this.request(`/horarios-disponiveis${qs}`, 'GET');
+    }
+
+    async listarHorariosDisponiveisAlternativo(data, idServicoFk) {
+        const qs = `?data=${encodeURIComponent(data)}&id_servico_fk=${encodeURIComponent(idServicoFk)}`;
+        try {
+            return await this.request(`/agendamento/disponibilidade${qs}`, 'GET');
+        } catch (error) {
+            // Fallback para o endpoint principal
+            return await this.listarHorariosDisponiveis(data, idServicoFk);
+        }
     }
 
     async trocarSenha(cadastroId, senhaAntiga, senhaNova) {
