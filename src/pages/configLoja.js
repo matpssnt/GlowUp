@@ -80,14 +80,13 @@ export default function renderConfiguracoesLojaPage() {
                     <label class="form-label">Nome do estabelecimento</label>
                     <input class="form-control" name="nome" required>
                 </div>
-
                 <div class="col-md-4">
                     <label class="form-label">DDD</label>
-                    <input class="form-control" name="ddd" placeholder="11">
+                    <input class="form-control" name="ddd" placeholder="11" maxlength="2" required>
                 </div>
                 <div class="col-md-8">
                     <label class="form-label">Número para contato</label>
-                    <input class="form-control" name="digitos" placeholder="99999-9999">
+                    <input class="form-control" name="digitos" placeholder="99999-9999" maxlength="11" required>
                 </div>
 
                 <div class="col-md-6">
@@ -145,7 +144,6 @@ export default function renderConfiguracoesLojaPage() {
     let profissional = null;
     let endereco = null;
     let telefone = null;
-    let telProfRel = null;
     let escalas = [];
 
     async function carregar() {
