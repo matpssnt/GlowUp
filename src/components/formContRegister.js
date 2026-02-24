@@ -220,7 +220,7 @@ secaoContato.innerHTML = `
     <h4 class="cont-register-section-title">Contato Principal</h4>
     <div class="row g-3">
         <div class="col-md-3">
-            <label class="form-label">DDI *</label>
+            <label class="form-label">DDD *</label>
             <input type="text" id="ddd" class="form-control" placeholder="Ex: 55" maxlength="2" required>
         </div>
         <div class="col-md-9">
@@ -230,7 +230,7 @@ secaoContato.innerHTML = `
     </div>
 `;
     formulario.appendChild(secaoContato);
-
+    
     formulario.appendChild(secaoEndereco);
 
         // Aplica máscara nos campos
