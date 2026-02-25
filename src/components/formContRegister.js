@@ -221,11 +221,7 @@ export default function renderFormContRegister(container) {
     <div class="row g-3">
         <div class="col-md-3">
             <label class="form-label">DDD *</label>
-<<<<<<< main
-            <input type="tel" id="ddd" class="form-control" placeholder="Ex: 55" maxlength="2" required>
-=======
             <input type="text" id="ddd" class="form-control" placeholder="Ex: 55" maxlength="2" required>
->>>>>>> main
         </div>
         <div class="col-md-9">
             <label class="form-label">Telefone *</label>
@@ -234,10 +230,7 @@ export default function renderFormContRegister(container) {
     </div>
 `;
     formulario.appendChild(secaoContato);
-<<<<<<< main
-=======
     
->>>>>>> main
     formulario.appendChild(secaoEndereco);
 
     // Aplica máscara nos campos
