@@ -148,9 +148,6 @@ export default function renderConfiguracoesLojaPage() {
 
     // Aplicar máscaras imediatamente (como no formulário de registro)
     if (inputDDD) {
-        // Se você tiver suporte para 'ddd' no validation.js, use:
-        // addMaskToInput(inputDDD, 'ddd');
-        // Senão, use limitação simples de 2 dígitos:
         inputDDD.addEventListener('input', (e) => {
             e.target.value = e.target.value.replace(/\D/g, '').slice(0, 2);
         });
