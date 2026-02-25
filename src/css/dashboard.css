@@ -281,6 +281,30 @@ body {
 
 
 
+/* Filter Buttons */
+.btn-filter {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-filter:hover {
+    background: var(--primary-light);
+    color: var(--primary-color);
+    border-color: var(--accent-color);
+}
+
+.btn-filter.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(41, 95, 28, 0.2);
+}
+
 /* Responsive */
 @media (max-width: 900px) {
     .main-content-wrapper {

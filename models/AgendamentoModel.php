@@ -378,13 +378,14 @@ class AgendamentoModel
         return $result ?: null;
     }
 
-    public static function getAll(?int $idCliente = null): array
+    public static function getAll(?int $idCliente = null, ?int $idProfissional = null): array
     {
         $conn = Database::getInstancia()->pegarConexao();
 
         $sql = "
             SELECT a.*, 
                    s.nome as servico_nome, 
+                   s.duracao,
                    c.nome as cliente_nome, 
                    p.nome as profissional_nome
             FROM agendamentos a
@@ -395,15 +396,28 @@ class AgendamentoModel
 
         $types = "";
         $params = [];
+        $whereClauses = [];
 
         if ($idCliente !== null) {
-            $sql .= " WHERE a.id_cliente_fk = ?";
+            $whereClauses[] = "a.id_cliente_fk = ?";
             $types .= "i";
             $params[] = $idCliente;
         }
 
+        if ($idProfissional !== null) {
+            $whereClauses[] = "s.id_profissional_fk = ?";
+            $types .= "i";
+            $params[] = $idProfissional;
+        }
+
+        if (!empty($whereClauses)) {
+            $sql .= " WHERE " . implode(" AND ", $whereClauses);
+        }
+
+        $sql .= " ORDER BY a.data_hora DESC";
+
         $stmt = $conn->prepare($sql);
-        if ($params) {
+        if (!empty($params)) {
             $stmt->bind_param($types, ...$params);
         }
         $stmt->execute();
