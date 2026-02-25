@@ -890,6 +890,7 @@
         width: 100%;
         margin: 0;
         top: 0;
+        margin-top: 80px;
     }
 
     .mini-carrossel-section img {
@@ -953,61 +954,74 @@
 
 /* Tablet (768px - 991px) */
 @media (min-width: 768px) and (max-width: 991px) {
-    .perfil-content {
-        flex-direction: column;
-        gap: 25px;
-        padding: 20px 30px;
-    }
 
-    .description-profissional,
-    .mini-carrossel-section {
-        max-width: 100%;
-    }
-
-    .foto-perfil img {
-        width: 100px;
-        height: 100px;
-    }
-
-    .mini-carrossel-section img {
-        height: 300px;
-    }
-
-    .perfil-overlay {
-        top: -70px;
-        margin-bottom: -70px;
-    }
-
-    .foto-perfil img {
-        width: 140px;
-        height: 140px;
-    }
-
-    .perfil-form-container {
-        padding: 30px;
-    }
-
-    /* Novos estilos responsivos */
+    /* Layout geral */
     .perfil-layout {
         flex-direction: column;
-        gap: 25px;
-        padding: 0 20px;
+        gap: 30px;
+        padding: 0 25px;
     }
-    
+
+    /* Remove sticky da sidebar */
     .perfil-sidebar {
         position: static;
         width: 100%;
     }
-    
+
+    /* Conteúdo principal */
+    .perfil-content {
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+        padding: 30px;
+    }
+
+    /* Descrição ocupa largura total */
+    .description-profissional {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    /* ===== MINI CARROSSEL AJUSTADO ===== */
+    .mini-carrossel-section {
+        max-width: 100%;
+        width: 100%;
+        margin: 0;
+        top: 0; /* remove qualquer subida */
+        height: 320px;
+    }
+
+    .mini-carrossel-section img {
+        height: 320px;
+        object-fit: cover;
+    }
+
+    /* ===== FOTO PERFIL AJUSTADA ===== */
+    .perfil-overlay {
+        top: -60px;
+        margin-bottom: -60px;
+        justify-content: center;
+        padding-left: 0;
+    }
+
+    .foto-perfil img {
+        width: 130px;
+        height: 130px;
+    }
+
+    /* Conteúdo interno */
     .perfil-content-main {
         padding: 30px;
     }
-    
+
     .perfil-page-container .form-section {
-        padding: 30px;
+        padding: 25px;
+    }
+
+    .perfil-form-container {
+        padding: 20px;
     }
 }
-
 /* Desktop médio (992px - 1199px) */
 @media (min-width: 992px) and (max-width: 1199px) {
     .perfil-content {
