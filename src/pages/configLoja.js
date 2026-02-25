@@ -81,14 +81,13 @@ export default function renderConfiguracoesLojaPage() {
                     <label class="form-label">Nome do estabelecimento</label>
                     <input class="form-control" name="nome" required>
                 </div>
-
                 <div class="col-md-4">
                     <label class="form-label">DDD</label>
-                    <input class="form-control" name="ddd" placeholder="11" maxlength="2">
+                    <input class="form-control" name="ddd" placeholder="11">
                 </div>
                 <div class="col-md-8">
                     <label class="form-label">Número para contato</label>
-                    <input class="form-control" name="digitos" placeholder="(11) 91234-5678" maxlength="15">
+                    <input class="form-control" name="digitos" placeholder="99999-9999">
                 </div>
 
                 <div class="col-md-6">

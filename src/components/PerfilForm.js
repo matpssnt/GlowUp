@@ -149,8 +149,6 @@ export default function PerfilForm() {
             // Coleta dados do formulário 
             const nomeCompleto = `${content.querySelector('#nome').value.trim()} ${content.querySelector('#sobrenome').value.trim()}`.trim();
             const email = content.querySelector('#email').value.trim();
-            const senha = content.querySelector('#senha').value.trim();
-            const telefone = content.querySelector('#telefone').value.replace(/\D/g, '');
            
             // Validações básicas
             if (!nomeCompleto || !email) {
