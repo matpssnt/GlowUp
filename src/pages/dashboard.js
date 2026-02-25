@@ -3,6 +3,7 @@ import ApiService from '../utils/api.js';
 import PerfilSidebar from '../components/PerfilSidebar.js';
 import NavBar from '../components/NavBar.js';
 import Footer from '../components/Footer.js';
+import ConfirmModal from '../components/ConfirmModal.js';
 import { notify } from '../components/Notification.js';
 
 export default function renderDashboardPage() {
@@ -47,14 +48,32 @@ export default function renderDashboardPage() {
 
     // --- Header ---
     const header = document.createElement('div');
-    header.className = 'd-flex justify-content-between align-items-center mb-4';
+    header.className = 'd-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4';
     header.innerHTML = `
         <div>
             <h2 class="fw-bold mb-1">Dashboard</h2>
             <p class="text-muted mb-0">Gerencie seus agendamentos</p>
         </div>
+        <div class="filter-group d-flex gap-2">
+            <button class="btn btn-sm btn-filter active" data-filter="todos">Todos</button>
+            <button class="btn btn-sm btn-filter" data-filter="Agendado">Agendados</button>
+            <button class="btn btn-sm btn-filter" data-filter="Concluido">Concluídos</button>
+            <button class="btn btn-sm btn-filter" data-filter="Cancelado">Cancelados</button>
+        </div>
     `;
     contentArea.appendChild(header);
+
+    // --- Modal de Confirmação ---
+    let idParaCancelar = null;
+    const confirmModal = ConfirmModal(
+        'modalConfirmarCancelamento',
+        'Confirmar Cancelamento',
+        'Tem certeza que deseja cancelar este agendamento? Esta ação não pode ser desfeita.',
+        () => {
+            if (idParaCancelar) executarCancelamento(idParaCancelar);
+        }
+    );
+    document.body.appendChild(confirmModal);
 
     // --- Stats Row ---
     const resumoContainer = document.createElement('div');
@@ -79,11 +98,13 @@ export default function renderDashboardPage() {
     footerContainer.innerHTML = '';
     footerContainer.appendChild(Footer());
 
+    // --- Estado Global da Página ---
+    let todosAgendamentos = [];
+    let filtroAtual = 'todos';
+
     // --- Helpers de Renderização ---
 
     function criarCardResumo(titulo, valor, icone, cor = 'primary') {
-        // Mapeia classes Bootstrap cores para variáveis
-        // Mas vamos usar o estilo limpo do CSS criado
         const card = document.createElement('div');
         card.className = 'col-md-3 col-sm-6';
         card.innerHTML = `
@@ -104,7 +125,7 @@ export default function renderDashboardPage() {
         const card = document.createElement('div');
         card.className = 'content-card mb-3 p-4';
 
-        const dataHora = agendamento.data_hora ? new Date(agendamento.data_hora) : null;
+        const dataHora = agendamento.data_hora ? new Date(agendamento.data_hora.replace(' ', 'T')) : null;
         const dataFormatada = dataHora && !isNaN(dataHora.getTime())
             ? dataHora.toLocaleDateString('pt-BR')
             : '--/--';
@@ -120,25 +141,18 @@ export default function renderDashboardPage() {
             horaFim = dataFim.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
         }
 
-        const status = (agendamento.status || 'Agendado');
+        const status = agendamento.status || 'Agendado';
         let badgeClass = 'badge-primary';
 
-        // Trata os status exatos retornados pelo backend
-        if (status === 'Cancelado' || status === 'cancelado') badgeClass = 'badge-danger';
-        else if (status === 'Concluido' || status === 'concluido' || status.includes('conclu')) badgeClass = 'badge-success';
-        else if (status === 'Agendado' || status === 'agendado') badgeClass = 'badge-primary';
-        else if (status === 'pendente' || status === 'Pendente') badgeClass = 'badge-warning';
+        if (status.toLowerCase().includes('cancela')) badgeClass = 'badge-danger';
+        else if (status.toLowerCase().includes('conclu')) badgeClass = 'badge-success';
+        else if (status.toLowerCase().includes('agendado')) badgeClass = 'badge-primary';
+        else if (status.toLowerCase().includes('pendente')) badgeClass = 'badge-warning';
 
-        const nomeCliente = agendamento.cliente_nome || agendamento.nome_cliente || agendamento.cliente?.nome || 'Cliente';
-        const nomeServico = agendamento.servico_nome || agendamento.nome_servico || agendamento.servico?.nome || 'Serviço';
+        const nomeCliente = agendamento.cliente_nome || 'Cliente';
+        const nomeServico = agendamento.servico_nome || 'Serviço';
 
-        // Verifica se usuario pode alterar status
-        const userType = authState.getUserType();
-        const podeAcao = userType === 'profissional' && (
-            status === 'Agendado' || status === 'agendado' ||
-            status === 'pendente' || status === 'Pendente' ||
-            status === 'confirmado' || status === 'Confirmado'
-        );
+        const podeAcao = (status.toLowerCase() === 'agendado' || status.toLowerCase() === 'pendente' || status.toLowerCase() === 'confirmado');
 
         card.innerHTML = `
             <div class="d-flex justify-content-between align-items-start mb-3">
@@ -175,11 +189,9 @@ export default function renderDashboardPage() {
 
             ${podeAcao ? `
             <div class="d-flex justify-content-end gap-2 border-top pt-3">
-                ${userType === 'profissional' ? `
-                    <button class="btn btn-outline-custom btn-sm btn-concluir text-success border-success-subtle">
-                        <i class="bi bi-check2-all me-1"></i>Concluir
-                    </button>
-                ` : ''}
+                <button class="btn btn-outline-custom btn-sm btn-concluir text-success border-success-subtle">
+                    <i class="bi bi-check2-all me-1"></i>Concluir
+                </button>
                 <button class="btn btn-outline-custom btn-sm btn-cancelar text-danger border-danger-subtle">
                     <i class="bi bi-x-lg me-1"></i>Cancelar
                 </button>
@@ -192,7 +204,9 @@ export default function renderDashboardPage() {
         const btnConcluir = card.querySelector('.btn-concluir');
 
         if (btnCancelar) btnCancelar.onclick = () => {
-            if (confirm('Cancelar este agendamento?')) cancelarAgendamento(agendamento.id);
+            idParaCancelar = agendamento.id;
+            const modal = new bootstrap.Modal(confirmModal);
+            modal.show();
         };
         if (btnConcluir) btnConcluir.onclick = () => concluirAgendamento(agendamento.id);
 
@@ -211,7 +225,7 @@ export default function renderDashboardPage() {
         }
     }
 
-    async function cancelarAgendamento(id) {
+    async function executarCancelamento(id) {
         try {
             const api = new ApiService();
             await api.cancelarAgendamento(id);
@@ -222,17 +236,63 @@ export default function renderDashboardPage() {
         }
     }
 
-    async function carregarDados() {
+    function aplicarFiltro(status) {
+        filtroAtual = status;
 
+        // Atualiza UI dos botões
+        header.querySelectorAll('.btn-filter').forEach(btn => {
+            if (btn.getAttribute('data-filter') === status) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        renderizarLista();
+    }
+
+    function renderizarLista() {
+        let filtrados = todosAgendamentos;
+
+        if (filtroAtual !== 'todos') {
+            filtrados = todosAgendamentos.filter(a => {
+                const status = (a.status || '').toLowerCase();
+                const filtro = filtroAtual.toLowerCase();
+                // Match parcial para lidar com acentuação/variação
+                if (filtro === 'concluido') return status.includes('conclu');
+                if (filtro === 'cancelado') return status.includes('cancela');
+                if (filtro === 'agendado') return status === 'agendado';
+                return status === filtro;
+            });
+        }
+
+        agendamentosContainer.innerHTML = '';
+        if (filtrados.length === 0) {
+            agendamentosContainer.innerHTML = `
+                <div class="content-card text-center p-5">
+                    <i class="bi bi-calendar-x text-muted mb-3" style="font-size: 2rem"></i>
+                    <p class="text-muted">Nenhum agendamento encontrado para este filtro.</p>
+                </div>`;
+        } else {
+            const title = document.createElement('h5');
+            title.className = 'mb-3 fw-bold text-dark';
+            title.textContent = filtroAtual === 'todos' ? 'Todos os Agendamentos' : `Agendamentos: ${filtroAtual}`;
+            agendamentosContainer.appendChild(title);
+
+            filtrados.forEach(ag => {
+                agendamentosContainer.appendChild(criarCardAgendamento(ag));
+            });
+        }
+    }
+
+    async function carregarDados() {
         try {
             const api = new ApiService();
             const user = authState.getUser();
             const cadastroId = user?.id || authState.getCadastroId();
 
-            // 1. Buscar dados do profissional
             let profissional = null;
             try {
-                // Tenta usar o profissional_id se já estiver no estado, senão busca pelo cadastro
                 const profIdNoEstado = user?.profissional_id || user?.profissionalId;
                 if (profIdNoEstado) {
                     profissional = await api.buscarProfissional(profIdNoEstado);
@@ -247,37 +307,29 @@ export default function renderDashboardPage() {
                 agendamentosContainer.innerHTML = `
                     <div class="alert alert-warning">
                         <h5>⚠️ Perfil Incompleto</h5>
-                        <p>Nenhum perfil de profissional encontrado para o cadastro ID ${profissionalId}.</p>
+                        <p>Nenhum perfil de profissional encontrado para este cadastro.</p>
                         <small>Verifique se você completou seu cadastro como profissional.</small>
                     </div>
                 `;
                 return;
             }
 
-            // 2. Buscar agendamentos filtrados por profissional (Segurança + Correção)
-            const agendamentosProfissional = await api.listarAgendamentos(profissional.id);
+            // 2. Buscar agendamentos filtrados por profissional (Backend agora ordena e filtra)
+            todosAgendamentos = await api.listarAgendamentos(profissional.id);
 
+            // 4. Cálculos das estatísticas para o resumo (sempre baseados em tudo do profissional)
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
 
-            // 4. Cálculos das estatísticas
-            const agora = new Date();
-            const hoje = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), 0, 0, 0, 0);
-
-            const hojeAgendamentos = agendamentosProfissional.filter(a => {
+            const hojeAgendamentos = todosAgendamentos.filter(a => {
                 if (!a.data_hora) return false;
-                const d = new Date(a.data_hora);
-                const dZero = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
-                return dZero.getTime() === hoje.getTime();
+                const d = new Date(a.data_hora.replace(' ', 'T'));
+                d.setHours(0, 0, 0, 0);
+                return d.getTime() === hoje.getTime();
             });
 
-            const cancelados = agendamentosProfissional.filter(a => {
-                const status = a.status || '';
-                return status === 'Cancelado' || status === 'cancelado' || status.toLowerCase().includes('cancel');
-            });
-
-            const concluidos = agendamentosProfissional.filter(a => {
-                const status = a.status || '';
-                return status === 'Concluido' || status === 'concluido' || status.toLowerCase().includes('conclu');
-            });
+            const cancelados = todosAgendamentos.filter(a => (a.status || '').toLowerCase().includes('cancela'));
+            const concluidos = todosAgendamentos.filter(a => (a.status || '').toLowerCase().includes('conclu'));
 
             // 5. Renderizar cards de resumo
             resumoContainer.innerHTML = '';
@@ -285,42 +337,24 @@ export default function renderDashboardPage() {
             resumoContainer.appendChild(criarCardResumo('Concluídos', concluidos.length, 'bi-check2-all', 'info'));
             resumoContainer.appendChild(criarCardResumo('Hoje', hojeAgendamentos.length, 'bi-calendar-date', 'accent'));
 
-            // 6. Renderizar lista de próximos agendamentos
-            const futuros = agendamentosProfissional.filter(a => {
-                if (!a.data_hora) return false;
-                const d = new Date(a.data_hora);
-                const status = (a.status || '').toLowerCase();
-                return d >= hoje && status !== 'cancelado';
-            }).sort((a, b) => new Date(a.data_hora) - new Date(b.data_hora));
-
-            agendamentosContainer.innerHTML = '';
-            if (futuros.length === 0) {
-                agendamentosContainer.innerHTML = `
-                    <div class="content-card text-center p-5">
-                        <i class="bi bi-calendar-x text-muted mb-3" style="font-size: 2rem"></i>
-                        <p class="text-muted">Nenhum agendamento futuro encontrado.</p>
-                    </div>`;
-            } else {
-                const title = document.createElement('h5');
-                title.className = 'mb-3 fw-bold text-dark';
-                title.textContent = 'Próximos Agendamentos';
-                agendamentosContainer.appendChild(title);
-
-                futuros.forEach((ag, index) => {
-                    agendamentosContainer.appendChild(criarCardAgendamento(ag));
-                });
-            }
+            // 6. Renderizar lista baseada no filtro atual
+            renderizarLista();
 
         } catch (error) {
             agendamentosContainer.innerHTML = `
                 <div class="alert alert-danger">
                     <h5>❌ Erro ao carregar dados</h5>
                     <p>${error.message}</p>
-                    <small>Verifique o console para mais detalhes.</small>
                 </div>
             `;
         }
     }
 
+    // Listeners de filtro
+    header.querySelectorAll('.btn-filter').forEach(btn => {
+        btn.onclick = () => aplicarFiltro(btn.getAttribute('data-filter'));
+    });
+
     carregarDados();
 }
+

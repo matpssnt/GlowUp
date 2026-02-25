@@ -3,6 +3,7 @@ import Footer from "../components/Footer.js";
 import PerfilSidebar from "../components/PerfilSidebar.js";
 import ApiService from "../utils/api.js";
 import authState from "../utils/AuthState.js";
+import ConfirmModal from "../components/ConfirmModal.js";
 import { notify } from "../components/Notification.js";
 
 export default function renderMinhaAgendaPage() {
@@ -57,6 +58,18 @@ export default function renderMinhaAgendaPage() {
     `;
     contentArea.appendChild(header);
 
+    // --- Modal de Confirmação ---
+    let idParaCancelar = null;
+    const confirmModal = ConfirmModal(
+        'modalConfirmarCancelamentoCliente',
+        'Confirmar Cancelamento',
+        'Tem certeza que deseja cancelar seu agendamento? Esta ação não pode ser desfeita.',
+        () => {
+            if (idParaCancelar) executarCancelamento(idParaCancelar);
+        }
+    );
+    document.body.appendChild(confirmModal);
+
     // --- Agendamentos Section ---
     const agendamentosContainer = document.createElement('div');
     agendamentosContainer.id = 'agendamentosContainer';
@@ -80,7 +93,7 @@ export default function renderMinhaAgendaPage() {
         const card = document.createElement('div');
         card.className = 'content-card mb-3 p-4';
 
-        const dataHora = agendamento.data_hora ? new Date(agendamento.data_hora) : null;
+        const dataHora = agendamento.data_hora ? new Date(agendamento.data_hora.replace(' ', 'T')) : null;
         const dataFormatada = dataHora && !isNaN(dataHora.getTime())
             ? dataHora.toLocaleDateString('pt-BR')
             : '--/--';
@@ -90,12 +103,12 @@ export default function renderMinhaAgendaPage() {
 
         const status = (agendamento.status || 'agendado').toLowerCase();
         let badgeClass = 'badge-primary';
-        if (status === 'cancelado') badgeClass = 'badge-danger';
+        if (status.includes('cancela')) badgeClass = 'badge-danger';
         else if (status.includes('conclui')) badgeClass = 'badge-success';
-        else if (status === 'pendente') badgeClass = 'badge-warning';
+        else if (status.includes('pendente')) badgeClass = 'badge-warning';
 
-        const nomeProfissional = agendamento.profissional_nome || agendamento.nome_profissional || 'Profissional';
-        const nomeServico = agendamento.servico_nome || agendamento.nome_servico || 'Serviço';
+        const nomeProfissional = agendamento.profissional_nome || 'Profissional';
+        const nomeServico = agendamento.servico_nome || 'Serviço';
         const precoVisual = agendamento.preco ? parseFloat(agendamento.preco).toFixed(2).replace('.', ',') : (agendamento.servico_preco ? parseFloat(agendamento.servico_preco).toFixed(2).replace('.', ',') : null);
 
         // Calcula hora fim baseada na duração
@@ -123,7 +136,7 @@ export default function renderMinhaAgendaPage() {
                         </div>
                     </div>
                 </div>
-                <span class="badge-custom ${badgeClass}">${status}</span>
+                <span class="badge-custom ${badgeClass}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>
             </div>
             
             <div class="row g-2 mb-3 ps-sm-5 ms-sm-2">
@@ -155,14 +168,16 @@ export default function renderMinhaAgendaPage() {
         const btnCancelar = card.querySelector('.btn-cancelar');
 
         if (btnCancelar) btnCancelar.onclick = () => {
-            if (confirm('Cancelar este agendamento?')) cancelarAgendamento(agendamento.id);
+            idParaCancelar = agendamento.id;
+            const modal = new bootstrap.Modal(confirmModal);
+            modal.show();
         };
 
         return card;
     }
 
     // --- Lógica de Dados ---
-    async function cancelarAgendamento(id) {
+    async function executarCancelamento(id) {
         try {
             const api = new ApiService();
             await api.cancelarAgendamento(id);
@@ -179,26 +194,15 @@ export default function renderMinhaAgendaPage() {
             const user = authState.getUser();
             const clienteId = user?.cliente_id || user?.clienteId || user?.id || authState.getCadastroId();
 
-            // 1. Buscar agendamentos filtrados por clienteId (Segurança + Correção)
+            // 1. Buscar agendamentos filtrados por clienteId (Backend agora ordena e filtra)
             const agendamentosCliente = await api.listarAgendamentos(null, clienteId);
 
-            // 3. Renderizar lista de próximos agendamentos
-            const agora = new Date();
-            const hoje = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), 0, 0, 0, 0);
-
-            const futuros = agendamentosCliente.filter(a => {
-                if (!a.data_hora) return false;
-                const d = new Date(a.data_hora);
-                const status = (a.status || '').toLowerCase();
-                return d >= hoje && status !== 'cancelado';
-            }).sort((a, b) => new Date(a.data_hora) - new Date(b.data_hora));
-
             agendamentosContainer.innerHTML = '';
-            if (futuros.length === 0) {
+            if (agendamentosCliente.length === 0) {
                 agendamentosContainer.innerHTML = `
                     <div class="content-card text-center p-5">
                         <i class="bi bi-calendar-x text-muted mb-3" style="font-size: 2rem"></i>
-                        <p class="text-muted">Nenhum agendamento futuro encontrado.</p>
+                        <p class="text-muted">Você não possui agendamentos.</p>
                     </div>`;
             } else {
                 const title = document.createElement('h5');
@@ -206,7 +210,7 @@ export default function renderMinhaAgendaPage() {
                 title.textContent = 'Meus Agendamentos';
                 agendamentosContainer.appendChild(title);
 
-                futuros.forEach((ag, index) => {
+                agendamentosCliente.forEach((ag) => {
                     agendamentosContainer.appendChild(criarCardAgendamento(ag));
                 });
             }
@@ -216,7 +220,6 @@ export default function renderMinhaAgendaPage() {
                 <div class="alert alert-danger">
                     <h5>❌ Erro ao carregar dados</h5>
                     <p>${error.message}</p>
-                    <small>Verifique o console para mais detalhes.</small>
                 </div>
             `;
         }
@@ -224,4 +227,5 @@ export default function renderMinhaAgendaPage() {
 
     carregarDados();
 }
+
 
