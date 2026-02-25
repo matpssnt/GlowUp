@@ -211,17 +211,17 @@ export default function renderFormContRegister(container) {
 
     secaoEndereco.appendChild(linha3);
 
-// ----------------------------
-// Seção: Contato (Telefone)
-// ----------------------------
-const secaoContato = document.createElement('div');
-secaoContato.className = 'cont-register-section';
-secaoContato.innerHTML = `
+    // ----------------------------
+    // Seção: Contato (Telefone)
+    // ----------------------------
+    const secaoContato = document.createElement('div');
+    secaoContato.className = 'cont-register-section';
+    secaoContato.innerHTML = `
     <h4 class="cont-register-section-title">Contato Principal</h4>
     <div class="row g-3">
         <div class="col-md-3">
-            <label class="form-label">DDI *</label>
-            <input type="text" id="ddd" class="form-control" placeholder="Ex: 55" maxlength="2" required>
+            <label class="form-label">DDD *</label>
+            <input type="tel" id="ddd" class="form-control" placeholder="Ex: 55" maxlength="2" required>
         </div>
         <div class="col-md-9">
             <label class="form-label">Telefone *</label>
@@ -230,15 +230,35 @@ secaoContato.innerHTML = `
     </div>
 `;
     formulario.appendChild(secaoContato);
-
     formulario.appendChild(secaoEndereco);
 
-        // Aplica máscara nos campos
+    // Aplica máscara nos campos
     const inputDDD = formulario.querySelector('#ddd');
     const inputTelefone = formulario.querySelector('#telefone');
 
     if (inputDDD) {
         addMaskToInput(inputDDD, 'ddd');
+
+        // Bloqueio forte: só permite números (remove letras em tempo real)
+        inputDDD.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 2);
+        });
+
+
+        // Impede digitação de letras/teclas inválidas desde o início
+        inputDDD.addEventListener('keypress', (e) => {
+            const charCode = e.which ? e.which : e.keyCode;
+            // Permite apenas 0-9, backspace, delete, tab, setas
+            if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                e.preventDefault();
+            }
+        });
+
+
+
+        // Opcional: melhora UX no mobile (teclado numérico)
+        inputDDD.setAttribute('inputmode', 'numeric');
+        inputDDD.setAttribute('pattern', '[0-9]{2}');
     }
 
     if (inputTelefone) {
