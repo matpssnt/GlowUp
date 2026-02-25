@@ -14,12 +14,14 @@
 /* Variáveis CSS Globais */
 :root {
     --white-color: #FFFFFF;
-    --primary-color: #295f1cd5;
+    --primary-color: #2E5E4E;
+
     /* Verde escuro principal */
     --secondary-color: #EAE6DD;
     /* Bege claro secundário */
     --accent-color: #75b16e;
     /* Verde acentuado */
+
     --dark-color: #2E2E2E;
     /* Texto escuro */
     --light-color: #F6F5F2;

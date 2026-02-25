@@ -5,6 +5,7 @@ import ApiService from "../utils/api.js";
 import authState from "../utils/AuthState.js";
 import { notify } from "../components/Notification.js";
 import { handleError } from "../utils/errorHandler.js";
+import { addMaskToInput } from "../utils/validation.js";
 
 const link = document.createElement('link');
 link.rel = 'stylesheet';
@@ -80,7 +81,6 @@ export default function renderConfiguracoesLojaPage() {
                     <label class="form-label">Nome do estabelecimento</label>
                     <input class="form-control" name="nome" required>
                 </div>
-
                 <div class="col-md-4">
                     <label class="form-label">DDD</label>
                     <input class="form-control" name="ddd" placeholder="11">
@@ -142,10 +142,24 @@ export default function renderConfiguracoesLojaPage() {
     const escalaRows = cardEscala.querySelector('#escalaRows');
     const btnSalvarEscala = cardEscala.querySelector('#btnSalvarEscala');
 
+    // Selecionar inputs do telefone uma única vez
+    const inputDDD     = form.querySelector('input[name="ddd"]');
+    const inputDigitos = form.querySelector('input[name="digitos"]');
+
+    // Aplicar máscaras imediatamente (como no formulário de registro)
+    if (inputDDD) {
+        inputDDD.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 2);
+        });
+    }
+
+    if (inputDigitos) {
+        addMaskToInput(inputDigitos, 'telefone');
+    }
+
     let profissional = null;
     let endereco = null;
     let telefone = null;
-    let telProfRel = null;
     let escalas = [];
 
     async function carregar() {
@@ -166,15 +180,20 @@ export default function renderConfiguracoesLojaPage() {
 
             // Preenche form
             form.nome.value = profissional.nome || '';
-            form.ddd.value = telefone?.ddd || '';
+            form.ddd.value     = telefone?.ddd     || '';
             form.digitos.value = telefone?.digitos || '';
 
-            form.cep.value = endereco?.cep || '';
-            form.estado.value = endereco?.estado || '';
-            form.cidade.value = endereco?.cidade || '';
-            form.bairro.value = endereco?.bairro || '';
-            form.rua.value = endereco?.rua || '';
-            form.numero.value = endereco?.numero || '';
+            // Força formatação da máscara no valor vindo do banco
+            if (form.digitos.value) {
+                form.digitos.dispatchEvent(new Event('input'));
+            }
+
+            form.cep.value      = endereco?.cep         || '';
+            form.estado.value   = endereco?.estado      || '';
+            form.cidade.value   = endereco?.cidade      || '';
+            form.bairro.value   = endereco?.bairro      || '';
+            form.rua.value      = endereco?.rua         || '';
+            form.numero.value   = endereco?.numero      || '';
             form.complemento.value = endereco?.complemento || '';
         } catch (error) {
             handleError(error, 'Configurações da Loja');
@@ -185,23 +204,17 @@ export default function renderConfiguracoesLojaPage() {
         if (!valor) return '';
         
         const s = String(valor);
-        
-        // Se vier como DATETIME (YYYY-MM-DD HH:MM:SS), pega so a hora
         if (s.includes(' ')) {
             const timePart = s.split(' ')[1];
-            return timePart ? timePart.substring(0, 5) : ''; // HH:MM
+            return timePart ? timePart.substring(0, 5) : '';
         }
-        
-        // Se vier como TIME (HH:MM:SS), pega so HH:MM
         if (s.includes(':')) {
-            return s.substring(0, 5); // HH:MM
+            return s.substring(0, 5);
         }
-        
         return s;
     }
 
     function renderEscala() {
-
         const dias = [
             { id: 0, label: 'Domingo' },
             { id: 1, label: 'Segunda' },
@@ -215,80 +228,66 @@ export default function renderConfiguracoesLojaPage() {
         escalaRows.innerHTML = '';
 
         dias.forEach(d => {
-
             const existente = Array.isArray(escalas)
                 ? escalas.find(e => String(e.dia_semana) === String(d.id))
                 : null;
 
             const tr = document.createElement('tr');
             tr.dataset.dia = d.id;
-
-            if (existente?.id) {
-                tr.dataset.escalaId = existente.id;
-            }
+            if (existente?.id) tr.dataset.escalaId = existente.id;
 
             const inicio = extrairHora(existente?.inicio);
             const fim = extrairHora(existente?.fim);
 
             tr.innerHTML = `
-            <td><strong>${d.label}</strong></td>
-            <td>
-                <input type="time" step="60" class="form-control" name="inicio_${d.id}" value="${inicio || ''}">
-            </td>
-            <td>
-                <input type="time" step="60" class="form-control" name="fim_${d.id}" value="${fim || ''}">
-            </td>
-            <td class="text-end">
-                <button type="button" class="btn btn-outline-danger btn-sm" data-action="limpar">Limpar</button>
-            </td>
-        `;
+                <td><strong>${d.label}</strong></td>
+                <td>
+                    <input type="time" step="60" class="form-control" name="inicio_${d.id}" value="${inicio || ''}">
+                </td>
+                <td>
+                    <input type="time" step="60" class="form-control" name="fim_${d.id}" value="${fim || ''}">
+                </td>
+                <td class="text-end">
+                    <button type="button" class="btn btn-outline-danger btn-sm" data-action="limpar">Limpar</button>
+                </td>
+            `;
 
             const inputInicio = tr.querySelector(`input[name="inicio_${d.id}"]`);
-            const inputFim = tr.querySelector(`input[name="fim_${d.id}"]`);
-            const btnLimpar = tr.querySelector('[data-action="limpar"]');
+            const inputFim    = tr.querySelector(`input[name="fim_${d.id}"]`);
+            const btnLimpar   = tr.querySelector('[data-action="limpar"]');
 
-            // Ajusta minimo do fechamento ao carregar
             if (inputInicio.value) {
                 inputFim.min = inputInicio.value;
             }
 
-            // Limpa se vier invalido do banco
             if (inputInicio.value && inputFim.value && inputFim.value <= inputInicio.value) {
                 inputFim.value = '';
             }
 
-            // Quando alterar abertura
             inputInicio.addEventListener('input', () => {
-
                 if (!inputInicio.value) {
                     inputFim.min = '';
                     return;
                 }
-
                 inputFim.min = inputInicio.value;
-
                 if (inputFim.value && inputFim.value <= inputInicio.value) {
-                    notify.warning('O horario de fechamento deve ser maior que o de abertura');
+                    notify.warning('O horário de fechamento deve ser maior que o de abertura');
                     inputFim.value = '';
                 }
             });
 
-            // Bloqueio imediato no fechamento
             inputFim.addEventListener('input', () => {
-
                 if (!inputInicio.value) {
-                    notify.warning('Defina primeiro o horario de abertura');
+                    notify.warning('Defina primeiro o horário de abertura');
                     inputFim.value = '';
                     return;
                 }
-
                 if (inputFim.value && inputFim.value <= inputInicio.value) {
-                    notify.warning('Horario de fechamento deve ser maior que o de abertura');
+                    notify.warning('Horário de fechamento deve ser maior que o de abertura');
                     inputFim.value = '';
                 }
             });
 
-            // Botao limpar
             btnLimpar.addEventListener('click', () => {
                 inputInicio.value = '';
                 inputFim.value = '';
@@ -299,8 +298,6 @@ export default function renderConfiguracoesLojaPage() {
         });
     }
 
-
-
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -310,9 +307,6 @@ export default function renderConfiguracoesLojaPage() {
         }
 
         try {
-            // Atualiza profissional (somente nome/descricao/email já existem, mas endpoint exige mais campos hoje)
-            // Sem alterar banco, vamos manter o nome do profissional como está no cadastro e aqui apenas atualizar endereço/telefone.
-
             // Endereço
             const enderecoPayload = {
                 rua: form.rua.value,
@@ -331,19 +325,27 @@ export default function renderConfiguracoesLojaPage() {
                 await api.criarEndereco(enderecoPayload);
             }
 
-            // Telefone: criar/atualizar telefone e relação tel_prof
-            const ddd = String(form.ddd.value || '').trim();
-            const digitos = String(form.digitos.value || '').trim();
+            // Telefone (limpa máscara antes de enviar)
+            const dddLimpo     = inputDDD?.value.replace(/\D/g, '') || '';
+            const digitosLimpo = inputDigitos?.value.replace(/\D/g, '') || '';
 
-            if (ddd && digitos) {
+            if (dddLimpo && digitosLimpo) {
+                if (digitosLimpo.length !== 10 && digitosLimpo.length !== 11) {
+                    notify.warning('O telefone deve ter 10 ou 11 dígitos.');
+                    inputDigitos.focus();
+                    return;
+                }
+
                 if (telefone && telefone.id) {
-                    await api.atualizarTelefone(telefone.id, ddd, digitos);
+                    await api.atualizarTelefone(telefone.id, dddLimpo, digitosLimpo);
                 } else {
-                    // cria telefone
-                    const resp = await api.criarTelefone(ddd, digitos);
+                    const resp = await api.criarTelefone(dddLimpo, digitosLimpo);
                     const idTelefone = resp?.id || resp?.idTelefone;
                     if (idTelefone) {
-                        await api.request('/telProf', 'POST', { id_profissional_fk: profissional.id, id_telefone_fk: idTelefone });
+                        await api.request('/telProf', 'POST', {
+                            id_profissional_fk: profissional.id,
+                            id_telefone_fk: idTelefone
+                        });
                     }
                 }
             }
@@ -375,9 +377,7 @@ export default function renderConfiguracoesLojaPage() {
                 const fim = row.querySelector(`input[name="fim_${dia}"]`).value;
 
                 if (!inicio || !fim) {
-                    if (escalaId) {
-                        await api.deletarEscala(escalaId);
-                    }
+                    if (escalaId) await api.deletarEscala(escalaId);
                     continue;
                 }
 
@@ -388,8 +388,8 @@ export default function renderConfiguracoesLojaPage() {
 
                 const payload = {
                     dia_semana: dia,
-                    hora_inicio: inicio + ':00',    // Adiciona :00 para formato HH:MM:SS
-                    hora_fim: fim + ':00',         // Adiciona :00 para formato HH:MM:SS
+                    hora_inicio: inicio + ':00',
+                    hora_fim: fim + ':00',
                     id_profissional_fk: profissional.id
                 };
 
