@@ -142,6 +142,30 @@ export default function renderExplorarPage(options = {}) {
     // Monta estrutura
     contentWrapper.appendChild(sidebar);
     contentWrapper.appendChild(mainArea);
+
+    // Modal de Filtros Mobile (HTML em falta corrigido aqui)
+    const mobileFiltersModal = document.createElement('div');
+    mobileFiltersModal.id = 'mobileFiltersModalContainer';
+    mobileFiltersModal.innerHTML = `
+        <div class="filters-modal-overlay" id="filtersOverlay"></div>
+        <div class="filters-modal" id="filtersModal">
+            <div class="filters-modal-header">
+                <h3><i class="fas fa-sliders-h"></i> Filtros</h3>
+                <button class="filters-modal-close" id="closeFiltersModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="filters-modal-body" id="mobileFiltersContent">
+                <!-- Conteúdo dos filtros será injetado pelo renderFilters -->
+            </div>
+            <div class="filters-modal-footer">
+                <button class="btn-clear-mobile" id="btnClearMobile">Limpar Tudo</button>
+                <button class="btn-apply-filters" id="btnApplyFilters">Aplicar</button>
+            </div>
+        </div>
+    `;
+    page.appendChild(mobileFiltersModal);
+
     page.appendChild(banner);
     page.appendChild(contentWrapper);
     root.appendChild(page);
@@ -402,14 +426,14 @@ export default function renderExplorarPage(options = {}) {
                 state.filters.distancia = e.target.value;
                 syncFilters();
                 state.currentPage = 1;
-                
+
                 const grid = document.getElementById('explorarGrid');
                 if (state.filters.distancia && state.filters.distancia !== '') {
                     grid.classList.add('grid-centered');
                 } else {
                     grid.classList.remove('grid-centered');
                 }
-                
+
                 applyFilters();
             });
         });
@@ -469,10 +493,10 @@ export default function renderExplorarPage(options = {}) {
         };
         state.currentPage = 1;
         syncFilters();
-        
+
         const grid = document.getElementById('explorarGrid');
         grid.classList.remove('grid-centered');
-        
+
         applyFilters();
     }
 
