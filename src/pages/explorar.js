@@ -5,10 +5,6 @@ import authState from "../utils/AuthState.js";
 
 const ITEMS_PER_PAGE = 15;
 
-/**
- * Renderiza a página Explorar (Profissionais ou Estabelecimentos)
- * @param {Object} options - Configurações da página
- */
 export default function renderExplorarPage(options = {}) {
     const {
         tipoFiltro = null,
@@ -143,7 +139,7 @@ export default function renderExplorarPage(options = {}) {
     contentWrapper.appendChild(sidebar);
     contentWrapper.appendChild(mainArea);
 
-    // Modal de Filtros Mobile (HTML em falta corrigido aqui)
+    // Modal de Filtros Mobile 
     const mobileFiltersModal = document.createElement('div');
     mobileFiltersModal.id = 'mobileFiltersModalContainer';
     mobileFiltersModal.innerHTML = `
@@ -181,9 +177,7 @@ export default function renderExplorarPage(options = {}) {
     // Inicialização
     init();
 
-    // ────────────────────────────────────────────────
     // Funções auxiliares
-    // ────────────────────────────────────────────────
 
     async function init() {
         renderSkeletons();
