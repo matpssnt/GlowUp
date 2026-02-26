@@ -98,7 +98,7 @@ class CadastroModel
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
 
-        $sql = "SELECT c.id, c.nome, c.email, c.senha, p.id AS profissional_id
+        $sql = "SELECT c.id, c.nome, c.email, c.senha, p.id AS profissional_id, p.foto_perfil
                 FROM cadastros c
                 JOIN profissionais p ON p.id_cadastro_fk = c.id
                 WHERE c.email = ? AND c.isProfissional = 1";

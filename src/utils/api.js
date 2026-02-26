@@ -28,16 +28,17 @@ export default class ApiService {
         // console.error(...args);
     }
 
-    async request(endpoint, method = 'GET', data = null) {
+    async request(endpoint, method = 'GET', data = null, isFormData = false) {
         // Verifica se está online
         if (!this.checkOnline()) {
             throw new Error('Sem conexão com a internet. Verifique sua conexão e tente novamente.');
         }
 
         const token = localStorage.getItem('authToken');
-        const headers = {
-            'Content-Type': 'application/json',
-        };
+        const headers = {};
+        if (!isFormData) {
+            headers['Content-Type'] = 'application/json';
+        }
         if (token) {
             headers['Authorization'] = `Bearer ${token}`;
         }
@@ -49,7 +50,7 @@ export default class ApiService {
             const response = await fetch(url, {
                 method,
                 headers,
-                body: data ? JSON.stringify(data) : null,
+                body: data ? (isFormData ? data : JSON.stringify(data)) : null,
             });
 
             let responseData;

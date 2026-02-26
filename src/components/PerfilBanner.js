@@ -33,13 +33,25 @@ export default function PerfilBanner(dadosProfissional = null, endereco = null, 
     }
   }
   
+  // determina URL da foto do profissional ou usa placeholder
+  let fotoUrl = 'public/assets/images/fotoDePerfil.png';
+  if (dadosProfissional && dadosProfissional.foto_perfil) {
+    fotoUrl = dadosProfissional.foto_perfil;
+
+    // se for caminho relativo, prefixa com base (/GlowUp)
+    if (!fotoUrl.match(/^https?:\/\//) && !fotoUrl.startsWith('/')) {
+      const base = window.location.pathname.split('/').slice(0, 2).join('/');
+      fotoUrl = base + '/' + fotoUrl;
+    }
+  }
+
   containerPerfil.innerHTML = `
     <div class="perfil-banner-card">
       <img src="public/assets/images/background-primary.avif" class="banner-img" alt="Imagem de capa">
 
       <div class="perfil-overlay">
         <div class="foto-perfil">
-          <img src="public/assets/images/fotoDePerfil.png" alt="Foto de perfil">
+          <img src="${fotoUrl}" alt="Foto de perfil">
         </div>
       </div>
 

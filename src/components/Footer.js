@@ -44,10 +44,10 @@ export default function Footer() {
               <a href="https://wa.me/5515000000000" target="_blank" class="social-link social-whatsapp" aria-label="WhatsApp">
                 <i class="fab fa-whatsapp"></i>
               </a>
-              <a href="#" target="_blank" class="social-link social-facebook" aria-label="Facebook">
+              <a href="https://www.facebook.com" target="_blank" class="social-link social-facebook" aria-label="Facebook">
                 <i class="fab fa-facebook"></i>
               </a>
-              <a href="#" target="_blank" class="social-link social-twitter" aria-label="Twitter">
+              <a href="https://x.com" target="_blank" class="social-link social-twitter" aria-label="Twitter">
                 <i class="fab fa-twitter"></i>
               </a>
             </div>

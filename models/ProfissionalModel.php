@@ -179,6 +179,21 @@ class ProfissionalModel
         return $stmt->execute();
     }
 
+    public static function atualizarFotoPerfil($id, $caminho)
+    {
+    $db = Database::getInstancia();
+    $conn = $db->pegarConexao();
+
+    $sql = "UPDATE profissionais SET foto_perfil = ? WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("si", $caminho, $id);
+
+    $resultado = $stmt->execute();
+    $stmt->close();
+
+    return $resultado;
+    }
+
     public static function clientValidation($email, $password)
     {
         $db = Database::getInstancia();
