@@ -20,8 +20,13 @@ switch ($method) {
         break;
 
     case 'POST':
-        $data = json_decode(file_get_contents('php://input'), true);
+        //upload de foto de perfil
+        if ($id && isset($seguimentos[3]) && $seguimentos[3] === 'foto') {
+            ProfissionalController::uploadFotoPerfil($id);
+            break;
+        }
 
+        $data = json_decode(file_get_contents('php://input'), true);
         ProfissionalController::create($data);
         break;
 
