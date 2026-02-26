@@ -25,7 +25,6 @@ class ProfissionalController
         }
     }
 
-
     public static function update($data, $id)
     {
         // Valida CPF/CNPJ na atualização
@@ -77,6 +76,53 @@ class ProfissionalController
         }
     }
 
+    public static function uploadFotoPerfil($id) {
+    // verifica parâmetro válido
+    if (!$id || !is_numeric($id)) {
+        return jsonResponse(['message' => 'ID de profissional inválido'], 400);
+    }
+
+    if (!isset($_FILES['foto'])) {
+        return jsonResponse(['message' => 'Nenhuma imagem enviada'], 400);
+    }
+
+    $arquivo = $_FILES['foto'];
+
+    $permitidos = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!in_array($arquivo['type'], $permitidos)) {
+        return jsonResponse(['message' => 'Formato inválido'], 400);
+    }
+
+    if ($arquivo['size'] > 2 * 1024 * 1024) {
+        return jsonResponse(['message' => 'Imagem muito grande (máx 2MB)'], 400);
+    }
+
+    $ext = pathinfo($arquivo['name'], PATHINFO_EXTENSION);
+    $nomeArquivo = uniqid() . "." . $ext;
+
+    if (!is_dir("uploads/perfis")) {
+        mkdir("uploads/perfis", 0777, true);
+    }
+
+    $caminho = "uploads/perfis/" . $nomeArquivo;
+
+    if (move_uploaded_file($arquivo['tmp_name'], $caminho)) {
+        $updateResult = ProfissionalModel::atualizarFotoPerfil($id, $caminho);
+        if (!$updateResult) {
+            // remove arquivo gerado para evitar lixo
+            @unlink($caminho);
+            return jsonResponse(['message' => 'Falha ao salvar caminho no banco'], 500);
+        }
+
+        return jsonResponse([
+            'message' => 'Foto atualizada com sucesso',
+            'url' => $caminho
+        ], 200);
+    }
+
+    return jsonResponse(['message' => 'Erro ao fazer upload'], 400);
+    }
+
     public static function getAll()
     {
         $resultado = ProfissionalModel::getAll();
@@ -86,18 +132,6 @@ class ProfissionalController
             return jsonResponse(['message' => 'Nenhuma profissional encontrada'], 400);
         }
     }
-
-
-
-
-
-
 }
-
-
-
-
-
-
 
 ?>
