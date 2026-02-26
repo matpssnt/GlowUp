@@ -65,6 +65,49 @@ export default function renderFormContRegister(container) {
 
     formulario.appendChild(secaoInfo);
 
+    // Campo de Foto do Estabelecimento
+    const divFoto = document.createElement('div');
+    divFoto.className = 'cont-register-field';
+
+    const labelFoto = document.createElement('label');
+    labelFoto.textContent = 'Foto do Estabelecimento';
+    labelFoto.className = 'form-label';
+
+    const inputFoto = document.createElement('input');
+    inputFoto.type = 'file';
+    inputFoto.className = 'form-control';
+    inputFoto.id = 'foto-estabelecimento';
+    inputFoto.accept = 'image/png, image/jpeg, image/jpg';
+    inputFoto.required = false; // true se for obrigatorio
+
+    // preview da imagem
+    const previewImagem = document.createElement('img');
+    previewImagem.style.marginTop = '10px';
+    previewImagem.style.maxWidth = '200px';
+    previewImagem.style.display = 'none';
+    previewImagem.className = 'cont-register-preview';
+
+    divFoto.appendChild(labelFoto);
+    divFoto.appendChild(inputFoto);
+    divFoto.appendChild(previewImagem);
+
+    secaoInfo.appendChild(divFoto);
+
+    inputFoto.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+            previewImagem.src = event.target.result;
+            previewImagem.style.display = 'block';
+        };
+
+        reader.readAsDataURL(file);
+    }
+    });
+
     // Seção: Endereço do Estabelecimento
     const secaoEndereco = document.createElement('div');
     secaoEndereco.className = 'cont-register-section cont-register-section-horizontal'; // Classe para layout horizontal
@@ -221,11 +264,7 @@ export default function renderFormContRegister(container) {
     <div class="row g-3">
         <div class="col-md-3">
             <label class="form-label">DDD *</label>
-<<<<<<< main
-            <input type="tel" id="ddd" class="form-control" placeholder="Ex: 55" maxlength="2" required>
-=======
             <input type="text" id="ddd" class="form-control" placeholder="Ex: 55" maxlength="2" required>
->>>>>>> main
         </div>
         <div class="col-md-9">
             <label class="form-label">Telefone *</label>
@@ -234,10 +273,7 @@ export default function renderFormContRegister(container) {
     </div>
 `;
     formulario.appendChild(secaoContato);
-<<<<<<< main
-=======
     
->>>>>>> main
     formulario.appendChild(secaoEndereco);
 
     // Aplica máscara nos campos
@@ -418,6 +454,20 @@ export default function renderFormContRegister(container) {
             } catch (error) {
                 // console.error('Erro ao atualizar profissional:', error);
                 throw new Error('Erro ao atualizar dados do profissional: ' + error.message);
+            }
+
+            // Se o usuário escolheu foto, manda para o endpoint correto
+            try {
+                const fotoFile = document.getElementById('foto-estabelecimento')?.files[0];
+                if (fotoFile) {
+                    console.log('Tentando enviar foto do estabelecimento', fotoFile);
+                    const formData = new FormData();
+                    formData.append('foto', fotoFile);
+                    const uploadResp = await api.request(`/profissional/${idProfissional}/foto`, 'POST', formData, true);
+                    console.log('Resposta upload foto:', uploadResp);
+                }
+            } catch (uploadErr) {
+                console.warn('Falha ao enviar foto (não impede cadastro):', uploadErr);
             }
 
             // Cria o endereço

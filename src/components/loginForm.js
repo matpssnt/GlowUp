@@ -117,7 +117,8 @@ export default function loginForm() {
                     email: sub.email || emailValue,
                     id: sub.id || sub.idCadastro || null,
                     cliente_id: sub.cliente_id || sub.clienteId || null,
-                    profissional_id: sub.profissional_id || sub.profissionalId || null
+                    profissional_id: sub.profissional_id || sub.profissionalId || null,
+                    foto_perfil: sub.foto_perfil || ''
                 };
 
                 authState.setUser(userData, response.token);
