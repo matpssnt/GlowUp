@@ -229,20 +229,23 @@ export default function renderServicosPage() {
     btnFechar.onclick = () => toggleForm(false);
     btnCancelar.onclick = () => toggleForm(false);
 
-    // Helper: Formata duracao para exibicao
+    // Helper: Formata duracao para exibicao no formato 'Xh Ymin' (modificado para exibição amigável)
     function formatarDuracaoExibicao(duracaoStr) {
-        if (!duracaoStr) return '00:30';
-        // Se vier como DATETIME (YYYY-MM-DD HH:MM:SS), pega so o tempo
-        if (duracaoStr.includes(' ')) {
-            const parts = duracaoStr.split(' ');
-            if (parts.length > 1) {
-                const t = parts[1].substring(0, 8);
-                return t.substring(0, 5); // HH:MM
-            }
+        if (!duracaoStr) return '30min'; // Valor padrão
+
+        const [horas, minutos] = duracaoStr.split(':');
+        let duracaoFormatada = '';
+
+        if (parseInt(horas) > 0) {
+            duracaoFormatada += `${parseInt(horas)}h`;
         }
-        const s = String(duracaoStr);
-        if (s.length >= 5) return s.substring(0, 5);
-        return s;
+
+        if (parseInt(minutos) > 0) {
+            if (duracaoFormatada) duracaoFormatada += ' ';
+            duracaoFormatada += `${parseInt(minutos)}min`;
+        }
+
+        return duracaoFormatada || '30min'; // Caso não tenha horas ou minutos, retorna o valor padrão
     }
 
     // Carregar Dados
@@ -295,22 +298,21 @@ export default function renderServicosPage() {
 
                 // Formata duracao para exibicao na tabela
                 function formatarDuracaoTabela(duracaoStr) {
-                    if (!duracaoStr) return '00:30';
+                    if (!duracaoStr) return '30min'; // valor padrão, se não houver duração
 
-                    // Se vier como DATETIME, pega so o tempo
-                    if (duracaoStr.includes(' ')) {
-                        const parts = duracaoStr.split(' ');
-                        if (parts.length > 1) {
-                            return parts[1].substring(0, 5); // HH:MM
-                        }
+                    const [horas, minutos] = duracaoStr.split(':');
+                    let duracaoFormatada = '';
+
+                    if (parseInt(horas) > 0) {
+                        duracaoFormatada += `${parseInt(horas)}h`;
                     }
 
-                    // Se ja for HH:MM:SS, pega so HH:MM
-                    if (duracaoStr.length >= 5) {
-                        return duracaoStr.substring(0, 5);
+                    if (parseInt(minutos) > 0) {
+                        if (duracaoFormatada) duracaoFormatada += ' ';
+                        duracaoFormatada += `${parseInt(minutos)}min`;
                     }
 
-                    return duracaoStr;
+                    return duracaoFormatada || '30min'; // caso não tenha horas ou minutos, retorna o valor padrão
                 }
 
                 tr.innerHTML = `
@@ -361,8 +363,8 @@ export default function renderServicosPage() {
         }
 
         // Duracao com Selects
-        let duracaoValor = formatarDuracaoExibicao(servico.duracao);
-        const [h, m] = duracaoValor.split(':');
+        let duracaoValor = formatarDuracaoExibicao(servico.duracao); 
+        const [h, m] = duracaoValor.split(' '); //divide 'Xh Ymin'
         document.getElementById('duracaoHoras').value = parseInt(h) || 0;
 
         // Arredonda minutos para o mais próximo de 10 para o select

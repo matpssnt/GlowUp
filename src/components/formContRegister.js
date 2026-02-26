@@ -62,8 +62,51 @@ export default function renderFormContRegister(container) {
             contador.classList.add('danger');
         }
     });
-
     formulario.appendChild(secaoInfo);
+
+    // Campo de Foto do Estabelecimento
+    const divFoto = document.createElement('div');
+    divFoto.className = 'cont-register-field';
+    divFoto.style.marginTop = '70px'; 
+
+    const tituloFoto = document.createElement('h4');
+    tituloFoto.textContent = 'Foto do Estabelecimento';
+    tituloFoto.className = 'cont-register-section-title';
+
+    const inputFoto = document.createElement('input');
+    inputFoto.type = 'file';
+    inputFoto.className = 'form-control';
+    inputFoto.id = 'foto-estabelecimento';
+    inputFoto.accept = 'image/png, image/jpeg, image/jpg';
+    inputFoto.required = false; // true se for obrigatorio
+
+    // preview da imagem
+    const previewImagem = document.createElement('img');
+    previewImagem.style.marginTop = '10px';
+    previewImagem.style.maxWidth = '200px';
+    previewImagem.style.display = 'none';
+    previewImagem.className = 'cont-register-preview';
+
+    divFoto.appendChild(tituloFoto);
+    divFoto.appendChild(inputFoto);
+    divFoto.appendChild(previewImagem);
+
+    secaoInfo.appendChild(divFoto);
+
+    inputFoto.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+            previewImagem.src = event.target.result;
+            previewImagem.style.display = 'block';
+        };
+
+        reader.readAsDataURL(file);
+    }
+    });
 
     // Seção: Endereço do Estabelecimento
     const secaoEndereco = document.createElement('div');
@@ -221,11 +264,7 @@ export default function renderFormContRegister(container) {
     <div class="row g-3">
         <div class="col-md-3">
             <label class="form-label">DDD *</label>
-<<<<<<< main
-            <input type="tel" id="ddd" class="form-control" placeholder="Ex: 55" maxlength="2" required>
-=======
             <input type="text" id="ddd" class="form-control" placeholder="Ex: 55" maxlength="2" required>
->>>>>>> main
         </div>
         <div class="col-md-9">
             <label class="form-label">Telefone *</label>
@@ -234,10 +273,7 @@ export default function renderFormContRegister(container) {
     </div>
 `;
     formulario.appendChild(secaoContato);
-<<<<<<< main
-=======
     
->>>>>>> main
     formulario.appendChild(secaoEndereco);
 
     // Aplica máscara nos campos
@@ -389,14 +425,44 @@ export default function renderFormContRegister(container) {
             const tipoPessoa = document.getElementById('tipo-pessoa').value;
             const cpf = document.getElementById('cpf')?.value.replace(/\D/g, '') || '';
             const cnpj = document.getElementById('cnpj')?.value.replace(/\D/g, '') || '';
-            // Atualiza o profissional com os dados coletados
+
+            // se o usuário escolheu foto, faz upload PRIMEIRO
+            let caminhoFoto = '';
+            try {
+                const fotoFile = document.getElementById('foto-estabelecimento')?.files[0];
+                if (fotoFile) {
+                    // valida arquivo
+                    const tiposValidos = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+                    if (!tiposValidos.includes(fotoFile.type)) {
+                        throw new Error(`Tipo de arquivo inválido: ${fotoFile.type}. Use PNG, JPG ou WebP.`);
+                    }
+
+                    const maxSize = 5 * 1024 * 1024; // 5MB
+                    if (fotoFile.size > maxSize) {
+                        throw new Error(`Arquivo muito grande: ${(fotoFile.size / 1024 / 1024).toFixed(2)}MB. Máximo 5MB.`);
+                    }
+
+                    const formData = new FormData();
+                    formData.append('foto', fotoFile);
+                    
+                    const uploadResp = await api.request(`/profissional/${idProfissional}/foto`, 'POST', formData, true);
+                    
+                    caminhoFoto = uploadResp.url || uploadResp.photo_url || uploadResp.foto_perfil || '';
+                    notify.success('Foto do estabelecimento enviada com sucesso!');
+                }
+            } catch (uploadErr) {
+                notify.warning('Erro ao enviar foto: ' + uploadErr.message);
+            }
+
+            //atualiza o profissional
             const dadosProfissional = {
                 nome: dadosBasicos.nome,
                 email: dadosBasicos.email,
                 descricao: descricao,
-                acessibilidade: 0, // Valor padrão
+                acessibilidade: 0,
                 isJuridica: tipoPessoa === 'juridica' ? 1 : 0,
-                id_cadastro_fk: idCadastro
+                id_cadastro_fk: idCadastro,
+                foto_perfil: caminhoFoto 
             };
 
             // CPF/CNPJ são obrigatórios na atualização
