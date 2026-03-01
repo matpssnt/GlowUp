@@ -97,10 +97,14 @@ export class CepAPI {
             if (callback && typeof callback.success === 'function') {
                 callback.success(dados);
                 
-                document.getElementById('rua').readOnly = true;
-                document.getElementById('cidade').readOnly = true;
-                document.getElementById('bairro').readOnly = true;
-                document.getElementById('estado').readOnly = true;
+                const ruaEl = document.getElementById(campos.street || 'rua');
+                if (ruaEl) ruaEl.readOnly = true;
+                const cidadeEl = document.getElementById(campos.city || 'cidade');
+                if (cidadeEl) cidadeEl.readOnly = true;
+                const bairroEl = document.getElementById(campos.neighborhood || 'bairro');
+                if (bairroEl) bairroEl.readOnly = true;
+                const estadoEl = document.getElementById(campos.state || 'estado');
+                if (estadoEl) estadoEl.readOnly = true;
             }
 
             return dados;

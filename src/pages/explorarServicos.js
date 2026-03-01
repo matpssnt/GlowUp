@@ -1,25 +1,18 @@
 import NavBar from "../components/NavBar.js";
 import Footer from "../components/Footer.js";
 import ApiService from "../utils/api.js";
-import authState from "../utils/AuthState.js";
+import AgendamentoModal from "../components/AgendamentoModal.js";
 
 const ITEMS_PER_PAGE = 15;
 
-export default function renderExplorarPage(options = {}) {
-    const {
-        tipoFiltro = null,
-        titulo = "Explorar Profissionais",
-        subtitulo = "Encontre os melhores profissionais de beleza e estética perto de você",
-        icone = "fas fa-spa",
-        labelEntidade = "profissional",
-    } = options;
-
-    // Root principal
+/**
+ * Pagina de Exploracao de Servicos
+ * Lista todos os servicos cadastrados, independente do profissional.
+ * Permite filtrar por: busca por nome, categoria, preco e localizacao.
+ */
+export default function renderExplorarServicosPage() {
     const root = document.getElementById("root");
-    if (!root) {
-        console.error("Elemento #root nao encontrado");
-        return;
-    }
+    if (!root) return;
 
     root.innerHTML = "";
     root.style.minHeight = "100vh";
@@ -33,22 +26,22 @@ export default function renderExplorarPage(options = {}) {
         navContainer.appendChild(NavBar());
     }
 
-    // Container da pagina inteira
+    // Pagina
     const page = document.createElement("div");
     page.className = "explorar-page";
     page.style.flex = "1";
     page.style.display = "flex";
     page.style.flexDirection = "column";
 
-    // Banner (parte verde)
+    // Banner
     const banner = document.createElement("div");
     banner.className = "explorar-banner";
     banner.innerHTML = `
-        <h1>${titulo}</h1>
-        <p>${subtitulo}</p>
+        <h1>Serviços</h1>
+        <p>Explore todos os serviços disponíveis e agende com o melhor profissional</p>
     `;
 
-    // Wrapper flex para sidebar + conteudo principal
+    // Wrapper
     const contentWrapper = document.createElement("div");
     contentWrapper.className = "explorar-content";
     contentWrapper.style.flex = "1";
@@ -60,7 +53,7 @@ export default function renderExplorarPage(options = {}) {
     contentWrapper.style.width = "100%";
     contentWrapper.style.boxSizing = "border-box";
 
-    // Sidebar (desktop)
+    // Sidebar desktop
     const sidebar = document.createElement("aside");
     sidebar.className = "explorar-sidebar";
     sidebar.id = "sidebarDesktop";
@@ -92,27 +85,6 @@ export default function renderExplorarPage(options = {}) {
     mainArea.style.flex = "1";
     mainArea.style.minWidth = "0";
 
-    // Estado da aplicacao
-    const state = {
-        profissionais: [],
-        categorias: [],
-        servicos: [],
-        enderecos: [],
-        bairros: [],
-        filteredResults: [],
-        currentPage: 1,
-        totalPages: 1,
-        loading: true,
-        filters: {
-            busca: "",
-            categorias: [],
-            precoMin: "",
-            precoMax: "",
-            bairro: "",
-            ordenacao: "nome",
-        },
-    };
-
     mainArea.innerHTML = `
         <div class="results-toolbar">
             <div class="toolbar-left">
@@ -125,21 +97,20 @@ export default function renderExplorarPage(options = {}) {
                 <label for="sortSelect">Ordenar por:</label>
                 <select id="sortSelect">
                     <option value="nome">Nome (A-Z)</option>
-                    <option value="menor_preco">Menor preco</option>
-                    <option value="maior_preco">Maior preco</option>
+                    <option value="menor_preco">Menor preço</option>
+                    <option value="maior_preco">Maior preço</option>
+                    <option value="duracao">Menor duração</option>
                 </select>
             </div>
         </div>
-
         <div class="explorar-grid" id="explorarGrid"></div>
         <div class="explorar-pagination" id="explorarPagination"></div>
     `;
 
-    // Monta estrutura
     contentWrapper.appendChild(sidebar);
     contentWrapper.appendChild(mainArea);
 
-    // Modal de Filtros Mobile
+    // Modal filtros mobile
     const mobileFiltersModal = document.createElement("div");
     mobileFiltersModal.id = "mobileFiltersModalContainer";
     mobileFiltersModal.innerHTML = `
@@ -151,9 +122,7 @@ export default function renderExplorarPage(options = {}) {
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="filters-modal-body" id="mobileFiltersContent">
-                <!-- Conteudo dos filtros sera injetado pelo renderFilters -->
-            </div>
+            <div class="filters-modal-body" id="mobileFiltersContent"></div>
             <div class="filters-modal-footer">
                 <button class="btn-clear-mobile" id="btnClearMobile">Limpar Tudo</button>
                 <button class="btn-apply-filters" id="btnApplyFilters">Aplicar</button>
@@ -174,12 +143,28 @@ export default function renderExplorarPage(options = {}) {
         footerContainer.appendChild(Footer());
     }
 
-    // Inicializacao
-    init();
+    // Estado da aplicacao
+    const state = {
+        servicos: [],
+        profissionais: [],
+        categorias: [],
+        enderecos: [],
+        bairros: [],
+        filteredResults: [],
+        currentPage: 1,
+        totalPages: 1,
+        loading: true,
+        filters: {
+            busca: "",
+            categorias: [],
+            precoMin: "",
+            precoMax: "",
+            bairro: "",
+            ordenacao: "nome",
+        },
+    };
 
-    // ============================================
-    // INICIALIZACAO
-    // ============================================
+    init();
 
     async function init() {
         renderSkeletons();
@@ -192,41 +177,21 @@ export default function renderExplorarPage(options = {}) {
 
     async function carregarDados() {
         const api = new ApiService();
-
         try {
-            const [profissionais, categorias, servicos, enderecos] =
+            const [servicos, profissionais, categorias, enderecos] =
                 await Promise.allSettled([
+                    api.listarServicos(),
                     api.listarProfissionais(),
                     api.listarCategorias(),
-                    api.listarServicos(),
-                    buscarTodosEnderecos(api),
+                    api.request("/endereco", "GET").catch(() => []),
                 ]);
 
-            let allProfissionais = getSettledValue(profissionais, []);
-
-            // Filtro por tipo de documento (so se tipoFiltro for pf ou pj)
-            if (tipoFiltro === "pf") {
-                allProfissionais = allProfissionais.filter((p) => p.isJuridica == 0);
-            } else if (tipoFiltro === "pj") {
-                allProfissionais = allProfissionais.filter((p) => p.isJuridica == 1);
-            }
-
-            state.profissionais = allProfissionais;
-            state.categorias = getSettledValue(categorias, []);
             state.servicos = getSettledValue(servicos, []);
+            state.profissionais = getSettledValue(profissionais, []);
+            state.categorias = getSettledValue(categorias, []);
             state.enderecos = getSettledValue(enderecos, []);
 
-            // Filtra: apenas profissionais que possuem servicos cadastrados
-            if (Array.isArray(state.servicos)) {
-                const idsComServico = new Set(
-                    state.servicos.map((s) => String(s.id_profissional_fk)),
-                );
-                state.profissionais = state.profissionais.filter((p) =>
-                    idsComServico.has(String(p.id)),
-                );
-            }
-
-            // Coleta bairros unicos para o filtro de localizacao
+            // Monta lista de bairros a partir dos enderecos dos profissionais
             if (Array.isArray(state.enderecos)) {
                 const bairrosSet = new Set();
                 state.enderecos.forEach((e) => {
@@ -235,41 +200,13 @@ export default function renderExplorarPage(options = {}) {
                 state.bairros = Array.from(bairrosSet).sort();
             }
 
-            // Comentado para que o padrao seja "Todos os bairros"
-            // await carregarLocalizacaoCliente(api);
-
             state.loading = false;
         } catch (error) {
             state.loading = false;
-            state.profissionais = [];
+            state.servicos = [];
         }
     }
 
-    async function carregarLocalizacaoCliente(api) {
-        try {
-            const cadastroId = authState.getCadastroId?.();
-            if (!cadastroId) return;
-
-            const enderecoCliente = await api.buscarEnderecoPorCadastro(cadastroId);
-            if (!enderecoCliente || !enderecoCliente.bairro) return;
-
-            if (state.bairros.includes(enderecoCliente.bairro)) {
-                state.filters.bairro = enderecoCliente.bairro;
-            }
-        } catch (error) {
-            console.error("Erro ao carregar endereco do cliente:", error);
-        }
-    }
-
-    async function buscarTodosEnderecos(api) {
-        try {
-            return await api.request("/endereco", "GET");
-        } catch {
-            return [];
-        }
-    }
-
-    // Extrai valor de Promise.allSettled com fallback seguro
     function getSettledValue(result, fallback) {
         if (result.status === "fulfilled" && Array.isArray(result.value)) {
             return result.value;
@@ -277,8 +214,20 @@ export default function renderExplorarPage(options = {}) {
         return fallback;
     }
 
+    function getProfissional(idProfissional) {
+        return state.profissionais.find((p) => p.id == idProfissional) || null;
+    }
+
+    function getEnderecoDoProfissional(idProfissional) {
+        return state.enderecos.find((e) => e.id_profissional_fk == idProfissional) || null;
+    }
+
+    function getCategoria(idCategoria) {
+        return state.categorias.find((c) => c.id == idCategoria) || null;
+    }
+
     // ============================================
-    // FILTROS — RENDER E EVENTOS
+    // FILTROS
     // ============================================
 
     function renderFilters(containerId) {
@@ -294,7 +243,7 @@ export default function renderExplorarPage(options = {}) {
                     <i class="fas fa-search"></i>
                     <input type="text"
                            class="filter-search-input"
-                           placeholder="Nome, servico..."
+                           placeholder="Nome do serviço..."
                            value="${state.filters.busca}">
                 </div>
             </div>
@@ -317,13 +266,13 @@ export default function renderExplorarPage(options = {}) {
             </div>
 
             <div class="filter-group">
-                <div class="filter-group-title">Faixa de Preco</div>
+                <div class="filter-group-title">Faixa de Preço</div>
                 <div class="d-flex align-items-center gap-2">
                     <div class="price-input-wrapper">
                         <span>R$</span>
                         <input type="number"
                                class="filter-price-min"
-                               placeholder="Min"
+                               placeholder="Mín"
                                min="0"
                                value="${state.filters.precoMin}">
                     </div>
@@ -332,7 +281,7 @@ export default function renderExplorarPage(options = {}) {
                         <span>R$</span>
                         <input type="number"
                                class="filter-price-max"
-                               placeholder="Max"
+                               placeholder="Máx"
                                min="0"
                                value="${state.filters.precoMax}">
                     </div>
@@ -340,7 +289,7 @@ export default function renderExplorarPage(options = {}) {
             </div>
 
             <div class="filter-group">
-                <div class="filter-group-title">Localizacao</div>
+                <div class="filter-group-title">Localização</div>
                 <div class="filter-localizacao">
                     <label class="filter-label" for="${containerId}-bairro-select">Bairro</label>
                     <select id="${containerId}-bairro-select" class="filter-bairro-select">
@@ -363,7 +312,6 @@ export default function renderExplorarPage(options = {}) {
     }
 
     function setupFilterEvents(container) {
-        // Busca por texto (com debounce)
         const searchInput = container.querySelector(".filter-search-input");
         if (searchInput) {
             let debounceTimer;
@@ -378,7 +326,6 @@ export default function renderExplorarPage(options = {}) {
             });
         }
 
-        // Checkboxes de categoria
         container.querySelectorAll(".filter-cat-checkbox").forEach((cb) => {
             cb.addEventListener("change", () => {
                 const catId = cb.value;
@@ -388,7 +335,7 @@ export default function renderExplorarPage(options = {}) {
                     }
                 } else {
                     state.filters.categorias = state.filters.categorias.filter(
-                        (c) => c !== catId,
+                        (c) => c !== catId
                     );
                 }
                 syncFilters();
@@ -397,8 +344,8 @@ export default function renderExplorarPage(options = {}) {
             });
         });
 
-        // Preco minimo
         const priceMin = container.querySelector(".filter-price-min");
+        const priceMax = container.querySelector(".filter-price-max");
         if (priceMin) {
             priceMin.addEventListener("input", (e) => {
                 state.filters.precoMin = e.target.value;
@@ -407,9 +354,6 @@ export default function renderExplorarPage(options = {}) {
                 applyFilters();
             });
         }
-
-        // Preco maximo
-        const priceMax = container.querySelector(".filter-price-max");
         if (priceMax) {
             priceMax.addEventListener("input", (e) => {
                 state.filters.precoMax = e.target.value;
@@ -419,7 +363,6 @@ export default function renderExplorarPage(options = {}) {
             });
         }
 
-        // Bairro
         const bairroSelect = container.querySelector(".filter-bairro-select");
         if (bairroSelect) {
             bairroSelect.addEventListener("change", (e) => {
@@ -430,14 +373,12 @@ export default function renderExplorarPage(options = {}) {
             });
         }
 
-        // Limpar todos os filtros
         const clearBtn = container.querySelector(".btn-clear-all");
         if (clearBtn) {
             clearBtn.addEventListener("click", () => clearAllFilters());
         }
     }
 
-    // Sincroniza o estado dos filtros entre sidebar e modal mobile
     function syncFilters() {
         ["sidebarFiltersContent", "mobileFiltersContent"].forEach((containerId) => {
             const container = document.getElementById(containerId);
@@ -484,61 +425,46 @@ export default function renderExplorarPage(options = {}) {
     }
 
     // ============================================
-    // LOGICA DE FILTROS
+    // LOGICA DOS FILTROS
     // ============================================
 
     function applyFilters() {
-        let results = [...state.profissionais];
+        let results = [...state.servicos];
 
-        // Filtro de busca por nome, descricao ou servico
+        // Busca por nome/descricao
         if (state.filters.busca) {
             const termo = state.filters.busca.toLowerCase();
-            results = results.filter((prof) => {
-                const nomeMatch = (prof.nome || "").toLowerCase().includes(termo);
-                const descMatch = (prof.descricao || "").toLowerCase().includes(termo);
-                const servicoMatch = state.servicos.some(
-                    (s) =>
-                        s.id_profissional_fk == prof.id &&
-                        ((s.nome || "").toLowerCase().includes(termo) ||
-                            (s.descricao || "").toLowerCase().includes(termo)),
-                );
-                return nomeMatch || descMatch || servicoMatch;
+            results = results.filter((s) => {
+                const nomeMatch = (s.nome || "").toLowerCase().includes(termo);
+                const descMatch = (s.descricao || "").toLowerCase().includes(termo);
+                const prof = getProfissional(s.id_profissional_fk);
+                const profMatch = prof && (prof.nome || "").toLowerCase().includes(termo);
+                return nomeMatch || descMatch || profMatch;
             });
         }
 
         // Filtro por categoria
         if (state.filters.categorias.length > 0) {
-            results = results.filter((prof) => {
-                return state.servicos.some(
-                    (s) =>
-                        s.id_profissional_fk == prof.id &&
-                        state.filters.categorias.includes(String(s.id_categoria_fk)),
-                );
-            });
+            results = results.filter((s) =>
+                state.filters.categorias.includes(String(s.id_categoria_fk))
+            );
         }
 
-        // Filtro por faixa de preco
+        // Filtro por preco
         if (state.filters.precoMin || state.filters.precoMax) {
             const min = state.filters.precoMin ? parseFloat(state.filters.precoMin) : 0;
             const max = state.filters.precoMax ? parseFloat(state.filters.precoMax) : Infinity;
-
-            results = results.filter((prof) => {
-                const servicosDoProf = state.servicos.filter(
-                    (s) => s.id_profissional_fk == prof.id,
-                );
-                if (servicosDoProf.length === 0) return false;
-                return servicosDoProf.some((s) => {
-                    const preco = parseFloat(s.preco);
-                    return preco >= min && preco <= max;
-                });
+            results = results.filter((s) => {
+                const preco = parseFloat(s.preco);
+                return !isNaN(preco) && preco >= min && preco <= max;
             });
         }
 
-        // Filtro por bairro
+        // Filtro por bairro (via endereco do profissional)
         if (state.filters.bairro) {
             const bairroFiltro = state.filters.bairro.toLowerCase();
-            results = results.filter((prof) => {
-                const endereco = getEndereco(prof.id);
+            results = results.filter((s) => {
+                const endereco = getEnderecoDoProfissional(s.id_profissional_fk);
                 if (!endereco || !endereco.bairro) return false;
                 return endereco.bairro.toLowerCase() === bairroFiltro;
             });
@@ -547,15 +473,10 @@ export default function renderExplorarPage(options = {}) {
         // Ordenacao
         const ordenacao = state.filters.ordenacao;
         results.sort((a, b) => {
-            if (ordenacao === "nome") {
-                return (a.nome || "").localeCompare(b.nome || "");
-            }
-            if (ordenacao === "menor_preco") {
-                return getMenorPreco(a.id) - getMenorPreco(b.id);
-            }
-            if (ordenacao === "maior_preco") {
-                return getMenorPreco(b.id) - getMenorPreco(a.id);
-            }
+            if (ordenacao === "nome") return (a.nome || "").localeCompare(b.nome || "");
+            if (ordenacao === "menor_preco") return (parseFloat(a.preco) || 0) - (parseFloat(b.preco) || 0);
+            if (ordenacao === "maior_preco") return (parseFloat(b.preco) || 0) - (parseFloat(a.preco) || 0);
+            if (ordenacao === "duracao") return parseDuracao(a.duracao) - parseDuracao(b.duracao);
             return 0;
         });
 
@@ -572,80 +493,54 @@ export default function renderExplorarPage(options = {}) {
         updateCategoryCountsDOM();
     }
 
-    function getMenorPreco(profId) {
-        const servicosDoProf = state.servicos.filter(
-            (s) => s.id_profissional_fk == profId,
-        );
-        if (servicosDoProf.length === 0) return 999999;
-        return Math.min(...servicosDoProf.map((s) => parseFloat(s.preco) || 999999));
+    function parseDuracao(duracao) {
+        if (!duracao) return 9999;
+        const parts = String(duracao).split(":").map(Number);
+        if (parts.length >= 2) return parts[0] * 60 + parts[1];
+        return parseInt(duracao) || 9999;
     }
 
-    function getEndereco(profId) {
-        return state.enderecos.find((e) => e.id_profissional_fk == profId) || null;
-    }
-
-    // Conta profissionais por categoria considerando os filtros ativos (exceto categoria)
-    // Isso garante que os contadores se atualizem ao aplicar outros filtros
+    // Conta quantos servicos por categoria, ignorando o filtro de categoria
     function getFilteredCategoryCounts() {
         const contadorCategorias = {};
-
-        if (!Array.isArray(state.servicos) || !Array.isArray(state.categorias)) {
+        if (!Array.isArray(state.servicos) || !Array.isArray(state.categorias))
             return contadorCategorias;
-        }
 
-        // Aplica todos os filtros EXCETO o de categoria para re-contar
-        let filteredWithoutCat = [...state.profissionais];
+        let filteredWithoutCat = [...state.servicos];
 
         if (state.filters.busca) {
             const termo = state.filters.busca.toLowerCase();
-            filteredWithoutCat = filteredWithoutCat.filter((prof) => {
-                const nomeMatch = (prof.nome || "").toLowerCase().includes(termo);
-                const descMatch = (prof.descricao || "").toLowerCase().includes(termo);
-                const servicoMatch = state.servicos.some(
-                    (s) =>
-                        s.id_profissional_fk == prof.id &&
-                        ((s.nome || "").toLowerCase().includes(termo) ||
-                            (s.descricao || "").toLowerCase().includes(termo)),
-                );
-                return nomeMatch || descMatch || servicoMatch;
+            filteredWithoutCat = filteredWithoutCat.filter((s) => {
+                const nomeMatch = (s.nome || "").toLowerCase().includes(termo);
+                const descMatch = (s.descricao || "").toLowerCase().includes(termo);
+                const prof = getProfissional(s.id_profissional_fk);
+                const profMatch = prof && (prof.nome || "").toLowerCase().includes(termo);
+                return nomeMatch || descMatch || profMatch;
             });
         }
 
         if (state.filters.precoMin || state.filters.precoMax) {
             const min = state.filters.precoMin ? parseFloat(state.filters.precoMin) : 0;
             const max = state.filters.precoMax ? parseFloat(state.filters.precoMax) : Infinity;
-
-            filteredWithoutCat = filteredWithoutCat.filter((prof) => {
-                const servicosDoProf = state.servicos.filter(
-                    (s) => s.id_profissional_fk == prof.id,
-                );
-                if (servicosDoProf.length === 0) return false;
-                return servicosDoProf.some((s) => {
-                    const preco = parseFloat(s.preco);
-                    return preco >= min && preco <= max;
-                });
+            filteredWithoutCat = filteredWithoutCat.filter((s) => {
+                const preco = parseFloat(s.preco);
+                return !isNaN(preco) && preco >= min && preco <= max;
             });
         }
 
         if (state.filters.bairro) {
             const bairroFiltro = state.filters.bairro.toLowerCase();
-            filteredWithoutCat = filteredWithoutCat.filter((prof) => {
-                const endereco = getEndereco(prof.id);
+            filteredWithoutCat = filteredWithoutCat.filter((s) => {
+                const endereco = getEnderecoDoProfissional(s.id_profissional_fk);
                 if (!endereco || !endereco.bairro) return false;
                 return endereco.bairro.toLowerCase() === bairroFiltro;
             });
         }
 
-        const validProfIds = new Set(filteredWithoutCat.map((p) => String(p.id)));
-
         state.categorias.forEach((cat) => {
-            const servicosDaCat = state.servicos.filter(
-                (s) =>
-                    s.id_categoria_fk == cat.id &&
-                    validProfIds.has(String(s.id_profissional_fk)),
-            );
-            const profsUnicos = new Set(servicosDaCat.map((s) => s.id_profissional_fk));
-            contadorCategorias[cat.id] = profsUnicos.size;
+            contadorCategorias[cat.id] = filteredWithoutCat.filter(
+                (s) => s.id_categoria_fk == cat.id
+            ).length;
         });
 
         return contadorCategorias;
@@ -653,16 +548,12 @@ export default function renderExplorarPage(options = {}) {
 
     function updateCategoryCountsDOM() {
         const counts = getFilteredCategoryCounts();
-
         ["sidebarFiltersContent", "mobileFiltersContent"].forEach((containerId) => {
             const container = document.getElementById(containerId);
             if (!container) return;
-
             container.querySelectorAll(".filter-count").forEach((el) => {
                 const catId = el.getAttribute("data-cat-id");
-                if (catId) {
-                    el.textContent = counts[catId] || 0;
-                }
+                if (catId) el.textContent = counts[catId] || 0;
             });
         });
     }
@@ -685,64 +576,100 @@ export default function renderExplorarPage(options = {}) {
                     <div class="explorar-empty-icon">
                         <i class="fas fa-search"></i>
                     </div>
-                    <h3>Nenhum ${labelEntidade} encontrado</h3>
-                    <p>Tente ajustar os filtros ou buscar por outro termo para encontrar resultados.</p>
+                    <h3>Nenhum serviço encontrado</h3>
+                    <p>Tente ajustar os filtros ou buscar por outro termo.</p>
                 </div>
             `;
             return;
         }
 
-        grid.innerHTML = pageItems.map((prof, index) => {
-            const endereco = getEndereco(prof.id);
-            const servicosDoProf = state.servicos.filter(
-                (s) => s.id_profissional_fk == prof.id,
-            );
-            const menorPreco =
-                servicosDoProf.length > 0
-                    ? Math.min(...servicosDoProf.map((s) => parseFloat(s.preco) || 0))
-                    : null;
-            const bairro = endereco
-                ? `${endereco.bairro || ""}${endereco.cidade ? ", " + endereco.cidade : ""}`
-                : "";
-            const descricao = prof.descricao || "Profissional de estetica e beleza";
+        grid.innerHTML = pageItems.map((servico, index) => {
+            const prof = getProfissional(servico.id_profissional_fk);
+            const endereco = prof ? getEnderecoDoProfissional(prof.id) : null;
+            const cat = getCategoria(servico.id_categoria_fk);
+
+            const nomeProfissional = prof ? (prof.nome || prof.razao_social || "Profissional") : "Profissional";
+            const localizacao = endereco ? `${endereco.bairro || ""}${endereco.cidade ? ", " + endereco.cidade : ""}` : "";
+            const preco = parseFloat(servico.preco);
+            const precoFormatado = !isNaN(preco) ? preco.toFixed(2).replace(".", ",") : null;
+
+            // Formata duracao ex: "00:45:00" -> "45 min"
+            let duracaoFormatada = "";
+            if (servico.duracao) {
+                const parts = String(servico.duracao).split(":").map(Number);
+                if (parts.length >= 2) {
+                    const h = parts[0];
+                    const m = parts[1];
+                    if (h > 0 && m > 0) duracaoFormatada = `${h}h ${m}min`;
+                    else if (h > 0) duracaoFormatada = `${h}h`;
+                    else duracaoFormatada = `${m}min`;
+                }
+            }
 
             return `
-                <div class="explorar-card" style="animation-delay: ${index * 0.05}s;">
+                <div class="explorar-card servico-card" style="animation-delay: ${index * 0.05}s;"
+                     data-servico-id="${servico.id}"
+                     data-profissional-id="${servico.id_profissional_fk}">
                     <div class="explorar-card-img-wrapper">
                         <img class="explorar-card-img"
                              src="public/assets/images/botox.jpg"
-                             alt="${prof.nome || "Profissional"}"
+                             alt="${servico.nome}"
                              onerror="this.src='public/assets/images/Florence-estetica.jpg'">
+                        ${cat ? `<span class="explorar-card-badge">${cat.nome}</span>` : ""}
                     </div>
                     <div class="explorar-card-body">
-                        <h4 class="explorar-card-name">${prof.nome || prof.razao_social || "Profissional"}</h4>
-                        ${bairro ? `
+                        <h4 class="explorar-card-name">${servico.nome || "Serviço"}</h4>
+                        <div class="servico-card-profissional">
+                            <i class="fas fa-user-circle"></i>
+                            <span>${nomeProfissional}</span>
+                        </div>
+                        ${localizacao ? `
                             <div class="explorar-card-location">
-                                <i class="fas fa-map-marker-alt"></i> ${bairro}
+                                <i class="fas fa-map-marker-alt"></i> ${localizacao}
                             </div>
                         ` : ""}
-                        <p class="explorar-card-desc">${descricao}</p>
+                        ${servico.descricao ? `
+                            <p class="explorar-card-desc">${servico.descricao}</p>
+                        ` : ""}
                         <div class="explorar-card-footer">
-                            ${menorPreco !== null ? `
-                                <div class="explorar-card-price">
-                                    <span class="explorar-card-price-label">A partir de</span>
-                                    <span class="explorar-card-price-value">R$ ${menorPreco.toFixed(2).replace(".", ",")}</span>
-                                </div>
-                            ` : "<div></div>"}
-                            <a href="agendamento?profissional=${prof.id}" class="btn-ver-perfil">
-                                Conhecer <i class="fas fa-arrow-right"></i>
-                            </a>
+                            <div class="explorar-card-price">
+                                ${duracaoFormatada ? `
+                                    <span class="explorar-card-price-label">
+                                        <i class="fas fa-clock"></i> ${duracaoFormatada}
+                                    </span>
+                                ` : ""}
+                                ${precoFormatado ? `
+                                    <span class="explorar-card-price-value">R$ ${precoFormatado}</span>
+                                ` : ""}
+                            </div>
+                            <button class="btn-ver-perfil btn-agendar-servico"
+                                    data-servico-id="${servico.id}"
+                                    data-profissional-id="${servico.id_profissional_fk}">
+                                Agendar <i class="fas fa-calendar-plus"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
             `;
         }).join("");
+
+        // Eventos de agendamento nos cards
+        grid.querySelectorAll(".btn-agendar-servico").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                const servicoId = btn.dataset.servicoId;
+                const profissionalId = btn.dataset.profissionalId;
+                const servico = state.servicos.find((s) => s.id == servicoId);
+                const prof = state.profissionais.find((p) => p.id == profissionalId);
+                if (servico && prof) {
+                    AgendamentoModal(servico, prof);
+                }
+            });
+        });
     }
 
     function renderSkeletons() {
         const grid = document.getElementById("explorarGrid");
         if (!grid) return;
-
         let skeletons = "";
         for (let i = 0; i < 6; i++) {
             skeletons += `
@@ -842,25 +769,21 @@ export default function renderExplorarPage(options = {}) {
     function updateResultsCount() {
         const countEl = document.getElementById("resultsCount");
         if (!countEl) return;
-
         const total = state.filteredResults.length;
         const start = (state.currentPage - 1) * ITEMS_PER_PAGE + 1;
         const end = Math.min(state.currentPage * ITEMS_PER_PAGE, total);
-        const label = total === 1 ? labelEntidade : `${labelEntidade}s`;
-
         if (total === 0) {
-            countEl.innerHTML = `Nenhum ${labelEntidade} encontrado`;
+            countEl.innerHTML = `Nenhum serviço encontrado`;
         } else {
-            countEl.innerHTML = `Mostrando <strong>${start}-${end}</strong> de <strong>${total}</strong> ${label}`;
+            countEl.innerHTML = `Mostrando <strong>${start}-${end}</strong> de <strong>${total}</strong> serviço${total !== 1 ? "s" : ""}`;
         }
     }
 
     // ============================================
-    // EVENT LISTENERS GLOBAIS
+    // EVENT LISTENERS (SIDEBAR MOBILE + SORT)
     // ============================================
 
     function setupEventListeners() {
-        // Ordenacao
         const sortSelect = document.getElementById("sortSelect");
         if (sortSelect) {
             sortSelect.addEventListener("change", (e) => {
@@ -870,7 +793,6 @@ export default function renderExplorarPage(options = {}) {
             });
         }
 
-        // Modal de filtros mobile
         const btnMobileFilters = document.getElementById("btnMobileFilters");
         const filtersOverlay = document.getElementById("filtersOverlay");
         const filtersModal = document.getElementById("filtersModal");
@@ -894,8 +816,6 @@ export default function renderExplorarPage(options = {}) {
         if (filtersOverlay) filtersOverlay.addEventListener("click", closeFiltersModal);
         if (closeModal) closeModal.addEventListener("click", closeFiltersModal);
         if (btnApply) btnApply.addEventListener("click", closeFiltersModal);
-        if (btnClearMobile) {
-            btnClearMobile.addEventListener("click", () => clearAllFilters());
-        }
+        if (btnClearMobile) btnClearMobile.addEventListener("click", () => clearAllFilters());
     }
 }
