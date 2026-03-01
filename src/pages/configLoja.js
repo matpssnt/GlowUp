@@ -6,6 +6,7 @@ import authState from "../utils/AuthState.js";
 import { notify } from "../components/Notification.js";
 import { handleError } from "../utils/errorHandler.js";
 import { addMaskToInput } from "../utils/validation.js";
+import CepAPI from "../utils/cepAPI.js";
 
 const link = document.createElement('link');
 link.rel = 'stylesheet';
@@ -92,27 +93,27 @@ export default function renderConfiguracoesLojaPage() {
 
                 <div class="col-md-6">
                     <label class="form-label">CEP</label>
-                    <input class="form-control" name="cep">
+                    <input class="form-control" name="cep" id="cepConfig">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Estado</label>
-                    <input class="form-control" name="estado">
+                    <input class="form-control" name="estado" id="estadoConfig">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Cidade</label>
-                    <input class="form-control" name="cidade">
+                    <input class="form-control" name="cidade" id="cidadeConfig">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Bairro</label>
-                    <input class="form-control" name="bairro">
+                    <input class="form-control" name="bairro" id="bairroConfig">
                 </div>
                 <div class="col-md-8">
                     <label class="form-label">Rua</label>
-                    <input class="form-control" name="rua">
+                    <input class="form-control" name="rua" id="ruaConfig">
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Número</label>
-                    <input class="form-control" name="numero">
+                    <input class="form-control" name="numero" id="numeroConfig">
                 </div>
                 <div class="col-12">
                     <label class="form-label">Complemento</label>
@@ -143,7 +144,7 @@ export default function renderConfiguracoesLojaPage() {
     const btnSalvarEscala = cardEscala.querySelector('#btnSalvarEscala');
 
     // Selecionar inputs do telefone uma única vez
-    const inputDDD     = form.querySelector('input[name="ddd"]');
+    const inputDDD = form.querySelector('input[name="ddd"]');
     const inputDigitos = form.querySelector('input[name="digitos"]');
 
     // Aplicar máscaras imediatamente (como no formulário de registro)
@@ -154,7 +155,67 @@ export default function renderConfiguracoesLojaPage() {
     }
 
     if (inputDigitos) {
-        addMaskToInput(inputDigitos, 'telefone');
+        addMaskToInput(inputDigitos, 'telefone_sem_ddd');
+    }
+
+    const inputCep = form.querySelector('input[name="cep"]');
+    if (inputCep) {
+        addMaskToInput(inputCep, 'cep');
+
+        let timeoutId = null;
+        const buscarCep = async () => {
+            const cepVal = inputCep.value.trim();
+            if (!cepVal || cepVal.length < 8) {
+                CepAPI.removerErro();
+                return;
+            }
+            try {
+                const campos = {
+                    city: 'cidadeConfig',
+                    neighborhood: 'bairroConfig',
+                    street: 'ruaConfig',
+                    state: 'estadoConfig'
+                };
+
+                await CepAPI.buscarEPreencher(cepVal, campos, {
+                    success: () => {
+                        inputCep.value = CepAPI.formatarCep(cepVal);
+                        const campoNumero = document.getElementById('numeroConfig');
+                        if (campoNumero) campoNumero.focus();
+                    },
+                    error: (error) => {
+                        notify.error('Erro ao buscar CEP: ' + error.message);
+                    }
+                });
+            } catch (error) {
+                notify.error('Erro na busca do CEP: ' + error.message);
+            }
+        };
+
+        inputCep.addEventListener('input', (e) => {
+            let valor = e.target.value.replace(/\D/g, '');
+            if (valor.length > 8) valor = valor.substring(0, 8);
+            CepAPI.removerErro();
+
+            if (timeoutId) clearTimeout(timeoutId);
+            if (valor.length === 8) {
+                timeoutId = setTimeout(buscarCep, 800);
+            }
+        });
+
+        inputCep.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                buscarCep();
+            }
+        });
+
+        inputCep.addEventListener('paste', (e) => {
+            setTimeout(() => {
+                const valor = e.target.value.replace(/\D/g, '');
+                if (valor.length === 8) buscarCep();
+            }, 100);
+        });
     }
 
     let profissional = null;
@@ -180,7 +241,7 @@ export default function renderConfiguracoesLojaPage() {
 
             // Preenche form
             form.nome.value = profissional.nome || '';
-            form.ddd.value     = telefone?.ddd     || '';
+            form.ddd.value = telefone?.ddd || '';
             form.digitos.value = telefone?.digitos || '';
 
             // Força formatação da máscara no valor vindo do banco
@@ -188,12 +249,12 @@ export default function renderConfiguracoesLojaPage() {
                 form.digitos.dispatchEvent(new Event('input'));
             }
 
-            form.cep.value      = endereco?.cep         || '';
-            form.estado.value   = endereco?.estado      || '';
-            form.cidade.value   = endereco?.cidade      || '';
-            form.bairro.value   = endereco?.bairro      || '';
-            form.rua.value      = endereco?.rua         || '';
-            form.numero.value   = endereco?.numero      || '';
+            form.cep.value = endereco?.cep || '';
+            form.estado.value = endereco?.estado || '';
+            form.cidade.value = endereco?.cidade || '';
+            form.bairro.value = endereco?.bairro || '';
+            form.rua.value = endereco?.rua || '';
+            form.numero.value = endereco?.numero || '';
             form.complemento.value = endereco?.complemento || '';
         } catch (error) {
             handleError(error, 'Configurações da Loja');
@@ -202,7 +263,7 @@ export default function renderConfiguracoesLojaPage() {
 
     function extrairHora(valor) {
         if (!valor) return '';
-        
+
         const s = String(valor);
         if (s.includes(' ')) {
             const timePart = s.split(' ')[1];
@@ -253,8 +314,8 @@ export default function renderConfiguracoesLojaPage() {
             `;
 
             const inputInicio = tr.querySelector(`input[name="inicio_${d.id}"]`);
-            const inputFim    = tr.querySelector(`input[name="fim_${d.id}"]`);
-            const btnLimpar   = tr.querySelector('[data-action="limpar"]');
+            const inputFim = tr.querySelector(`input[name="fim_${d.id}"]`);
+            const btnLimpar = tr.querySelector('[data-action="limpar"]');
 
             if (inputInicio.value) {
                 inputFim.min = inputInicio.value;
@@ -326,12 +387,12 @@ export default function renderConfiguracoesLojaPage() {
             }
 
             // Telefone (limpa máscara antes de enviar)
-            const dddLimpo     = inputDDD?.value.replace(/\D/g, '') || '';
+            const dddLimpo = inputDDD?.value.replace(/\D/g, '') || '';
             const digitosLimpo = inputDigitos?.value.replace(/\D/g, '') || '';
 
             if (dddLimpo && digitosLimpo) {
-                if (digitosLimpo.length !== 10 && digitosLimpo.length !== 11) {
-                    notify.warning('O telefone deve ter 10 ou 11 dígitos.');
+                if (digitosLimpo.length !== 8 && digitosLimpo.length !== 9) {
+                    notify.warning('O número de telefone deve ter 8 ou 9 dígitos.');
                     inputDigitos.focus();
                     return;
                 }
