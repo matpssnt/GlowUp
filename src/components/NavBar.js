@@ -103,8 +103,8 @@ export default function NavBar({ hidelogin = false } = {}) {
                             Serviços
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="estabelecimentos">Estabelecimentos</a></li>
                             <li><a class="dropdown-item" href="profissionais">Profissionais</a></li>
+                            <li><a class="dropdown-item" href="explorar-servicos">Serviços</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="explorar">Explorar Todos</a></li>
                         </ul>
