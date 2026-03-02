@@ -1,4 +1,3 @@
-// src/pages/perfilProfissional.js
 import NavBar from "../components/NavBar.js";
 import Footer from "../components/Footer.js";
 import PerfilSidebar from "../components/PerfilSidebar.js";
@@ -20,12 +19,10 @@ export default async function renderPerfilProfissionalPage() {
     root.style.minHeight = '100vh';
     root.style.backgroundColor = '#f5f5f5';
 
-    // NavBar
     const nav = document.getElementById('navbar');
     nav.innerHTML = '';
     nav.appendChild(NavBar());
 
-    // Main container
     const mainWrapper = document.createElement('div');
     mainWrapper.className = 'main-content-wrapper';
     mainWrapper.style.display = 'flex';
@@ -39,8 +36,16 @@ export default async function renderPerfilProfissionalPage() {
     const content = document.createElement('div');
     content.className = 'content-area';
 
-    // Busca informações adicionais na API usando o ID do profissional salvo no estado
+    // Busca informações na API usando o ID do profissional salvo no estado
     const api = new ApiService();
+    if (typeof api.uploadBanner !== 'function') {
+        api.uploadBanner = async function(idProfissional, file) {
+            const formData = new FormData();
+            formData.append('foto', file);
+            return await this.request(`/profissional/${idProfissional}/banner`, 'POST', formData, true);
+        };
+        console.warn('Fallback: api.uploadBanner definido dinamicamente');
+    }
     let profissionalData = authState.getUser() || {};
     const profId = profissionalData.profissional_id || profissionalData.id;
 
@@ -78,14 +83,13 @@ export default async function renderPerfilProfissionalPage() {
     const bannerElement = PerfilBanner(profissionalData, endereco, telefone);
     content.appendChild(bannerElement);
 
-    // permite ao profissional alterar a foto diretamente no banner
+    // foto de perfil
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = 'image/*';
     fileInput.style.display = 'none';
     bannerElement.appendChild(fileInput);
 
-    // botão de edição circular sobre a foto
     const fotoContainer = bannerElement.querySelector('.foto-perfil');
     if (fotoContainer) {
         fotoContainer.style.position = 'relative';
@@ -94,8 +98,6 @@ export default async function renderPerfilProfissionalPage() {
         editBtn.className = 'edit-photo-btn';
         editBtn.innerHTML = '<i class="bi bi-camera"></i>';
         fotoContainer.appendChild(editBtn);
-
-        // clique no ícone ou em qualquer lugar da foto abre o seletor
         editBtn.addEventListener('click', () => fileInput.click());
         fotoContainer.addEventListener('click', () => fileInput.click());
     }
@@ -103,27 +105,13 @@ export default async function renderPerfilProfissionalPage() {
     fileInput.addEventListener('change', async () => {
         const file = fileInput.files[0];
         if (!file) return;
-
-        // confirmação antes de prosseguir
         const confirmar = window.confirm('Deseja realmente alterar sua foto de perfil?');
-        if (!confirmar) {
-            // limpa input para não reaparecer no próximo click
-            fileInput.value = '';
-            return;
-        }
-
-        // validações básicas de tipo e tamanho
+        if (!confirmar) { fileInput.value = ''; return; }
+        // validações
         const tiposValidos = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
-        if (!tiposValidos.includes(file.type)) {
-            notify.error(`Tipo de arquivo inválido: ${file.type}. Use PNG, JPG ou WebP.`);
-            return;
-        }
+        if (!tiposValidos.includes(file.type)) { notify.error(`Tipo de arquivo inválido: ${file.type}. Use PNG, JPG ou WebP.`); return; }
         const maxSize = 5 * 1024 * 1024;
-        if (file.size > maxSize) {
-            notify.error(`Arquivo muito grande: ${(file.size / 1024 / 1024).toFixed(2)}MB. Máximo 5MB.`);
-            return;
-        }
-
+        if (file.size > maxSize) { notify.error(`Arquivo muito grande: ${(file.size / 1024 / 1024).toFixed(2)}MB. Máximo 5MB.`); return; }
         try {
             const formData = new FormData();
             formData.append('foto', file);
@@ -132,7 +120,6 @@ export default async function renderPerfilProfissionalPage() {
             if (novaUrl) {
                 profissionalData.foto_perfil = novaUrl;
                 authState.setUser({ ...authState.getUser(), foto_perfil: novaUrl }, authState.getToken());
-                // atualiza src da imagem exibida
                 const imgEl = bannerElement.querySelector('.foto-perfil img');
                 let newSrc = novaUrl;
                 if (!newSrc.match(/^https?:\/\//) && !newSrc.startsWith('/')) {
@@ -145,6 +132,75 @@ export default async function renderPerfilProfissionalPage() {
         } catch (err) {
             notify.error('Erro ao enviar foto: ' + (err.message || err));
             console.error('Erro upload foto perfil:', err);
+        }
+    });
+
+    //banner
+    const bannerInput = document.createElement('input');
+    bannerInput.type = 'file';
+    bannerInput.accept = 'image/*';
+    bannerInput.style.display = 'none';
+
+    const bannerCard = bannerElement.querySelector('.perfil-banner-card') || bannerElement;
+    bannerCard.appendChild(bannerInput);
+
+    // cria botão de edição do banner dentro do cartão
+    const bannerBtn = document.createElement('button');
+    bannerBtn.type = 'button';
+    bannerBtn.className = 'edit-banner-btn';
+    bannerBtn.title = 'Alterar banner';
+    // ícone de edicao no banner
+    bannerBtn.innerHTML = '<i class="bi bi-pencil-fill"></i>';
+    bannerCard.style.position = 'relative';
+    bannerCard.appendChild(bannerBtn);
+
+    // permitir clique na imagem também
+    const bannerImg = bannerCard.querySelector('.banner-img');
+    if (bannerImg) {
+        bannerImg.style.cursor = 'pointer';
+        bannerImg.addEventListener('click', () => bannerInput.click());
+    }
+    bannerBtn.addEventListener('click', () => bannerInput.click());
+
+    bannerInput.addEventListener('change', async () => {
+        const file = bannerInput.files[0];
+        if (!file) return;
+        const confirmar = window.confirm('Deseja realmente alterar o banner?');
+        if (!confirmar) { bannerInput.value = ''; return; }
+        const tiposValidos = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+        if (!tiposValidos.includes(file.type)) { notify.error(`Tipo de arquivo inválido: ${file.type}`); return; }
+        const maxSize = 5 * 1024 * 1024;
+        if (file.size > maxSize) { notify.error('Imagem muito grande (máx 5MB)'); return; }
+        try {
+            if (typeof api.uploadBanner !== 'function') {
+                console.error('API service instance:', api);
+                throw new Error('uploadBanner method não disponível (talvez você precise recarregar a página para atualizar o script).');
+            }
+            const formData = new FormData();
+            formData.append('foto', file);
+            const resp = await api.uploadBanner(profissionalData.id, file);
+            const novaUrl = resp.url || resp.banner_url || resp.foto_banner || '';
+            if (novaUrl) {
+                profissionalData.foto_banner = novaUrl;
+                authState.setUser({ ...authState.getUser(), foto_banner: novaUrl }, authState.getToken());
+                // atualizar na tela
+                let bannerSrc = novaUrl;
+                if (!bannerSrc.match(/^https?:\/\//) && !bannerSrc.startsWith('/')) {
+                    const base = window.location.pathname.split('/').slice(0, 2).join('/');
+                    bannerSrc = base + '/' + bannerSrc;
+                }
+                if (bannerImg) bannerImg.src = bannerSrc;
+                notify.success('Banner atualizado com sucesso!');
+            } else {
+                if (resp && resp.message) {
+                    notify.error('Falha no upload: ' + resp.message);
+                } else {
+                    notify.error('Falha ao atualizar banner. Veja console para detalhes.');
+                }
+            }
+        } catch (err) {
+            notify.error('Erro ao enviar banner: ' + (err.message || err));
+            console.error('Erro upload banner:', err);
         }
     });
 
