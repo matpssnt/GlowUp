@@ -13,6 +13,7 @@ import renderSegurancaPage from './pages/seguranca.js';
 import renderExplorarPage from './pages/explorar.js';
 import renderProfissionaisPage from './pages/profissionais.js';
 import renderEstabelecimentosPage from './pages/estabelecimentos.js';
+import renderPerfilProfissionalPage from './pages/perfilProfissional.js';
 
 const routes = {
     "/home": renderHomePage,
@@ -22,6 +23,7 @@ const routes = {
     "/sobre": renderquemSomos,
     "/agendamento": renderAgendamentoPage,
     "/perfil": renderPerfilPage,         // Rota para página de perfil
+    "/perfil-profissional": renderPerfilProfissionalPage, // Rota para perfil profissional
     "/minhaAgenda": renderMinhaAgendaPage,  // Rota para página minha agenda
     "/dashboard": renderDashboardPage,    // Rota para dashboard profissional
     "/servicos": renderServicosPage,      // Rota para gestão de serviços
