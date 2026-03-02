@@ -12,7 +12,7 @@ import renderConfiguracoesLojaPage from './pages/configLoja.js';
 import renderSegurancaPage from './pages/seguranca.js';
 import renderExplorarPage from './pages/explorar.js';
 import renderProfissionaisPage from './pages/profissionais.js';
-import renderEstabelecimentosPage from './pages/estabelecimentos.js';
+import renderExplorarServicosPage from './pages/explorarServicos.js';
 
 const routes = {
     "/home": renderHomePage,
@@ -28,8 +28,8 @@ const routes = {
     "/configuracoes-loja": renderConfiguracoesLojaPage,
     "/seguranca": renderSegurancaPage,
     "/explorar": renderExplorarPage,       // Rota para explorar (todos)
-    "/profissionais": renderProfissionaisPage,  // Rota para profissionais (PF)
-    "/estabelecimentos": renderEstabelecimentosPage  // Rota para estabelecimentos (PJ)
+    "/profissionais": renderProfissionaisPage,    // Rota para todos os profissionais
+    "/explorar-servicos": renderExplorarServicosPage // Rota para explorar servicos
 };
 
 function getPath() {

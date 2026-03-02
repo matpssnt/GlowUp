@@ -67,7 +67,7 @@ export default function renderFormContRegister(container) {
     // Campo de Foto do Estabelecimento
     const divFoto = document.createElement('div');
     divFoto.className = 'cont-register-field';
-    divFoto.style.marginTop = '70px'; 
+    divFoto.style.marginTop = '70px';
 
     const tituloFoto = document.createElement('h4');
     tituloFoto.textContent = 'Foto do Estabelecimento';
@@ -94,18 +94,18 @@ export default function renderFormContRegister(container) {
     secaoInfo.appendChild(divFoto);
 
     inputFoto.addEventListener('change', (e) => {
-    const file = e.target.files[0];
+        const file = e.target.files[0];
 
-    if (file) {
-        const reader = new FileReader();
+        if (file) {
+            const reader = new FileReader();
 
-        reader.onload = function (event) {
-            previewImagem.src = event.target.result;
-            previewImagem.style.display = 'block';
-        };
+            reader.onload = function (event) {
+                previewImagem.src = event.target.result;
+                previewImagem.style.display = 'block';
+            };
 
-        reader.readAsDataURL(file);
-    }
+            reader.readAsDataURL(file);
+        }
     });
 
     // Seção: Endereço do Estabelecimento
@@ -273,7 +273,7 @@ export default function renderFormContRegister(container) {
     </div>
 `;
     formulario.appendChild(secaoContato);
-    
+
     formulario.appendChild(secaoEndereco);
 
     // Aplica máscara nos campos
@@ -306,7 +306,7 @@ export default function renderFormContRegister(container) {
     }
 
     if (inputTelefone) {
-        addMaskToInput(inputTelefone, 'telefone');
+        addMaskToInput(inputTelefone, 'telefone_sem_ddd');
     }
 
     // Seção: Documentação
@@ -444,9 +444,9 @@ export default function renderFormContRegister(container) {
 
                     const formData = new FormData();
                     formData.append('foto', fotoFile);
-                    
+
                     const uploadResp = await api.request(`/profissional/${idProfissional}/foto`, 'POST', formData, true);
-                    
+
                     caminhoFoto = uploadResp.url || uploadResp.photo_url || uploadResp.foto_perfil || '';
                     notify.success('Foto do estabelecimento enviada com sucesso!');
                 }
@@ -462,7 +462,7 @@ export default function renderFormContRegister(container) {
                 acessibilidade: 0,
                 isJuridica: tipoPessoa === 'juridica' ? 1 : 0,
                 id_cadastro_fk: idCadastro,
-                foto_perfil: caminhoFoto 
+                foto_perfil: caminhoFoto
             };
 
             // CPF/CNPJ são obrigatórios na atualização
