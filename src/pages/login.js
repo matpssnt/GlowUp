@@ -12,7 +12,7 @@ export default function renderLoginPage() {
     root.style.minHeight = '100vh';
     root.style.margin = '0';
     root.style.padding = '0';
-    root.style.background = 'linear-gradient(135deg, #2e5e4e, #75b16e96, #2e5e4ec2)'; 
+    root.style.background = 'linear-gradient(135deg, #326141, #75b16e96, #2e5e4e)'; 
     root.style.backgroundSize = 'cover';
 
     // Remove navbar se não quiser na tela de login (ou deixa se preferir)
