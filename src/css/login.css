@@ -166,3 +166,96 @@ BREAKPOINTS UNIVERSAIS
         padding: 1rem;
     }
 }
+
+.login-split-container {
+    flex-direction: row;
+    height: 90vh;          
+    max-height: 800px;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.login-left {
+    flex: 1;
+    background: linear-gradient(135deg, #2E5E4E, #569150, #2e5e4e90);
+    background-size: 300% 300%;
+    animation: gradientMove 12s ease infinite;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 40px;
+    text-align: center;
+}
+
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.welcome-content h1 {
+    font-size: 3.2rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.welcome-content p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    max-width: 420px;
+    margin: 0 auto 2rem;
+}
+
+.login-right {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.95); 
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.card-login {
+    width: 100%;
+    max-width: 420px;
+    padding: 2.5rem 2rem;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    background: rgba(255,255,255,0.9);   /* glass effect */
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+/* Seus estilos atuais de .form-control, .btn-primary continuam funcionando */
+.card-login .btn.btn-primary {
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    border: none;
+    padding: 14px;
+    font-weight: bold;
+    border-radius: 12px;
+    transition: all 0.3s;
+}
+
+.card-login .btn.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+}
+
+/* Responsividade - mobile vira stack vertical */
+@media (max-width: 768px) {
+    .login-split-container {
+        flex-direction: column;
+        height: auto;
+        max-height: none;
+    }
+    
+    .login-left {
+        padding: 80px 30px 60px;
+    }
+    
+    .login-right {
+        padding: 40px 20px;
+    }
+}
