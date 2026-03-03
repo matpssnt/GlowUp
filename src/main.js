@@ -13,6 +13,8 @@ import renderSegurancaPage from './pages/seguranca.js';
 import renderExplorarPage from './pages/explorar.js';
 import renderProfissionaisPage from './pages/profissionais.js';
 import renderEstabelecimentosPage from './pages/estabelecimentos.js';
+import renderPerfilProfissionalPage from './pages/perfilProfissional.js';
+import renderExplorarServicosPage from './pages/explorarServicos.js';
 
 const routes = {
     "/home": renderHomePage,
@@ -22,14 +24,15 @@ const routes = {
     "/sobre": renderquemSomos,
     "/agendamento": renderAgendamentoPage,
     "/perfil": renderPerfilPage,         // Rota para página de perfil
+    "/perfil-profissional": renderPerfilProfissionalPage, // Rota para perfil profissional
     "/minhaAgenda": renderMinhaAgendaPage,  // Rota para página minha agenda
     "/dashboard": renderDashboardPage,    // Rota para dashboard profissional
     "/servicos": renderServicosPage,      // Rota para gestão de serviços
     "/configuracoes-loja": renderConfiguracoesLojaPage,
     "/seguranca": renderSegurancaPage,
     "/explorar": renderExplorarPage,       // Rota para explorar (todos)
-    "/profissionais": renderProfissionaisPage,  // Rota para profissionais (PF)
-    "/estabelecimentos": renderEstabelecimentosPage  // Rota para estabelecimentos (PJ)
+    "/profissionais": renderProfissionaisPage,    // Rota para todos os profissionais
+    "/explorar-servicos": renderExplorarServicosPage // Rota para explorar servicos
 };
 
 function getPath() {

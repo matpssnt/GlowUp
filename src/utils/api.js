@@ -130,6 +130,13 @@ export default class ApiService {
         }
     }
 
+    // upload de banner de capa do profissional
+    async uploadBanner(idProfissional, file) {
+        const formData = new FormData();
+        formData.append('foto', file);
+        return await this.request(`/profissional/${idProfissional}/banner`, 'POST', formData, true);
+    }
+
     async cadastrarCliente(nome, email, senha) {
         const data = {
             nome,

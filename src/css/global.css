@@ -33,6 +33,7 @@
     --cont-register-counter: #d9534f;
     --description: #555;
     --titulo-estab: #333;
+    --text-dark: #000;
 }
 
 body {
@@ -391,6 +392,32 @@ footer.bg-body-tertiary {
     font-weight: 600;
     transition: all 0.3s ease;
     margin-top: 15px;
+}
+
+.btn-somos{
+    position: relative;
+    z-index: 3;
+    display: inline-block;
+    padding: 15px 40px;
+    background: var(--white-color);
+    color: var(--text-dark);
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    border: none;
+    cursor: pointer;
+}
+
+.btn-somos:hover{
+    border: none;
+    color: var(var(--text-dark));
+    box-shadow: 0 8px 20px rgba(59, 90, 64, 0.3);
+}
+
+.btn-somos:active {
+    transform: translateY(0);
 }
 
 .btn-primary:hover {

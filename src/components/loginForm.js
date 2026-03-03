@@ -118,7 +118,8 @@ export default function loginForm() {
                     id: sub.id || sub.idCadastro || null,
                     cliente_id: sub.cliente_id || sub.clienteId || null,
                     profissional_id: sub.profissional_id || sub.profissionalId || null,
-                    foto_perfil: sub.foto_perfil || ''
+                    foto_perfil: sub.foto_perfil || '',
+                    foto_banner: sub.foto_banner || ''
                 };
 
                 authState.setUser(userData, response.token);

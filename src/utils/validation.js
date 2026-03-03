@@ -15,7 +15,7 @@ export const validators = {
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return regex.test(value.trim()) || 'Email inválido';
     },
-    
+
     /**
      * Valida telefone (10 ou 11 dígitos)
      */
@@ -24,7 +24,7 @@ export const validators = {
         const digits = value.replace(/\D/g, '');
         return (digits.length === 10 || digits.length === 11) || 'Telefone deve ter 10 ou 11 dígitos';
     },
-    
+
     /**
      * Valida CEP (8 dígitos)
      */
@@ -33,14 +33,14 @@ export const validators = {
         const digits = value.replace(/\D/g, '');
         return digits.length === 8 || 'CEP deve ter 8 dígitos';
     },
-    
+
     /**
      * Valida campo obrigatório
      */
     required: (value) => {
         return (value && value.trim().length > 0) || 'Campo obrigatório';
     },
-    
+
     /**
      * Valida tamanho mínimo
      */
@@ -48,7 +48,7 @@ export const validators = {
         if (!value) return true;
         return value.length >= min || `Mínimo de ${min} caracteres`;
     },
-    
+
     /**
      * Valida tamanho máximo
      */
@@ -56,7 +56,7 @@ export const validators = {
         if (!value) return true;
         return value.length <= max || `Máximo de ${max} caracteres`;
     },
-    
+
     /**
      * Valida senha (mínimo 6 caracteres)
      */
@@ -75,7 +75,7 @@ export const validators = {
 export function validateField(value, rules) {
     for (const rule of rules) {
         let validator;
-        
+
         if (typeof rule === 'function') {
             validator = rule;
         } else if (typeof rule === 'string') {
@@ -85,9 +85,9 @@ export function validateField(value, rules) {
             const [name, ...args] = rule;
             validator = validators[name](...args);
         }
-        
+
         if (!validator) continue;
-        
+
         const result = validator(value);
         if (result !== true) {
             return result; // Retorna mensagem de erro
@@ -105,18 +105,18 @@ export function validateField(value, rules) {
 export function validateForm(form, rules) {
     const errors = {};
     let isValid = true;
-    
+
     Object.keys(rules).forEach(fieldId => {
         const field = form.querySelector(`#${fieldId}`);
         if (!field) return;
-        
+
         const error = validateField(field.value, rules[fieldId]);
         if (error !== true) {
             errors[fieldId] = error;
             isValid = false;
         }
     });
-    
+
     return { isValid, errors };
 }
 
@@ -126,17 +126,17 @@ export function validateForm(form, rules) {
 export function showFieldError(field, message) {
     // Remove erro anterior
     clearFieldError(field);
-    
+
     // Adiciona classe de erro
     field.classList.add('is-invalid');
     field.classList.remove('is-valid');
-    
+
     // Cria elemento de erro
     const errorDiv = document.createElement('div');
     errorDiv.className = 'invalid-feedback';
     errorDiv.textContent = message;
     errorDiv.id = `${field.id}-error`;
-    
+
     // Insere após o campo
     field.parentNode.insertBefore(errorDiv, field.nextSibling);
 }
@@ -146,7 +146,7 @@ export function showFieldError(field, message) {
  */
 export function clearFieldError(field) {
     field.classList.remove('is-invalid');
-    
+
     const errorDiv = document.getElementById(`${field.id}-error`);
     if (errorDiv) {
         errorDiv.remove();
@@ -184,7 +184,7 @@ export function maskCEP(value) {
 export function maskTelefone(value) {
     if (!value) return '';
     const digits = value.replace(/\D/g, '');
-    
+
     if (digits.length <= 2) {
         return digits.length > 0 ? `(${digits}` : '';
     } else if (digits.length <= 6) {
@@ -194,6 +194,23 @@ export function maskTelefone(value) {
     } else {
         // Telefone com 9 dígitos (celular)
         return `(${digits.substring(0, 2)}) ${digits.substring(2, 7)}-${digits.substring(7, 11)}`;
+    }
+}
+
+/**
+ * Aplica máscara de telefone sem DDD (0000-0000 ou 00000-0000)
+ */
+export function maskTelefoneSemDDD(value) {
+    if (!value) return '';
+    const digits = value.replace(/\D/g, '');
+
+    if (digits.length <= 4) {
+        return digits;
+    } else if (digits.length <= 8) {
+        return `${digits.substring(0, 4)}-${digits.substring(4)}`;
+    } else {
+        // 9 dígitos
+        return `${digits.substring(0, 5)}-${digits.substring(5, 9)}`;
     }
 }
 
@@ -242,6 +259,8 @@ export function applyMask(value, type) {
             return maskCEP(value);
         case 'telefone':
             return maskTelefone(value);
+        case 'telefone_sem_ddd':
+            return maskTelefoneSemDDD(value);
         case 'cpf':
             return maskCPF(value);
         case 'cnpj':
@@ -259,14 +278,14 @@ export function addMaskToInput(input, type) {
         const cursorPosition = e.target.selectionStart;
         const oldValue = e.target.value;
         const newValue = applyMask(e.target.value, type);
-        
+
         e.target.value = newValue;
-        
+
         // Mantém posição do cursor
         const lengthDiff = newValue.length - oldValue.length;
         e.target.setSelectionRange(cursorPosition + lengthDiff, cursorPosition + lengthDiff);
     });
-    
+
     // Aplica máscara no valor inicial se houver
     if (input.value) {
         input.value = applyMask(input.value, type);

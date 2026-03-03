@@ -45,9 +45,19 @@ export default function PerfilBanner(dadosProfissional = null, endereco = null, 
     }
   }
 
+  // determina URL da imagem de banner (padrão se não houver)
+  let bannerUrl = 'public/assets/images/background-primary.avif';
+  if (dadosProfissional && dadosProfissional.foto_banner) {
+    bannerUrl = dadosProfissional.foto_banner;
+    if (!bannerUrl.match(/^https?:\/\//) && !bannerUrl.startsWith('/')) {
+      const base = window.location.pathname.split('/').slice(0, 2).join('/');
+      bannerUrl = base + '/' + bannerUrl;
+    }
+  }
+
   containerPerfil.innerHTML = `
     <div class="perfil-banner-card">
-      <img src="public/assets/images/background-primary.avif" class="banner-img" alt="Imagem de capa">
+      <img src="${bannerUrl}" class="banner-img" alt="Imagem de capa">
 
       <div class="perfil-overlay">
         <div class="foto-perfil">

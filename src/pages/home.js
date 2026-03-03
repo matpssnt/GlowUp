@@ -30,10 +30,10 @@ export default function renderHomePage() {
         const user = authState.getUser(); // Só pega se estiver logado
 
         // Verifica se é profissional (ajuste conforme o campo real do seu user)
-        const isProfessional = user?.isProfissional === true || 
-                              authState.getUserType() === 'profissional' || 
-                              user?.tipoUsuario === 'profissional' || 
-                              user?.role === 'profissional';
+        const isProfessional = user?.isProfissional === true ||
+            authState.getUserType() === 'profissional' ||
+            user?.tipoUsuario === 'profissional' ||
+            user?.role === 'profissional';
 
         if (isProfessional) {
             // Profissional logado → só "Explorar"
@@ -184,9 +184,17 @@ async function loadPartners(gridContainer, loadingElement) {
 
         loadingElement.remove();
 
-        const professionals = profsRes.status === 'fulfilled' && Array.isArray(profsRes.value) ? profsRes.value : [];
+        let professionals = profsRes.status === 'fulfilled' && Array.isArray(profsRes.value) ? profsRes.value : [];
         const services = servsRes.status === 'fulfilled' && Array.isArray(servsRes.value) ? servsRes.value : [];
         const addresses = addrRes.status === 'fulfilled' && Array.isArray(addrRes.value) ? addrRes.value : [];
+
+        // Filtra: Apenas profissionais que possuem serviços cadastrados
+        if (services.length > 0) {
+            const idsComServico = new Set(services.map(s => String(s.id_profissional_fk)));
+            professionals = professionals.filter(p => idsComServico.has(String(p.id)));
+        } else {
+            professionals = []; // Se não houver serviços no sistema, não mostra nenhum profissional
+        }
 
         if (professionals.length === 0) {
             gridContainer.innerHTML = '<p class="text-center text-muted">Nenhum parceiro encontrado no momento.</p>';
@@ -199,10 +207,10 @@ async function loadPartners(gridContainer, loadingElement) {
         selected.forEach((prof, index) => {
             const address = addresses.find(a => a.id_profissional_fk == prof.id);
             const profServices = services.filter(s => s.id_profissional_fk == prof.id);
-            const minPrice = profServices.length > 0 
+            const minPrice = profServices.length > 0
                 ? Math.min(...profServices.map(s => parseFloat(s.preco || 0)))
                 : null;
-            
+
             const location = address ? `${address.bairro}, ${address.cidade}` : '';
             const description = prof.descricao || 'Profissional de estética e beleza';
 

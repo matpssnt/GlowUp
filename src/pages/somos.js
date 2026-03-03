@@ -78,7 +78,7 @@ export default function renderquemSomos() {
                 <p>
                     Cadastre-se agora e comece a aproveitar todos os recursos disponíveis na nossa plataforma.
                 </p>
-                <a href="#" class="btn-primary" id="btn-register">Criar minha conta</a>
+                <a href="#" class="btn-somos" id="btn-register">Criar minha conta</a>
             </div>
         </section>
 

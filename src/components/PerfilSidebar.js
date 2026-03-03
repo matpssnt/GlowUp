@@ -21,12 +21,12 @@ export default function PerfilSidebar() {
         </a>
     ` : '';
 
-    const menuPerfil = userType === 'cliente' ? `
-        <a href="perfil" class="${getLinkClass('perfil')}">
-            <i class="bi bi-person"></i>
-            <span>Meu Perfil</span>
-        </a>
-    ` : '';
+    const menuPerfil = `
+    <a href="${userType === 'profissional' ? 'perfil-profissional' : 'perfil'}" class="${getLinkClass('perfil')}">
+        <i class="bi bi-person"></i>
+        <span>Meu Perfil</span>
+    </a>
+    `;
 
     const minhaSeguranca = userType === 'cliente' ? `
         <a href="seguranca" class="${getLinkClass('seguranca')}">
