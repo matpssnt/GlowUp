@@ -123,6 +123,51 @@ class ProfissionalController
     return jsonResponse(['message' => 'Erro ao fazer upload'], 400);
     }
 
+    // upload de imagem de banner (capa) do profissional
+    public static function uploadBanner($id) {
+        if (!$id || !is_numeric($id)) {
+            return jsonResponse(['message' => 'ID de profissional inválido'], 400);
+        }
+
+        if (!isset($_FILES['foto'])) {
+            return jsonResponse(['message' => 'Nenhuma imagem enviada'], 400);
+        }
+
+        $arquivo = $_FILES['foto'];
+        $permitidos = ['image/jpeg', 'image/png', 'image/webp'];
+        if (!in_array($arquivo['type'], $permitidos)) {
+            return jsonResponse(['message' => 'Formato inválido'], 400);
+        }
+
+        // talvez permitir tamanho maior para banner
+        if ($arquivo['size'] > 5 * 1024 * 1024) {
+            return jsonResponse(['message' => 'Imagem muito grande (máx 5MB)'], 400);
+        }
+
+        $ext = pathinfo($arquivo['name'], PATHINFO_EXTENSION);
+        $nomeArquivo = uniqid() . "." . $ext;
+
+        if (!is_dir("uploads/banners")) {
+            mkdir("uploads/banners", 0777, true);
+        }
+
+        $caminho = "uploads/banners/" . $nomeArquivo;
+
+        if (move_uploaded_file($arquivo['tmp_name'], $caminho)) {
+            $updateResult = ProfissionalModel::atualizarBanner($id, $caminho);
+            if (!$updateResult) {
+                @unlink($caminho);
+                return jsonResponse(['message' => 'Falha ao salvar caminho no banco'], 500);
+            }
+            return jsonResponse([
+                'message' => 'Banner atualizado com sucesso',
+                'url' => $caminho
+            ], 200);
+        }
+
+        return jsonResponse(['message' => 'Erro ao fazer upload'], 400);
+    }
+
     public static function getAll()
     {
         $resultado = ProfissionalModel::getAll();

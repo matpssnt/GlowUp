@@ -20,9 +20,14 @@ switch ($method) {
         break;
 
     case 'POST':
-        //upload de foto de perfil
+        // upload de foto de perfil
         if ($id && isset($seguimentos[3]) && $seguimentos[3] === 'foto') {
             ProfissionalController::uploadFotoPerfil($id);
+            break;
+        }
+        // upload de banner (capa)
+        if ($id && isset($seguimentos[3]) && $seguimentos[3] === 'banner') {
+            ProfissionalController::uploadBanner($id);
             break;
         }
 

@@ -82,6 +82,44 @@
     z-index: 10;
 }
 
+.foto-perfil {
+    position: relative;
+    cursor: pointer;
+}
+
+/* overlay escuro + ícone sobre a foto quando hover */
+.foto-perfil::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.foto-perfil::after {
+    content: '\f030'; /* código do ícone de câmera FontAwesome */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.3rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.foto-perfil:hover::before,
+.foto-perfil:hover::after {
+    opacity: 1;
+}
+
 .foto-perfil img {
     width: 160px;
     height: 160px;
@@ -90,6 +128,80 @@
     object-fit: cover;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     background: var(--white-color);
+    transition: filter 0.2s ease;
+}
+
+.foto-perfil:hover img {
+    filter: brightness(0.8);
+}
+
+/* botão circular sobre a foto para editar */
+.edit-photo-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease, opacity 0.2s ease;
+    opacity: 0;
+}
+
+/* botao de editar banner */
+.edit-banner-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.8);
+    border: none;
+    border-radius: 4px;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0.7; /* visível mesmo sem hover */
+    transition: opacity 0.2s ease, background 0.2s ease;
+    z-index: 100; /* garante que fique sobre a imagem */
+}
+
+.perfil-banner-card:hover .edit-banner-btn {
+    opacity: 1;
+}
+
+/* escurece banner ao passar o mouse e mostra que é clicável */
+.perfil-banner-card:hover .banner-img {
+    filter: brightness(0.8);
+    cursor: pointer;
+}
+
+.edit-banner-btn:hover {
+    background: rgba(255, 255, 255, 1);
+}
+
+.edit-banner-btn i {
+    font-size: 1.2rem;
+    color: var(--bs-dark);
+}
+
+.foto-perfil:hover .edit-photo-btn {
+    opacity: 1;
+}
+
+.edit-photo-btn:hover {
+    background: rgba(255, 255, 255, 1);
+}
+
+.edit-photo-btn i {
+    font-size: 1.2rem;
+    color: var(--bs-dark);
+    pointer-events: none; /* permite clique passar pelo ícone para o container */
 }
 
 /* Sidebar */
