@@ -13,7 +13,7 @@ class ServicesModel {
                 VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
         
-        $duracao = isset($data['duracao']) ? $data['duracao'] : '00:30:00';
+        $duracao = isset($data['duracao']) ? $data['duracao'] : '00:15:00';
 
         $stmt->bind_param("ssdsii",
             $data["nome"],
@@ -60,7 +60,7 @@ class ServicesModel {
                 WHERE id = ?";
         $stmt = $conn->prepare($sql);
         
-        $duracao = isset($data['duracao']) ? $data['duracao'] : '00:30:00';
+        $duracao = isset($data['duracao']) ? $data['duracao'] : '00:15:00';
 
         $stmt->bind_param("ssdsiii",
             $data["nome"],
