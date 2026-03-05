@@ -57,106 +57,8 @@ BREAKPOINTS UNIVERSAIS
 (Android + iOS + Tablets)
    ============================== */
 
-/* 📱 Celulares pequenos */
-@media (max-width: 360px) {
-
-    .hero {
-        padding: 60px 15px;
-        min-height: 45vh;
-        background-attachment: scroll;
-    }
-
-    .hero-title {
-        font-size: 1.6rem;
-    }
-
-    .hero-subtitle {
-        font-size: 0.9rem;
-    }
-
-    .info-section-title {
-        font-size: 1.6rem;
-    }
-
-    .info-card {
-        padding: 1.8rem 1.3rem;
-    }
-}
-
-
-/* 📱 Celulares padrão */
-@media (max-width: 576px) {
-
-    .hero {
-        padding: 70px 20px;
-        min-height: 50vh;
-        background-attachment: scroll;
-    }
-
-    .hero-title {
-        font-size: 1.9rem;
-    }
-
-    .hero-subtitle {
-        font-size: 1rem;
-    }
-
-    .partners-info {
-        padding: 1.5rem;
-    }
-
-    .card-partner {
-        width: 100%;
-        max-width: 320px;
-        margin: auto;
-    }
-
-    .home-parceiros-grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
-        padding: 0 16px;
-    }
-}
-
-
-/* 📱 Tablets pequenos */
-@media (max-width: 768px) {
-
-    .cards {
-        gap: 25px;
-    }
-
-    .info-card {
-        padding: 2rem;
-    }
-
-    .home-parceiros-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-
-/* 📱 Tablets grandes / iPad */
-@media (max-width: 1024px) {
-
-    .home-parceiros-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
-    }
-
-    .hero-title {
-        font-size: 2.4rem;
-    }
-}
-
-
 /* 💻 Laptops menores */
-@media (max-width: 1200px) {
-
-    .home-parceiros-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
+@media (max-width: 1200px) {}
 
 
 @media (max-width: 576px) {
@@ -169,7 +71,7 @@ BREAKPOINTS UNIVERSAIS
 
 .login-split-container {
     flex-direction: row;
-    height: 90vh;          
+    height: 90vh;
     max-height: 800px;
     border-radius: 20px;
     overflow: hidden;
@@ -189,16 +91,24 @@ BREAKPOINTS UNIVERSAIS
 }
 
 @keyframes gradientMove {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 .welcome-content h1 {
     font-size: 3.2rem;
     font-weight: 800;
     margin-bottom: 1.5rem;
-    text-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .welcome-content p {
@@ -210,7 +120,7 @@ BREAKPOINTS UNIVERSAIS
 
 .login-right {
     flex: 1;
-    background: rgba(255, 255, 255, 0.95); 
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(12px);
     display: flex;
     align-items: center;
@@ -223,9 +133,10 @@ BREAKPOINTS UNIVERSAIS
     max-width: 420px;
     padding: 2.5rem 2rem;
     border-radius: 20px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-    background: rgba(255,255,255,0.9);   /* glass effect */
-    border: 1px solid rgba(255,255,255,0.3);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.9);
+    /* glass effect */
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 /* Seus estilos atuais de .form-control, .btn-primary continuam funcionando */
@@ -250,11 +161,11 @@ BREAKPOINTS UNIVERSAIS
         height: auto;
         max-height: none;
     }
-    
+
     .login-left {
         padding: 80px 30px 60px;
     }
-    
+
     .login-right {
         padding: 40px 20px;
     }

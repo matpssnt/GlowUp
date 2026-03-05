@@ -495,8 +495,7 @@
 
 /* ==============================
 BREAKPOINTS UNIVERSAIS
-(Android + iOS + Tablets)
-   ============================== */
+(Android + iOS + Tablets) */
 
 /* 📱 Celulares pequenos */
 @media (max-width: 360px) {
@@ -525,7 +524,7 @@ BREAKPOINTS UNIVERSAIS
 }
 
 
-/* 📱 Celulares padrão */
+/* Celulares padrão */
 @media (max-width: 576px) {
 
     .hero {
@@ -551,16 +550,10 @@ BREAKPOINTS UNIVERSAIS
         max-width: 320px;
         margin: auto;
     }
-
-    .home-parceiros-grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
-        padding: 0 16px;
-    }
 }
 
 
-/* 📱 Tablets pequenos */
+/* Tablets pequenos */
 @media (max-width: 768px) {
 
     .cards {
@@ -570,20 +563,11 @@ BREAKPOINTS UNIVERSAIS
     .info-card {
         padding: 2rem;
     }
-
-    .home-parceiros-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
 }
 
 
 /* 📱 Tablets grandes / iPad */
 @media (max-width: 1024px) {
-
-    .home-parceiros-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
-    }
 
     .hero-title {
         font-size: 2.4rem;
@@ -593,10 +577,6 @@ BREAKPOINTS UNIVERSAIS
 
 /* 💻 Laptops menores */
 @media (max-width: 1200px) {
-
-    .home-parceiros-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
 
 
 
@@ -652,7 +632,8 @@ GRID DE PARCEIROS NA HOME
    ================================ */
 .home-parceiros-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    /* Grid dinâmico que se adapta ao espaço: min 280px (igual Explorer) */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 24px;
     padding: 0 5%;
     max-width: 1200px;
@@ -661,15 +642,8 @@ GRID DE PARCEIROS NA HOME
     box-sizing: border-box;
 }
 
-@media (max-width: 1100px) {
-    .home-parceiros-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
 @media (max-width: 900px) {
     .home-parceiros-grid {
-        grid-template-columns: repeat(2, 1fr);
         gap: 18px;
         padding: 0 4%;
     }
@@ -677,7 +651,6 @@ GRID DE PARCEIROS NA HOME
 
 @media (max-width: 576px) {
     .home-parceiros-grid {
-        grid-template-columns: 1fr;
         gap: 16px;
         padding: 0 16px;
     }
