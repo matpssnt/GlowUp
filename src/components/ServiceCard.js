@@ -33,10 +33,10 @@ export default function ServiceCard(servico, profissional = null) {
 
   card.innerHTML = `
     <div class="service-card-img-wrapper">
-      <img src="${servico.foto || servico.imagem || 'public/assets/images/botox.jpg'}" 
+      <img src="${servico.foto || servico.imagem || 'public/assets/images/logo2.png'}" 
            alt="${servico.nome}" 
            class="service-card-img"
-           onerror="this.src='public/assets/images/Florence-estetica.jpg'">
+           onerror="this.src='public/assets/images/logo2.png'">
       <div class="service-card-img-overlay"></div>
     </div>
     <div class="service-card-content">

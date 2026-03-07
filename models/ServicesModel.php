@@ -27,16 +27,16 @@ class ServicesModel {
         return $conn->insert_id;
     }
 
-    public static function getAll() {
-        $db = Database::getInstancia();
-        $conn = $db->pegarConexao();
-        
-        $sql = "SELECT s.*, c.nome as categoria_nome 
-                FROM servicos s
-                LEFT JOIN categorias c ON c.id = s.id_categoria_fk";
-        $result = $conn->query($sql);
-        return $result->fetch_all(MYSQLI_ASSOC);
-    }
+        public static function getAll() {
+            $db = Database::getInstancia();
+            $conn = $db->pegarConexao();
+            
+            $sql = "SELECT s.*, c.nome as categoria_nome 
+                    FROM servicos s
+                    LEFT JOIN categorias c ON c.id = s.id_categoria_fk";
+            $result = $conn->query($sql);
+            return $result->fetch_all(MYSQLI_ASSOC);
+        }
 
     public static function getById($id) {
         $db = Database::getInstancia();
