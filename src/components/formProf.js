@@ -78,6 +78,24 @@ export default function renderFormProf(container) {
     passwordConfirmContainer.appendChild(passwordConfirm);
     formulario.appendChild(passwordConfirmContainer);
 
+    // Container para descrição
+    const descricaoContainer = document.createElement('div');
+    descricaoContainer.className = 'mb-3';
+    const descricaoLabel = document.createElement('label');
+    descricaoLabel.textContent = 'Descrição do Estabelecimento';
+    descricaoLabel.className = 'form-label';
+    descricaoLabel.setAttribute('for', 'descricaoProf');
+    const descricao = document.createElement('textarea');
+    descricao.id = 'descricaoProf';
+    descricao.name = 'descricao';
+    descricao.placeholder = "Descreva brevemente o seu estabelecimento (opcional)";
+    descricao.className = 'form-control';
+    descricao.rows = 3;
+    descricao.maxLength = 255;
+    descricaoContainer.appendChild(descricaoLabel);
+    descricaoContainer.appendChild(descricao);
+    formulario.appendChild(descricaoContainer);
+
     // BOTÃO
     const btnSubmit = document.createElement('button');
     btnSubmit.type = 'submit';
@@ -169,10 +187,11 @@ export default function renderFormProf(container) {
             }
 
             // Cria profissional
+            const descricaoValue = document.getElementById('descricaoProf')?.value?.trim() || 'Cadastro em andamento';
             const profissionalData = {
                 nome: nome.value.trim(),
                 email: email.value.trim(),
-                descricao: 'Cadastro em andamento',
+                descricao: descricaoValue,
                 acessibilidade: parseInt(0),
                 isJuridica: parseInt(0),
                 id_cadastro_fk: parseInt(idCadastro)

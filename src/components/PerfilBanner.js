@@ -1,4 +1,4 @@
-export default function PerfilBanner(dadosProfissional = null, endereco = null, telefone = null) {
+export default function PerfilBanner(dadosProfissional = null, endereco = null, telefone = null, permiteEdicao = false) {
   const containerPerfil = document.createElement("div");
   containerPerfil.className = "perfilContainer-frame";
   
@@ -67,18 +67,21 @@ export default function PerfilBanner(dadosProfissional = null, endereco = null, 
 
       <div class="perfil-content">
         <div class="description-profissional">
-          <div class="sobre-prof">
-            <h2 class="titulo-principal">Sobre:</h2>
+          <div class="sobre-prof d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="titulo-principal mb-0">Sobre:</h2>
+            ${permiteEdicao ? `
+            <button type="button" class="btn btn-sm btn-outline-secondary edit-descricao-btn" title="Editar descrição">
+              <i class="bi bi-pencil"></i> Editar
+            </button>
+            ` : ''}
           </div>
 
           <div class="titulo-estabelecimento">
             <h1 class="titulo-estab">${nomeEstabelecimento}</h1>
           </div>
 
-          <div class="description">
-            <p>
-              ${descricaoProfissional}
-            </p>
+          <div class="description" data-descricao-original="${(descricaoProfissional || '').replace(/"/g, '&quot;')}">
+            <p class="descricao-texto">${descricaoProfissional || ''}</p>
           </div>
 
           <div class="info-extra">

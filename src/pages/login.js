@@ -5,6 +5,7 @@ export default function renderLoginPage() {
     const root = document.getElementById('root');
     const navbarContainer = document.getElementById('navbar');
     root.innerHTML = '';  // limpa
+    
 
 
     // Estilo base no root (centraliza e full height)
