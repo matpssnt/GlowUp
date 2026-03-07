@@ -79,8 +79,23 @@ export default async function renderPerfilProfissionalPage() {
         console.error('Erro ao buscar telefone do profissional', err);
     }
 
-    // Renderiza banner do profissional (permiteEdicao = true para editar descrição)
-    const bannerElement = PerfilBanner(profissionalData, endereco, telefone, true);
+    // Busca serviços do profissional para o carrossel
+    let servicos = [];
+    try {
+        if (profissionalData.id) {
+            const todosServicos = await api.listarServicos();
+            if (Array.isArray(todosServicos)) {
+                servicos = todosServicos.filter(s =>
+                    String(s.id_profissional_fk || s.id_profissional) === String(profissionalData.id)
+                );
+            }
+        }
+    } catch (err) {
+        console.error('Erro ao buscar serviços', err);
+    }
+
+    // Renderiza banner do profissional (permiteEdicao = true, servicos para carrossel)
+    const bannerElement = PerfilBanner(profissionalData, endereco, telefone, true, servicos);
     content.appendChild(bannerElement);
 
     // foto de perfil

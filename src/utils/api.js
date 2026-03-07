@@ -363,6 +363,12 @@ export default class ApiService {
         return await this.request(`/services?id=${id}`, 'DELETE');
     }
 
+    async uploadFotoServico(idServico, file) {
+        const formData = new FormData();
+        formData.append('foto', file);
+        return await this.request(`/services/${idServico}/foto`, 'POST', formData, true);
+    }
+
     // Métodos para Categorias
     async listarCategorias() {
         return await this.request('/categoria', 'GET');

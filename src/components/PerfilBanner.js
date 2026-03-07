@@ -1,6 +1,22 @@
-export default function PerfilBanner(dadosProfissional = null, endereco = null, telefone = null, permiteEdicao = false) {
+export default function PerfilBanner(dadosProfissional = null, endereco = null, telefone = null, permiteEdicao = false, servicos = []) {
   const containerPerfil = document.createElement("div");
   containerPerfil.className = "perfilContainer-frame";
+
+  const baseUrl = typeof window !== 'undefined' ? (window.location.pathname.split('/').slice(0, 2).join('/') || '') : '';
+  const imagensPadrao = [
+    'public/assets/images/Cabelo.jpg',
+    'public/assets/images/botox.jpg',
+    'public/assets/images/unhas.jpg'
+  ];
+  const fotosServicos = Array.isArray(servicos)
+    ? servicos
+        .filter(s => s && (s.foto || s.imagem))
+        .map(s => {
+          const url = s.foto || s.imagem;
+          return (url.match(/^https?:\/\//) || url.startsWith('/')) ? url : baseUrl + '/' + url;
+        })
+    : [];
+  const imagensCarrossel = fotosServicos.length > 0 ? fotosServicos : imagensPadrao;
   
   // Dados padrão ou do profissional
   const nomeProfissional = dadosProfissional?.nome || dadosProfissional?.razao_social || 'Profissional';
@@ -110,21 +126,17 @@ export default function PerfilBanner(dadosProfissional = null, endereco = null, 
         <!-- Carrossel -->
         <div id="miniCarousel" class="carousel slide mini-carrossel-section" data-bs-ride="carousel" data-bs-interval="3000" data-bs-pause="hover">
           <div class="carousel-indicators">
-            <button type="button" data-bs-target="#miniCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-            <button type="button" data-bs-target="#miniCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
-            <button type="button" data-bs-target="#miniCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            ${imagensCarrossel.map((_, i) => `
+            <button type="button" data-bs-target="#miniCarousel" data-bs-slide-to="${i}" class="${i === 0 ? 'active' : ''}" ${i === 0 ? 'aria-current="true"' : ''} aria-label="Slide ${i + 1}"></button>
+            `).join('')}
           </div>
 
           <div class="carousel-inner">
-            <div class="carousel-item active">
-              <img src="public/assets/images/Cabelo.jpg" class="d-block w-100" alt="Serviço 1" loading="lazy">
+            ${imagensCarrossel.map((src, i) => `
+            <div class="carousel-item ${i === 0 ? 'active' : ''}">
+              <img src="${src}" class="d-block w-100" alt="Serviço ${i + 1}" loading="lazy" onerror="this.src='public/assets/images/Cabelo.jpg'">
             </div>
-            <div class="carousel-item">
-              <img src="public/assets/images/botox.jpg" class="d-block w-100" alt="Serviço 2" loading="lazy">
-            </div>
-            <div class="carousel-item">
-              <img src="public/assets/images/unhas.jpg" class="d-block w-100" alt="Serviço 3" loading="lazy">
-            </div>
+            `).join('')}
           </div>
 
           <button class="carousel-control-prev" type="button" data-bs-target="#miniCarousel" data-bs-slide="prev">

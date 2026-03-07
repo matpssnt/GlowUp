@@ -23,7 +23,8 @@ class ServicesModel {
             $data["id_profissional_fk"],
             $data["id_categoria_fk"]
         );
-        return $stmt->execute();
+        if (!$stmt->execute()) return false;
+        return $conn->insert_id;
     }
 
     public static function getAll() {
@@ -71,6 +72,15 @@ class ServicesModel {
             $data["id_categoria_fk"],
             $id
         );
+        return $stmt->execute();
+    }
+
+    public static function atualizarFoto($id, $caminho) {
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
+        $sql = "UPDATE servicos SET foto = ? WHERE id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("si", $caminho, $id);
         return $stmt->execute();
     }
 
