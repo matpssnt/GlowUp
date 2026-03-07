@@ -705,14 +705,16 @@ export default function renderExplorarPage(options = {}) {
                 ? `${endereco.bairro || ""}${endereco.cidade ? ", " + endereco.cidade : ""}`
                 : "";
             const descricao = prof.descricao || "Profissional de estetica e beleza";
+            
+            const fotoEstabelecimento = prof.foto_perfil || null;
 
             return `
                 <div class="explorar-card" style="animation-delay: ${index * 0.05}s;">
                     <div class="explorar-card-img-wrapper">
                         <img class="explorar-card-img"
-                             src="public/assets/images/botox.jpg"
+                             src="${fotoEstabelecimento}"
                              alt="${prof.nome || "Profissional"}"
-                             onerror="this.src='public/assets/images/Florence-estetica.jpg'">
+                             onerror="this.src='public/assets/images/logo2.png'">
                     </div>
                     <div class="explorar-card-body">
                         <h4 class="explorar-card-name">${prof.nome || prof.razao_social || "Profissional"}</h4>

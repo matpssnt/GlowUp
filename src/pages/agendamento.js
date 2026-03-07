@@ -120,9 +120,9 @@ export default function renderAgendamentoPage() {
 				handleError(error, 'AgendamentoPage - buscarServicos');
 			}
 
-			// Renderiza banner e serviços
+			// Renderiza banner e serviços (passa servicos para o carrossel)
 			loadingContainer.remove();
-			const agnd = PerfilBanner(profissional, endereco, telefone);
+			const agnd = PerfilBanner(profissional, endereco, telefone, false, servicos);
 			agendamento.appendChild(agnd);
 
 			// Busca o elemento perfil-content onde está o minicarrosel
@@ -144,7 +144,7 @@ export default function renderAgendamentoPage() {
 							id: servico.id,
 							nome: servico.nome,
 							descricao: servico.descricao,
-							imagem: servico.imagem || "public/assets/images/botox.jpg",
+							imagem: servico.foto || servico.imagem || "public/assets/images/botox.jpg",
 							preco: servico.preco || servico.valor,
 							duracao: servico.duracao
 						}, profissional);

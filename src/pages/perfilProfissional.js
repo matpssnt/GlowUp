@@ -79,8 +79,23 @@ export default async function renderPerfilProfissionalPage() {
         console.error('Erro ao buscar telefone do profissional', err);
     }
 
-    // Renderiza banner do profissional
-    const bannerElement = PerfilBanner(profissionalData, endereco, telefone);
+    // Busca serviços do profissional para o carrossel
+    let servicos = [];
+    try {
+        if (profissionalData.id) {
+            const todosServicos = await api.listarServicos();
+            if (Array.isArray(todosServicos)) {
+                servicos = todosServicos.filter(s =>
+                    String(s.id_profissional_fk || s.id_profissional) === String(profissionalData.id)
+                );
+            }
+        }
+    } catch (err) {
+        console.error('Erro ao buscar serviços', err);
+    }
+
+    // Renderiza banner do profissional (permiteEdicao = true, servicos para carrossel)
+    const bannerElement = PerfilBanner(profissionalData, endereco, telefone, true, servicos);
     content.appendChild(bannerElement);
 
     // foto de perfil
@@ -203,6 +218,80 @@ export default async function renderPerfilProfissionalPage() {
             console.error('Erro upload banner:', err);
         }
     });
+
+    // Edição da descrição
+    const editDescricaoBtn = bannerElement.querySelector('.edit-descricao-btn');
+    const descricaoContainer = bannerElement.querySelector('.description');
+    if (editDescricaoBtn && descricaoContainer) {
+        editDescricaoBtn.addEventListener('click', () => {
+            const descricaoTexto = descricaoContainer.querySelector('.descricao-texto');
+            const textareaWrapper = descricaoContainer.querySelector('.descricao-edit-wrapper');
+            if (textareaWrapper) return; // já está em modo edição
+
+            const textoAtual = profissionalData.descricao || '';
+            const wrap = document.createElement('div');
+            wrap.className = 'descricao-edit-wrapper';
+            const textarea = document.createElement('textarea');
+            textarea.className = 'form-control mb-2';
+            textarea.rows = 4;
+            textarea.maxLength = 255;
+            textarea.placeholder = 'Descreva seu estabelecimento...';
+            textarea.value = textoAtual;
+            const botoesDiv = document.createElement('div');
+            botoesDiv.className = 'd-flex gap-2';
+            const btnSalvar = document.createElement('button');
+            btnSalvar.type = 'button';
+            btnSalvar.className = 'btn btn-sm btn-success btn-salvar-descricao';
+            btnSalvar.textContent = 'Salvar';
+            const btnCancelar = document.createElement('button');
+            btnCancelar.type = 'button';
+            btnCancelar.className = 'btn btn-sm btn-outline-secondary btn-cancelar-descricao';
+            btnCancelar.textContent = 'Cancelar';
+            botoesDiv.appendChild(btnSalvar);
+            botoesDiv.appendChild(btnCancelar);
+            wrap.appendChild(textarea);
+            wrap.appendChild(botoesDiv);
+            descricaoTexto.style.display = 'none';
+            descricaoContainer.appendChild(wrap);
+
+            const sairModoEdicao = () => {
+                wrap.remove();
+                descricaoTexto.style.display = '';
+            };
+
+            btnCancelar.addEventListener('click', sairModoEdicao);
+
+            btnSalvar.addEventListener('click', async () => {
+                const novaDescricao = textarea.value.trim();
+                const dadosProf = {
+                    nome: profissionalData.nome,
+                    email: profissionalData.email,
+                    descricao: novaDescricao || profissionalData.descricao || '',
+                    acessibilidade: profissionalData.acessibilidade ?? 0,
+                    isJuridica: profissionalData.isJuridica ?? 0,
+                    id_cadastro_fk: profissionalData.id_cadastro_fk
+                };
+                if (profissionalData.isJuridica == 1) {
+                    dadosProf.cnpj = profissionalData.cnpj || '';
+                } else {
+                    dadosProf.cpf = profissionalData.cpf || '';
+                }
+                try {
+                    btnSalvar.disabled = true;
+                    btnSalvar.textContent = 'Salvando...';
+                    await api.atualizarProfissional(profissionalData.id, dadosProf);
+                    profissionalData.descricao = novaDescricao;
+                    descricaoTexto.textContent = novaDescricao || 'Especialista em estética e beleza';
+                    sairModoEdicao();
+                    notify.success('Descrição atualizada com sucesso!');
+                } catch (err) {
+                    notify.error('Erro ao salvar: ' + (err.message || err));
+                    btnSalvar.disabled = false;
+                    btnSalvar.textContent = 'Salvar';
+                }
+            });
+        });
+    }
 
     mainWrapper.appendChild(content);
 

@@ -11,6 +11,7 @@ export default function PerfilForm() {
 
     const api = new ApiService();
     let cadastroCompleto = null;
+    let profissionalData = null;
     let enderecoData = null;
     let telefoneData = null;
 
@@ -45,6 +46,7 @@ export default function PerfilForm() {
                 try {
                     const profissional = await api.buscarProfissionalPorCadastro(cadastroId);
                     if (profissional && profissional.id) {
+                        profissionalData = profissional;
                         telefoneData = await api.buscarTelefonePorProfissional(profissional.id);
                     }
                 } catch (error) {
@@ -74,6 +76,12 @@ export default function PerfilForm() {
                     ? `(${telefoneData.ddd}) ${telefoneData.digitos}`
                     : '';
                 telefoneInput.value = telefoneFormatado;
+            }
+
+            // Preenche descrição do profissional se disponível
+            const descricaoInput = content.querySelector('#descricao-profissional');
+            if (descricaoInput && profissionalData?.descricao) {
+                descricaoInput.value = profissionalData.descricao;
             }
         } catch (error) {
             console.error('Erro ao carregar dados completos:', error);
@@ -110,6 +118,13 @@ export default function PerfilForm() {
                 <label for="telefone" class="form-label">Número para contato</label>
                 <input type="tel" class="form-control" id="telefone" placeholder="(00) 00000-0000" value="">
             </div>
+
+            ${isProfissional ? `
+            <div class="mb-3" id="descricao-profissional-container">
+                <label for="descricao-profissional" class="form-label">Descrição do Estabelecimento</label>
+                <textarea class="form-control" id="descricao-profissional" rows="4" placeholder="Descreva brevemente o seu estabelecimento (máximo 255 caracteres)" maxlength="255"></textarea>
+            </div>
+            ` : ''}
  
             <div class="d-flex justify-content-end gap-2 mt-4">
                 <button type="button" class="btn btn-outline-secondary" id="btnCancelar">Cancelar</button>
@@ -164,6 +179,26 @@ export default function PerfilForm() {
                 '', // senha (deixando vazio por enquanto – se quiser adicionar campo senha, ajuste aqui)
                 isProfissionalFlag
             );
+
+            // Se for profissional, atualiza também a descrição
+            if (isProfissional && profissionalData?.id) {
+                const descricaoInput = content.querySelector('#descricao-profissional');
+                const descricao = descricaoInput?.value?.trim() || profissionalData.descricao || '';
+                const dadosProf = {
+                    nome: profissionalData.nome,
+                    email: profissionalData.email,
+                    descricao: descricao,
+                    acessibilidade: profissionalData.acessibilidade ?? 0,
+                    isJuridica: profissionalData.isJuridica ?? 0,
+                    id_cadastro_fk: cadastroId
+                };
+                if (profissionalData.isJuridica == 1) {
+                    dadosProf.cnpj = profissionalData.cnpj || '';
+                } else {
+                    dadosProf.cpf = profissionalData.cpf || '';
+                }
+                await api.atualizarProfissional(profissionalData.id, dadosProf);
+            }
 
             // Atualiza authState
             authState.setUser({ ...authState.getUser(), id: cadastroId, nome: nomeCompleto, email }, authState.getToken());

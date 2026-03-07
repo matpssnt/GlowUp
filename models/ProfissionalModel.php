@@ -16,7 +16,11 @@ class ProfissionalModel
     {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
-        $sql = "SELECT * FROM profissionais WHERE id = ?";
+        $sql = "SELECT p.*, f.cpf, j.cnpj
+                FROM profissionais p
+                LEFT JOIN fisicos f ON f.id_profissional_fk = p.id
+                LEFT JOIN juridicos j ON j.id_profissional_fk = p.id
+                WHERE p.id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -77,7 +81,11 @@ class ProfissionalModel
     {
         $db = Database::getInstancia();
         $conn = $db->pegarConexao();
-        $sql = "SELECT * FROM profissionais WHERE id_cadastro_fk = ?";
+        $sql = "SELECT p.*, f.cpf, j.cnpj
+                FROM profissionais p
+                LEFT JOIN fisicos f ON f.id_profissional_fk = p.id
+                LEFT JOIN juridicos j ON j.id_profissional_fk = p.id
+                WHERE p.id_cadastro_fk = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $idCadastro);
         $stmt->execute();
