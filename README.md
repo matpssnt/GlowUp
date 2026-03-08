@@ -205,7 +205,7 @@ graph TD
 
 - **PHP** 8.0 ou superior
 - **MySQL** 8.0 ou superior  
-- **Apache** ou **Nginx** com mod_rewrite
+- **Apache**
 - **Composer** (opcional, para gerenciamento de dependências)
 - **Node.js** (opcional, para desenvolvimento)
 
@@ -236,7 +236,7 @@ cp config/config.example.php config/config.php
 
 ### 🔧 Configuração do Ambiente
 
-#### 2. Configuração Apache
+#### 1. Configuração Apache
 
 ```apache
 # .htaccess
@@ -245,30 +245,6 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php [QSA,L]
 ```
-
-#### 3. Configuração Nginx
-
-```nginx
-server {
-    listen 80;
-    server_name glowup.local;
-    root /var/www/glowup/public;
-    index index.html index.php;
-
-    location / {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
-
-    location ~ \.php$ {
-        fastcgi_pass unix:/var/run/php/php8.0-fpm.sock;
-        fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        include fastcgi_params;
-    }
-}
-```
-
-
 
 
 ##  Responsividade
