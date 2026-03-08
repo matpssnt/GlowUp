@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 19/02/2026 às 05:36
+-- Tempo de geração: 08/03/2026 às 00:48
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.0.30
 
@@ -85,7 +85,11 @@ INSERT INTO `cadastros` (`id`, `nome`, `email`, `senha`, `isProfissional`) VALUE
 (11, 'Thayson Francisco', 'thayson@gmail.com', '$2y$10$8979II3s4Lb.zskdoJhVbOoBhT5Mp8kmOOI3bYZoz4JRKE1QpjU3m', 0),
 (12, 'Lucy Cortes e Estetica', 'lucycp@gmail.com', '$2y$10$dcNzrS8ih0vHwem/n9OFfuOS9JUxEMR9CilWlMnB6WIFesLkBOw.G', 1),
 (13, 'Naomi Esteticas', 'naomi@gmail.com', '$2y$10$pGGftWXSK1R5W82g9Gl5Me7ma2lSH9OW4.hXhfV2uG4yzql.BSEP2', 1),
-(14, 'Diego Cortes', 'diego@gmail.com', '$2y$10$WKZxXbi7/wCl0dMAFopi2uyun/q4BUQtj.kQ0MnkJ27rCa3Mb134K', 1);
+(14, 'Diego Cortes', 'diego@gmail.com', '$2y$10$WKZxXbi7/wCl0dMAFopi2uyun/q4BUQtj.kQ0MnkJ27rCa3Mb134K', 1),
+(15, 'matheus ribeiro', 'matheus2@gmail.com', '$2y$10$PYg4kmWLsN8Uqw7oNfu/kOkk8YL5ei5myNZjTia1rPH/YcgY2VZyG', 0),
+(16, 'matheus ribeiro', 'mat2g@gmail.com', '$2y$10$.EqIj84hmC4lPSynrIQBL.aXfV7ySmmRw/LLSbpxKW74Ot0Xbl9wy', 1),
+(17, 'matheus testando', 'matheusfunc@gmail.com', '$2y$10$RiDoOd5oaBLCYyJZmNUJp.oLh2oSzvPoNOWwNdAe2lpto7HFWgCWS', 1),
+(18, 'to testando', 'oio@gmai.com', '$2y$10$Rkemk95MKjyzKU2857Zm3OI9uW2nnxXuFMt2cP76F9a3.KvGb4SLy', 1);
 
 -- --------------------------------------------------------
 
@@ -143,7 +147,8 @@ INSERT INTO `clientes` (`id`, `nome`, `id_cadastro_fk`, `id_telefone_fk`) VALUES
 (4, 'matheus', 7, NULL),
 (5, 'Fernando Rodrigues', 9, NULL),
 (6, 'Lucas Martines', 10, NULL),
-(7, 'Thayson Francisco', 11, NULL);
+(7, 'Thayson Francisco', 11, NULL),
+(8, 'matheus ribeiro', 15, NULL);
 
 -- --------------------------------------------------------
 
@@ -173,7 +178,10 @@ INSERT INTO `enderecos` (`id`, `rua`, `numero`, `cep`, `bairro`, `cidade`, `esta
 (3, 'Rua Paschoal Franceschini', '100', '13106508', 'Vila Santa Rita (Sousas)', 'Campinas', 'SP', '12', 3),
 (4, 'Rua Paschoal Franceschini', '22', '13106508', 'Vila Santa Rita (Sousas)', 'Campinas', 'SP', '12', 12),
 (5, 'Rua Paschoal Franceschini', '11', '13106508', 'Vila Santa Rita (Sousas)', 'Campinas', 'SP', '11', 13),
-(11, 'Rua Paschoal Franceschini', '11', '13106508', 'Vila Santa Rita (Sousas)', 'Campinas', 'SP', '34', 14);
+(11, 'Rua Paschoal Franceschini', '11', '13106508', 'Vila Santa Rita (Sousas)', 'Campinas', 'SP', '34', 14),
+(12, 'Rua Paschoal Franceschini', '200', '13106508', 'Vila Santa Rita (Sousas)', 'Campinas', 'SP', '12', 15),
+(13, 'Rua Paschoal Franceschini', '200', '13106508', 'Vila Santa Rita (Sousas)', 'Campinas', 'SP', '12', 16),
+(14, 'Rua Paschoal Franceschini', '222', '13106508', 'Vila Santa Rita (Sousas)', 'Campinas', 'SP', '12', 17);
 
 -- --------------------------------------------------------
 
@@ -227,7 +235,8 @@ INSERT INTO `fisicos` (`id`, `cpf`, `id_profissional_fk`) VALUES
 (1, '123.456.789-00', 1),
 (2, '22222222222', 3),
 (3, '11111111111', 13),
-(4, '33333333333', 14);
+(4, '33333333333', 14),
+(15, '44444444444', 16);
 
 -- --------------------------------------------------------
 
@@ -261,7 +270,8 @@ CREATE TABLE `juridicos` (
 
 INSERT INTO `juridicos` (`id`, `cnpj`, `id_profissional_fk`) VALUES
 (1, '12.345.678/0001-90', 2),
-(2, '11111111111111', 12);
+(2, '11111111111111', 12),
+(3, '33444444444444', 17);
 
 -- --------------------------------------------------------
 
@@ -302,20 +312,25 @@ CREATE TABLE `profissionais` (
   `descricao` varchar(255) NOT NULL,
   `acessibilidade` tinyint(1) NOT NULL,
   `isJuridica` tinyint(1) NOT NULL,
-  `id_cadastro_fk` int(11) DEFAULT NULL
+  `id_cadastro_fk` int(11) DEFAULT NULL,
+  `foto_perfil` varchar(255) DEFAULT 'uploads/perfis/69acb8061900a.png',
+  `foto_banner` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Despejando dados para a tabela `profissionais`
 --
 
-INSERT INTO `profissionais` (`id`, `nome`, `email`, `descricao`, `acessibilidade`, `isJuridica`, `id_cadastro_fk`) VALUES
-(1, 'Maria Santos', 'maria@email.com', 'Cabeleireira profissional com 10 anos de experiência', 1, 0, 2),
-(2, 'Empresa Beauty', 'beauty@email.com', 'Salão de beleza completo', 1, 1, 3),
-(3, 'Matheus Cortes', 'oio@gmail.com', 'Os melhores cortes', 0, 0, 8),
-(12, 'Lucy Cortes e Estetica', 'lucycp@gmail.com', 'Melhores Cortes da região de Sorocaba', 0, 1, 12),
-(13, 'Naomi Esteticas', 'naomi@gmail.com', 'A melhor maquiadora da região de sorocaba', 0, 0, 13),
-(14, 'Diego Cortes', 'diego@gmail.com', 'Melhor corte da região', 0, 0, 14);
+INSERT INTO `profissionais` (`id`, `nome`, `email`, `descricao`, `acessibilidade`, `isJuridica`, `id_cadastro_fk`, `foto_perfil`, `foto_banner`) VALUES
+(1, 'Maria Santos', 'maria@email.com', 'Cabeleireira profissional com 10 anos de experiência', 1, 0, 2, NULL, NULL),
+(2, 'Empresa Beauty', 'beauty@email.com', 'Salão de beleza completo', 1, 1, 3, NULL, NULL),
+(3, 'Matheus Cortes', 'oio@gmail.com', 'Os melhores cortes', 0, 0, 8, NULL, NULL),
+(12, 'Lucy Cortes e Estetica', 'lucycp@gmail.com', 'Melhores Cortes da região de Sorocaba', 0, 1, 12, NULL, NULL),
+(13, 'Naomi Esteticas', 'naomi@gmail.com', 'A melhor maquiadora da região de sorocaba', 0, 0, 13, NULL, NULL),
+(14, 'Diego Cortes', 'diego@gmail.com', 'Melhor corte da região', 0, 0, 14, NULL, NULL),
+(15, 'matheus ribeiro', 'mat2g@gmail.com', 'testando descrição', 0, 0, 16, 'uploads/perfis/69ac4f86b7be8.png', 'uploads/banners/69ac50078af7d.png'),
+(16, 'matheus testando', 'matheusfunc@gmail.com', 'Coisas chique', 0, 0, 17, 'uploads/perfis/69acb8061900a.png', 'uploads/banners/69acb678cb75b.jpg'),
+(17, 'to testando', 'oio@gmai.com', 'aflirjpf', 0, 1, 18, 'uploads/perfis/69acb8061900a.png', NULL);
 
 -- --------------------------------------------------------
 
@@ -330,24 +345,26 @@ CREATE TABLE `servicos` (
   `preco` decimal(10,2) NOT NULL,
   `duracao` time DEFAULT NULL,
   `id_profissional_fk` int(11) DEFAULT NULL,
-  `id_categoria_fk` int(11) DEFAULT NULL
+  `id_categoria_fk` int(11) DEFAULT NULL,
+  `foto` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Despejando dados para a tabela `servicos`
 --
 
-INSERT INTO `servicos` (`id`, `nome`, `descricao`, `preco`, `duracao`, `id_profissional_fk`, `id_categoria_fk`) VALUES
-(1, 'Corte Feminino', 'Corte e finalização', 50.00, '01:00:00', 1, 1),
-(2, 'Manicure', 'Manicure completa', 35.00, '01:00:00', 2, 2),
-(3, 'Limpeza de Pele', 'Limpeza facial profunda', 120.00, '01:00:00', 2, 3),
-(4, 'Corte de cabelo', 'melhor corte da região', 35.00, '00:30:00', 3, 1),
-(5, 'corte de cabelo 2', 'sla', 22.00, '22:00:00', 3, 3),
-(6, 'Escova Progressiva', 'Alisamento térmico completo', 180.00, '02:00:00', 1, 6),
-(7, 'Luzes', 'Luzes tradicionais no papel', 250.00, '03:00:00', 1, 6),
-(8, 'Design de Sobrancelha', 'Modelagem com pinça', 40.00, '00:30:00', 13, 9),
-(9, 'Maquiagem Profissional', 'Maquiagem para eventos', 200.00, '01:30:00', 12, 8),
-(10, 'Barba Completa', 'Barba com toalha quente', 45.00, '00:40:00', 3, 5);
+INSERT INTO `servicos` (`id`, `nome`, `descricao`, `preco`, `duracao`, `id_profissional_fk`, `id_categoria_fk`, `foto`) VALUES
+(1, 'Corte Feminino', 'Corte e finalização', 50.00, '01:00:00', 1, 1, NULL),
+(2, 'Manicure', 'Manicure completa', 35.00, '01:00:00', 2, 2, NULL),
+(3, 'Limpeza de Pele', 'Limpeza facial profunda', 120.00, '01:00:00', 2, 3, NULL),
+(4, 'Corte de cabelo', 'melhor corte da região', 35.00, '00:30:00', 3, 1, NULL),
+(5, 'corte de cabelo 2', 'sla', 22.00, '22:00:00', 3, 3, NULL),
+(6, 'Escova Progressiva', 'Alisamento térmico completo', 180.00, '02:00:00', 1, 6, NULL),
+(7, 'Luzes', 'Luzes tradicionais no papel', 250.00, '03:00:00', 1, 6, NULL),
+(8, 'Design de Sobrancelha', 'Modelagem com pinça', 40.00, '00:30:00', 13, 9, NULL),
+(9, 'Maquiagem Profissional', 'Maquiagem para eventos', 200.00, '01:30:00', 12, 8, NULL),
+(10, 'Barba Completa', 'Barba com toalha quente', 45.00, '00:40:00', 3, 5, NULL),
+(13, 'Cabelinho 2', 'cabelin2', 30.00, '01:00:00', 15, 1, 'uploads/servicos/69ac5bca3dc12.png');
 
 -- --------------------------------------------------------
 
@@ -374,7 +391,10 @@ INSERT INTO `telefones` (`id`, `ddd`, `digitos`) VALUES
 (6, '15', '1111111111'),
 (7, '15', '98888-1111'),
 (8, '15', '97777-2222'),
-(9, '15', '5555555555');
+(9, '15', '5555555555'),
+(10, '55', '15999-9999'),
+(11, '55', '55555-5555'),
+(12, '55', '55555-5555');
 
 -- --------------------------------------------------------
 
@@ -399,7 +419,10 @@ INSERT INTO `tel_prof` (`id_profissional_fk`, `id_telefone_fk`) VALUES
 (13, 6),
 (1, 7),
 (3, 8),
-(14, 9);
+(14, 9),
+(15, 10),
+(16, 11),
+(17, 12);
 
 --
 -- Índices para tabelas despejadas
@@ -522,7 +545,7 @@ ALTER TABLE `agendamentos`
 -- AUTO_INCREMENT de tabela `cadastros`
 --
 ALTER TABLE `cadastros`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT de tabela `categorias`
@@ -534,13 +557,13 @@ ALTER TABLE `categorias`
 -- AUTO_INCREMENT de tabela `clientes`
 --
 ALTER TABLE `clientes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de tabela `enderecos`
 --
 ALTER TABLE `enderecos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT de tabela `escalas`
@@ -552,7 +575,7 @@ ALTER TABLE `escalas`
 -- AUTO_INCREMENT de tabela `fisicos`
 --
 ALTER TABLE `fisicos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT de tabela `indisponibilidades`
@@ -564,7 +587,7 @@ ALTER TABLE `indisponibilidades`
 -- AUTO_INCREMENT de tabela `juridicos`
 --
 ALTER TABLE `juridicos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `portifolios`
@@ -576,19 +599,19 @@ ALTER TABLE `portifolios`
 -- AUTO_INCREMENT de tabela `profissionais`
 --
 ALTER TABLE `profissionais`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT de tabela `servicos`
 --
 ALTER TABLE `servicos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de tabela `telefones`
 --
 ALTER TABLE `telefones`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- Restrições para tabelas despejadas
@@ -665,8 +688,6 @@ ALTER TABLE `tel_prof`
   ADD CONSTRAINT `tel_prof_ibfk_2` FOREIGN KEY (`id_telefone_fk`) REFERENCES `telefones` (`id`);
 COMMIT;
 
-ALTER TABLE profissionais ADD COLUMN foto_perfil VARCHAR(255) NULL;
-ALTER TABLE profissionais ADD COLUMN foto_banner VARCHAR(255) NULL;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
