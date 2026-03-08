@@ -7,7 +7,7 @@
   </p>
 </div>
 
-<div 💄 GlowUp - Plataforma de Beleza e Estética>
+<h2> 💄 GlowUp - Plataforma de Beleza e Estética</h2>
 
 <div align="center">
 
