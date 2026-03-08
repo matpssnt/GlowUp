@@ -71,7 +71,6 @@ Transformar a gestão de negócios de beleza através de tecnologia inovadora, a
 | 📅 **Agendamento Inteligente** | Sistema completo com gestão de horários e disponibilidade | ✅ Completo |
 | 👥 **Gestão de Clientes** | Cadastro, histórico e preferências dos clientes | ✅ Completo |
 | 🏪 **Marketplace** | Exposição de serviços para novos clientes | ✅ Completo |
-| ⭐ **Avaliações** | Sistema de feedback e reputação | ✅ Completo |
 | 📱 **Perfil Profissional** | Gestão completa de perfil e serviços | ✅ Completo |
 | 📍 **Gestão de Endereço** | Localização do estabelecimento | ✅ Completo |
 
@@ -81,7 +80,6 @@ Transformar a gestão de negócios de beleza através de tecnologia inovadora, a
 |---------------|-----------|--------|
 | 🔍 **Descoberta** | Encontre profissionais e serviços próximos | ✅ Completo |
 | 📅 **Agendamento Online** | Reserve horários de forma rápida e intuitiva | ✅ Completo |
-| ⭐ **Avaliações** | Deixe feedback e veja reputação | ✅ Completo |
 | 🔔 **Notificações** | Lembretes e atualizações | ✅ Completo |
 | 📱 **Experiência Mobile** | Interface otimizada para smartphones | ✅ Completo |
 | 📋 **Cadastro Simplificado** | Registro rápido e fácil | ✅ Completo |
