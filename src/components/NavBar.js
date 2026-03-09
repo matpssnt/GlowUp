@@ -85,7 +85,6 @@ export default function NavBar({ hidelogin = false } = {}) {
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="home">
                 <img src="public/assets/images/logo2.png" alt="Glow Up" class="logo-img me-2" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
-                <span class="logo-text" style="display: none;">Glow Up</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -103,7 +102,7 @@ export default function NavBar({ hidelogin = false } = {}) {
                             Serviços
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="profissionais">Profissionais</a></li>
+                            <li><a class="dropdown-item" href="explorar">Profissionais</a></li>
                             <li><a class="dropdown-item" href="explorar-servicos">Serviços</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="explorar">Explorar Todos</a></li>

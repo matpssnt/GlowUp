@@ -53,16 +53,14 @@ class AgendamentoModel
         foreach (self::getAgendamentosConfirmadosDoDia($conn, $idProf, $data) as $agd) {
             $inicio = self::horaParaMinutos((new DateTime($agd['data_hora']))->format('H:i:s'));
             $dur = self::parseDuracaoMinutos($agd['duracao']);
-            // REGRA: Bloqueia do início até o fim + 30 minutos (buffer de limpeza)
-            $ocupados[] = [$inicio, $inicio + $dur + 30];
+            $ocupados[] = [$inicio, $inicio + $dur];
         }
 
         // Indisponibilidades
         foreach (self::getIndisponibilidadesDoDia($conn, $idProf, $data) as $ind) {
             $ini = self::horaParaMinutos($ind['hora_inicio']);
             $fim = $ind['hora_fim'] ? self::horaParaMinutos($ind['hora_fim']) : 1440;
-            // Buffer também aplicado a indisponibilidades para consistência
-            $ocupados[] = [$ini, $fim + 30];
+            $ocupados[] = [$ini, $fim];
         }
 
         // Horário passado (margem de 60 minutos se for hoje)
@@ -76,9 +74,9 @@ class AgendamentoModel
         // Períodos livres
         $livres = self::subtrairIntervalos($trabalho, $ocupados);
 
-        // Gerar slots a cada 30 minutos
+        // Gerar slots a cada 15 minutos 
         $slots = [];
-        $step = 30; 
+        $step = 15; 
 
         foreach ($livres as [$iniLivre, $fimLivre]) {
             // O serviço de duração duracaoMin deve CABER dentro do [iniLivre, fimLivre]
@@ -126,7 +124,7 @@ class AgendamentoModel
 
     private static function parseDuracaoMinutos($duracao): int
     {
-        if (!$duracao) return 30;
+        if (!$duracao) return 15;
         if (is_numeric($duracao)) return (int) $duracao;
 
         // Trata formatos HH:MM:SS ou HH:MM

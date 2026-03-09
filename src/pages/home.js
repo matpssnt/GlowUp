@@ -203,7 +203,6 @@ async function loadPartners(gridContainer, loadingElement) {
 
         // Embaralha e pega até 6
         const selected = shuffleArray(professionals).slice(0, 6);
-
         selected.forEach((prof, index) => {
             const address = addresses.find(a => a.id_profissional_fk == prof.id);
             const profServices = services.filter(s => s.id_profissional_fk == prof.id);
@@ -214,15 +213,17 @@ async function loadPartners(gridContainer, loadingElement) {
             const location = address ? `${address.bairro}, ${address.cidade}` : '';
             const description = prof.descricao || 'Profissional de estética e beleza';
 
+            const fotoEstabelecimento = prof.foto_perfil || null;
+
             const card = document.createElement('div');
             card.className = 'explorar-card';
             card.style.animationDelay = `${index * 0.05}s`;
             card.innerHTML = `
                 <div class="explorar-card-img-wrapper">
                     <img class="explorar-card-img" 
-                         src="public/assets/images/botox.jpg" 
+                         src="${fotoEstabelecimento}" 
                          alt="${prof.nome}"
-                         onerror="this.src='public/assets/images/Florence-estetica.jpg'">
+                         onerror="this.src='public/assets/images/logo2.png'">
                 </div>
                 <div class="explorar-card-body">
                     <h4 class="explorar-card-name">${prof.nome}</h4>

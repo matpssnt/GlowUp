@@ -3,16 +3,21 @@ require_once __DIR__ . '/../controllers/ServicesController.php';
 require_once __DIR__ . '/../helpers/response.php';
 
 $id = $seguimentos[2] ?? $_GET['id'] ?? null;
+$acao = $seguimentos[3] ?? null;
 
 if ($_SERVER['REQUEST_METHOD'] === "GET") {
-    if (isset($id)) {
+    if (isset($id) && $id !== 'foto') {
         ServicesController::getById($id);
-    }else{
+    } else {
         ServicesController::getAll();
     }
 }
 
 elseif ($_SERVER['REQUEST_METHOD'] === "POST") {
+    if ($id && $acao === 'foto') {
+        ServicesController::uploadFoto($id);
+        exit;
+    }
     $data = json_decode(file_get_contents('php://input'), true);
     ServicesController::create($data);
 }

@@ -7,7 +7,7 @@ export default function renderContRegisterPage() {
 
     // Cria o container principal
     const mainContainer = document.createElement('div');
-    mainContainer.className = 'card-base card-register registration-card shadow-lg mx-auto rounded-card card-cont-register';
+    mainContainer.className = 'card-base card-register registration-card shadow-lg mx-auto card-cont-register';
     root.appendChild(mainContainer);
 
     // Cria o título principal

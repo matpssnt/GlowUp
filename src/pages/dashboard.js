@@ -306,7 +306,7 @@ export default function renderDashboardPage() {
             if (!profissional || !profissional.id) {
                 agendamentosContainer.innerHTML = `
                     <div class="alert alert-warning">
-                        <h5>⚠️ Perfil Incompleto</h5>
+                        <h5>Perfil Incompleto</h5>
                         <p>Nenhum perfil de profissional encontrado para este cadastro.</p>
                         <small>Verifique se você completou seu cadastro como profissional.</small>
                     </div>
@@ -343,7 +343,7 @@ export default function renderDashboardPage() {
         } catch (error) {
             agendamentosContainer.innerHTML = `
                 <div class="alert alert-danger">
-                    <h5>❌ Erro ao carregar dados</h5>
+                    <h5>Erro ao carregar dados</h5>
                     <p>${error.message}</p>
                 </div>
             `;

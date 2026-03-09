@@ -592,6 +592,8 @@ export default function renderExplorarServicosPage() {
             const localizacao = endereco ? `${endereco.bairro || ""}${endereco.cidade ? ", " + endereco.cidade : ""}` : "";
             const preco = parseFloat(servico.preco);
             const precoFormatado = !isNaN(preco) ? preco.toFixed(2).replace(".", ",") : null;
+            
+            
 
             // Formata duracao ex: "00:45:00" -> "45 min"
             let duracaoFormatada = "";
@@ -612,9 +614,9 @@ export default function renderExplorarServicosPage() {
                      data-profissional-id="${servico.id_profissional_fk}">
                     <div class="explorar-card-img-wrapper">
                         <img class="explorar-card-img"
-                             src="public/assets/images/botox.jpg"
+                             src="${servico.foto}"
                              alt="${servico.nome}"
-                             onerror="this.src='public/assets/images/Florence-estetica.jpg'">
+                             onerror="this.src='public/assets/images/logo2.png'">
                         ${cat ? `<span class="explorar-card-badge">${cat.nome}</span>` : ""}
                     </div>
                     <div class="explorar-card-body">
