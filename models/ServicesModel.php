@@ -13,7 +13,7 @@ class ServicesModel {
                 VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
         
-        $duracao = isset($data['duracao']) ? $data['duracao'] : '00:30:00';
+        $duracao = isset($data['duracao']) ? $data['duracao'] : '00:15:00';
 
         $stmt->bind_param("ssdsii",
             $data["nome"],
@@ -23,19 +23,20 @@ class ServicesModel {
             $data["id_profissional_fk"],
             $data["id_categoria_fk"]
         );
-        return $stmt->execute();
+        if (!$stmt->execute()) return false;
+        return $conn->insert_id;
     }
 
-    public static function getAll() {
-        $db = Database::getInstancia();
-        $conn = $db->pegarConexao();
-        
-        $sql = "SELECT s.*, c.nome as categoria_nome 
-                FROM servicos s
-                LEFT JOIN categorias c ON c.id = s.id_categoria_fk";
-        $result = $conn->query($sql);
-        return $result->fetch_all(MYSQLI_ASSOC);
-    }
+        public static function getAll() {
+            $db = Database::getInstancia();
+            $conn = $db->pegarConexao();
+            
+            $sql = "SELECT s.*, c.nome as categoria_nome 
+                    FROM servicos s
+                    LEFT JOIN categorias c ON c.id = s.id_categoria_fk";
+            $result = $conn->query($sql);
+            return $result->fetch_all(MYSQLI_ASSOC);
+        }
 
     public static function getById($id) {
         $db = Database::getInstancia();
@@ -60,7 +61,7 @@ class ServicesModel {
                 WHERE id = ?";
         $stmt = $conn->prepare($sql);
         
-        $duracao = isset($data['duracao']) ? $data['duracao'] : '00:30:00';
+        $duracao = isset($data['duracao']) ? $data['duracao'] : '00:15:00';
 
         $stmt->bind_param("ssdsiii",
             $data["nome"],
@@ -71,6 +72,15 @@ class ServicesModel {
             $data["id_categoria_fk"],
             $id
         );
+        return $stmt->execute();
+    }
+
+    public static function atualizarFoto($id, $caminho) {
+        $db = Database::getInstancia();
+        $conn = $db->pegarConexao();
+        $sql = "UPDATE servicos SET foto = ? WHERE id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("si", $caminho, $id);
         return $stmt->execute();
     }
 

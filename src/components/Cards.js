@@ -20,7 +20,7 @@ export default function RoomCard(indexOuProfissional) {
   }
   
   containerCards.innerHTML = `
-    <div class="card card-base rounded-card card-partner" style="width: 17rem;">
+    <div class="card card-base card-partner" style="width: 17rem;">
 
         <div id="carouselExampleIndicators-${index}" class="carousel slide rounded-card overflow-hidden">
 

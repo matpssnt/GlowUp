@@ -1,7 +1,7 @@
 /* ============================================
    PÁGINA EXPLORAR / PROFISSIONAIS
-   ============================================ */
-
+   ============================================
+*/
 /* Layout principal */
 .explorar-page {
   display: flex;
@@ -71,10 +71,12 @@
   width: 100%;
   flex: 1;
 }
-
-/* ============================================
+/*
+ ============================================
    SIDEBAR DE FILTROS
-   ============================================ */
+ ============================================
+*/
+
 .explorar-sidebar {
   width: 280px;
   min-width: 280px;
@@ -510,9 +512,9 @@
   transform: translateY(-1px);
 }
 
-/* ============================================
+/*============================================
    ÁREA PRINCIPAL DE RESULTADOS
-   ============================================ */
+  ============================================*/
 .explorar-main {
   flex: 1;
   min-width: 0;
@@ -606,7 +608,7 @@
 
 /* ============================================
    GRID DE CARDS
-   ============================================ */
+   ============================================*/
 .explorar-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -814,9 +816,9 @@
   transform: translateX(3px);
 }
 
-/* ============================================
+/*============================================
    ESTADO VAZIO / LOADING
-   ============================================ */
+  ============================================*/
 .explorar-empty {
   text-align: center;
   padding: 80px 30px;
@@ -952,8 +954,8 @@
 }
 
 /* ============================================
-   PAGINAÇÃO
-   ============================================ */
+    PAGINAÇÃO
+   ============================================*/
 .explorar-pagination {
   display: flex;
   align-items: center;
@@ -1029,73 +1031,16 @@
 }
 
 /* ==============================
-BREAKPOINTS UNIVERSAIS
-(Android + iOS + Tablets)
-   ============================== */
+    BREAKPOINTS UNIVERSAIS
+    (Android + iOS + Tablets)
+   ==============================*/
 
-/* 📱 Celulares pequenos */
-@media (max-width: 360px) {
-
-  .hero {
-    padding: 60px 15px;
-    min-height: 45vh;
-    background-attachment: scroll;
-  }
-
-  .hero-title {
-    font-size: 1.6rem;
-  }
-
-  .hero-subtitle {
-    font-size: 0.9rem;
-  }
-
-  .info-section-title {
-    font-size: 1.6rem;
-  }
-
-  .info-card {
-    padding: 1.8rem 1.3rem;
-  }
-}
+@media (max-width: 360px) {}
 
 
-/* 📱 Celulares padrão */
-@media (max-width: 576px) {
-
-  .hero {
-    padding: 70px 20px;
-    min-height: 50vh;
-    background-attachment: scroll;
-  }
-
-  .hero-title {
-    font-size: 1.9rem;
-  }
-
-  .hero-subtitle {
-    font-size: 1rem;
-  }
-
-  .partners-info {
-    padding: 1.5rem;
-  }
-
-  .card-partner {
-    width: 100%;
-    max-width: 320px;
-    margin: auto;
-  }
-
-  .home-parceiros-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-    padding: 0 16px;
-  }
-}
+@media (max-width: 576px) {}
 
 
-/* 📱 Tablets pequenos */
 @media (max-width: 768px) {
 
   .cards {
@@ -1105,21 +1050,10 @@ BREAKPOINTS UNIVERSAIS
   .info-card {
     padding: 2rem;
   }
-
-  .home-parceiros-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }
 
 
-/* 📱 Tablets grandes / iPad */
 @media (max-width: 1024px) {
-
-  .home-parceiros-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-  }
-
   .hero-title {
     font-size: 2.4rem;
   }
@@ -1128,10 +1062,6 @@ BREAKPOINTS UNIVERSAIS
 
 /* 💻 Laptops menores */
 @media (max-width: 1200px) {
-
-  .home-parceiros-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
 
 
 
@@ -1228,8 +1158,8 @@ BREAKPOINTS UNIVERSAIS
 }
 
 /* ============================================
-   CARD DE SERVIÇO (página explorarServicos)
-   ============================================ */
+    CARD DE SERVIÇO (página explorarServicos)
+   ============================================*/
 .servico-card .servico-card-profissional {
   display: flex;
   align-items: center;

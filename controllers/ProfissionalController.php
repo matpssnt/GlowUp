@@ -27,17 +27,20 @@ class ProfissionalController
 
     public static function update($data, $id)
     {
-        // Valida CPF/CNPJ na atualização
-        if ($data['isJuridica'] == 1) {
-            if (empty($data['cnpj'])) {
-                return jsonResponse(['message' => 'CNPJ é obrigatório para pessoa jurídica'], 400);
-            }
-        } else {
-            if (empty($data['cpf'])) {
-                return jsonResponse(['message' => 'CPF é obrigatório para pessoa física'], 400);
-            }
+        $existente = ProfissionalModel::getById($id);
+        if (!$existente) {
+            return jsonResponse(['message' => 'Profissional não encontrado'], 404);
         }
 
+        // Se CPF/CNPJ não foram enviados, usa os já cadastrados (permite atualizar só descrição)
+        if (empty($data['cpf']) && !empty($existente['cpf'])) {
+            $data['cpf'] = $existente['cpf'];
+        }
+        if (empty($data['cnpj']) && !empty($existente['cnpj'])) {
+            $data['cnpj'] = $existente['cnpj'];
+        }
+
+        // CPF/CNPJ não são obrigatórios no update - o model só altera fisicos/juridicos quando enviados
         $resultado = ProfissionalModel::update($data, $id);
         if ($resultado) {
             return jsonResponse(['message' => 'Profissional atualizado com sucesso'], 200);

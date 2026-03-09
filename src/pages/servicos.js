@@ -114,6 +114,14 @@ export default function renderServicosPage() {
                             </select>
                         </div>
                     </div>
+                    <div class="col-12">
+                        <label class="form-label">Foto do Serviço</label>
+                        <input type="file" id="fotoServico" class="form-control" accept="image/png,image/jpeg,image/jpg,image/webp">
+                        <small class="text-muted">PNG, JPG ou WebP. Máximo 5MB.</small>
+                        <div class="mt-2" id="previewFotoServico" style="display: none;">
+                            <img id="imgPreviewFoto" src="" alt="Preview" style="max-width: 150px; max-height: 150px; object-fit: cover; border-radius: 8px;">
+                        </div>
+                    </div>
                     
                     <div class="col-12 d-flex gap-2 justify-content-end mt-4">
                         <button type="button" id="btnCancelarForm" class="btn btn-outline-custom">Cancelar</button>
@@ -136,6 +144,7 @@ export default function renderServicosPage() {
             <table class="table custom-table mb-0">
                 <thead>
                     <tr>
+                        <th style="width: 50px;">Foto</th>
                         <th>Nome</th>
                         <th>Categoria</th>
                         <th>Preço</th>
@@ -144,7 +153,7 @@ export default function renderServicosPage() {
                     </tr>
                 </thead>
                 <tbody id="listaServicosBody">
-                    <tr><td colspan="5" class="text-center p-4">Carregando...</td></tr>
+                    <tr><td colspan="6" class="text-center p-4">Carregando...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -216,6 +225,9 @@ export default function renderServicosPage() {
             document.getElementById('duracaoHoras').value = '0';
             document.getElementById('duracaoMinutos').value = '00';
             document.getElementById('servicoId').value = '';
+            const fotoInput = formContainer.querySelector('#fotoServico');
+            if (fotoInput) fotoInput.value = '';
+            mostrarPreviewFoto(null);
             formTitle.textContent = 'Novo Serviço';
         } else if (show) {
             aplicarMascaras();
@@ -223,8 +235,16 @@ export default function renderServicosPage() {
     }
 
     btnNovo.onclick = () => {
-        toggleForm(true);
+        form.reset();
+        document.getElementById('servicoId').value = '';
+        if (maskPreco) maskPreco.value = '';
+        document.getElementById('duracaoHoras').value = '0';
+        document.getElementById('duracaoMinutos').value = '00';
+        const fotoInput = formContainer.querySelector('#fotoServico');
+        if (fotoInput) fotoInput.value = '';
+        mostrarPreviewFoto(null);
         formTitle.textContent = 'Novo Serviço';
+        toggleForm(true);
     };
     btnFechar.onclick = () => toggleForm(false);
     btnCancelar.onclick = () => toggleForm(false);
@@ -257,7 +277,7 @@ export default function renderServicosPage() {
             } catch (e) { /*console.error('Prof err', e); */ }
 
             if (!profissional) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-danger text-center">Perfil profissional não encontrado.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-danger text-center">Perfil profissional não encontrado.</td></tr>';
                 return;
             }
 
@@ -285,13 +305,18 @@ export default function renderServicosPage() {
             const meusServicos = todos.filter(s => String(s.id_profissional_fk) === String(profissional.id));
 
             if (meusServicos.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted p-4">Nenhum serviço cadastrado ainda.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted p-4">Nenhum serviço cadastrado ainda.</td></tr>';
                 return;
             }
 
+            const baseUrl = getBaseUrl();
             tbody.innerHTML = '';
             meusServicos.forEach(servico => {
                 const tr = document.createElement('tr');
+                const fotoUrl = servico.foto || servico.imagem;
+                const imgSrc = fotoUrl
+                    ? (fotoUrl.match(/^https?:\/\//) || fotoUrl.startsWith('/') ? fotoUrl : baseUrl + '/' + fotoUrl)
+                    : 'public/assets/images/Florence-estetica.jpg';
 
                 // Formata Preco visualmente (Ponto para Virgula)
                 const precoVisual = servico.preco ? parseFloat(servico.preco).toFixed(2).replace('.', ',') : '0,00';
@@ -317,6 +342,9 @@ export default function renderServicosPage() {
 
                 tr.innerHTML = `
                     <td>
+                        <img src="${imgSrc}" alt="" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;" onerror="this.src='public/assets/images/Florence-estetica.jpg'">
+                    </td>
+                    <td>
                         <div class="fw-bold">${servico.nome}</div>
                         <div class="text-muted small text-truncate" style="max-width: 200px;">${servico.descricao || ''}</div>
                     </td>
@@ -341,8 +369,40 @@ export default function renderServicosPage() {
 
         } catch (error) {
             console.error(error);
-            tbody.innerHTML = '<tr><td colspan="5" class="text-danger text-center">Erro ao carregar lista.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="text-danger text-center">Erro ao carregar lista.</td></tr>';
         }
+    }
+
+    function getBaseUrl() {
+        const path = window.location.pathname.split('/').slice(0, 2).join('/');
+        return path || '';
+    }
+
+    function mostrarPreviewFoto(fileOrUrl) {
+        const preview = document.getElementById('previewFotoServico');
+        const img = document.getElementById('imgPreviewFoto');
+        if (fileOrUrl instanceof File) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                img.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(fileOrUrl);
+        } else if (fileOrUrl) {
+            const base = getBaseUrl();
+            img.src = fileOrUrl.match(/^https?:\/\//) || fileOrUrl.startsWith('/') ? fileOrUrl : base + '/' + fileOrUrl;
+            preview.style.display = 'block';
+        } else {
+            preview.style.display = 'none';
+        }
+    }
+
+    const inputFotoServico = formContainer.querySelector('#fotoServico');
+    if (inputFotoServico) {
+        inputFotoServico.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            mostrarPreviewFoto(file || null);
+        });
     }
 
     function editarServico(servico) {
@@ -353,6 +413,14 @@ export default function renderServicosPage() {
         document.getElementById('servicoId').value = servico.id;
         form.querySelector('[name="nome"]').value = servico.nome;
         form.querySelector('[name="descricao"]').value = servico.descricao;
+
+        // Foto atual
+        const fotoInput = formContainer.querySelector('#fotoServico');
+        if (fotoInput) {
+            fotoInput.value = '';
+            const fotoUrl = servico.foto || servico.imagem;
+            mostrarPreviewFoto(fotoUrl || null);
+        }
 
         // Preco com Mascara
         if (maskPreco) {
@@ -420,15 +488,33 @@ export default function renderServicosPage() {
         payload.duracao = `${horas}:${minutos}:00`;
 
         try {
+            let idServico = id;
             if (id) {
-                // Editar
                 await api.atualizarServico(id, payload);
                 notify.success('Serviço atualizado!');
             } else {
-                // Criar
-                await api.criarServico(payload);
+                const resp = await api.criarServico(payload);
+                idServico = resp?.id ?? resp?.idServico;
+                if (!idServico) {
+                    throw new Error('Não foi possível obter o ID do serviço criado.');
+                }
                 notify.success('Serviço criado!');
             }
+
+            // Upload da foto se houver arquivo selecionado
+            const fotoFile = document.getElementById('fotoServico')?.files[0];
+            if (fotoFile && idServico) {
+                const tiposValidos = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+                if (tiposValidos.includes(fotoFile.type) && fotoFile.size <= 5 * 1024 * 1024) {
+                    try {
+                        await api.uploadFotoServico(idServico, fotoFile);
+                        notify.success('Foto do serviço enviada!');
+                    } catch (err) {
+                        notify.warning('Serviço salvo, mas a foto não pôde ser enviada: ' + (err.message || err));
+                    }
+                }
+            }
+
             toggleForm(false);
             atualizarListaServicos();
         } catch (error) {
