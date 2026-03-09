@@ -8,7 +8,7 @@ export default function loginForm() {
 
     // Cria o container do card
     const container = document.createElement('div');
-    container.className = 'card-base card-login shadow-lg rounded-card card-login-default';
+    container.className = 'card-base card-login shadow-lg card-login-default';
     divRoot.appendChild(container);
 
     // Adiciona o título
