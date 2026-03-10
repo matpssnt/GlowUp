@@ -27,10 +27,19 @@ class ProfissionalController
 
     public static function update($data, $id)
     {
+        $id = (int) $id;
         $existente = ProfissionalModel::getById($id);
         if (!$existente) {
             return jsonResponse(['message' => 'Profissional não encontrado'], 404);
         }
+
+        // Garante tipos corretos para o banco
+        $data['nome'] = trim($data['nome'] ?? '');
+        $data['email'] = trim($data['email'] ?? '');
+        $data['descricao'] = trim($data['descricao'] ?? 'Cadastro em andamento');
+        $data['acessibilidade'] = (int) ($data['acessibilidade'] ?? 0);
+        $data['isJuridica'] = (int) ($data['isJuridica'] ?? 0);
+        $data['id_cadastro_fk'] = (int) ($data['id_cadastro_fk'] ?? $existente['id_cadastro_fk'] ?? 0);
 
         // Se CPF/CNPJ não foram enviados, usa os já cadastrados (permite atualizar só descrição)
         if (empty($data['cpf']) && !empty($existente['cpf'])) {
@@ -41,11 +50,14 @@ class ProfissionalController
         }
 
         // CPF/CNPJ não são obrigatórios no update - o model só altera fisicos/juridicos quando enviados
-        $resultado = ProfissionalModel::update($data, $id);
-        if ($resultado) {
-            return jsonResponse(['message' => 'Profissional atualizado com sucesso'], 200);
-        } else {
+        try {
+            $resultado = ProfissionalModel::update($data, $id);
+            if ($resultado) {
+                return jsonResponse(['message' => 'Profissional atualizado com sucesso'], 200);
+            }
             return jsonResponse(['message' => 'Falha na atualização do profissional'], 400);
+        } catch (Exception $e) {
+            return jsonResponse(['message' => $e->getMessage()], 400);
         }
     }
 

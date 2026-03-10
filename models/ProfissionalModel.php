@@ -113,7 +113,8 @@ class ProfissionalModel
                 $id
             );
             if (!$stmt->execute()) {
-                throw new Exception("Falha ao atualizar profissional");
+                $erro = $stmt->error ?: $conn->error;
+                throw new Exception("Falha ao atualizar profissional: " . $erro);
             }
 
             $novoTipo = intval($data["isJuridica"]);
@@ -173,7 +174,7 @@ class ProfissionalModel
             return true;
         } catch (Exception $e) {
             $conn->rollback();
-            return false;
+            throw $e;
         }
     }
 

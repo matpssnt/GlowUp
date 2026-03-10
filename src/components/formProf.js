@@ -3,104 +3,53 @@ import { applyVisualValidation, friendlyMessages } from "../utils/formValidation
 export default function renderFormProf(container) {
 
     const formulario = document.createElement('form');
-    formulario.className = 'd-flex flex-column';
+    formulario.className = 'register-form register-form-grid';
     formulario.id = 'formProf';
 
-    // Container para nome
+    const row1 = document.createElement('div');
+    row1.className = 'register-form-row';
     const nomeContainer = document.createElement('div');
-    nomeContainer.className = 'mb-3';
-    const nomeLabel = document.createElement('label');
-    nomeLabel.textContent = 'Nome do Estabelecimento *';
-    nomeLabel.className = 'form-label';
-    nomeLabel.setAttribute('for', 'nomeProf');
-    const nome = document.createElement('input');
-    nome.type = 'text';
-    nome.id = 'nomeProf';
-    nome.name = 'nome';
-    nome.placeholder = "Nome do Estabelecimento";
-    nome.className = 'form-control';
-    nome.required = true;
-    nomeContainer.appendChild(nomeLabel);
-    nomeContainer.appendChild(nome);
-    formulario.appendChild(nomeContainer);
-
-    // Container para email
+    nomeContainer.className = 'register-field';
+    nomeContainer.innerHTML = `
+        <label for="nomeProf" class="form-label">Nome do Estabelecimento *</label>
+        <input type="text" id="nomeProf" name="nome" placeholder="Nome do Estabelecimento" class="form-control" required>
+    `;
+    const nome = nomeContainer.querySelector('#nomeProf');
     const emailContainer = document.createElement('div');
-    emailContainer.className = 'mb-3';
-    const emailLabel = document.createElement('label');
-    emailLabel.textContent = 'E-mail *';
-    emailLabel.className = 'form-label';
-    emailLabel.setAttribute('for', 'emailProf');
-    const email = document.createElement('input');
-    email.type = 'email';
-    email.id = 'emailProf';
-    email.name = 'email';
-    email.placeholder = "Seu e-mail";
-    email.className = 'form-control';
-    email.required = true;
-    emailContainer.appendChild(emailLabel);
-    emailContainer.appendChild(email);
-    formulario.appendChild(emailContainer);
+    emailContainer.className = 'register-field';
+    emailContainer.innerHTML = `
+        <label for="emailProf" class="form-label">E-mail *</label>
+        <input type="email" id="emailProf" name="email" placeholder="Seu e-mail" class="form-control" required>
+    `;
+    const email = emailContainer.querySelector('#emailProf');
+    row1.appendChild(nomeContainer);
+    row1.appendChild(emailContainer);
+    formulario.appendChild(row1);
 
-    // Container para senha
+    const row2 = document.createElement('div');
+    row2.className = 'register-form-row';
     const passwordContainer = document.createElement('div');
-    passwordContainer.className = 'mb-3';
-    const passwordLabel = document.createElement('label');
-    passwordLabel.textContent = 'Senha *';
-    passwordLabel.className = 'form-label';
-    passwordLabel.setAttribute('for', 'senhaProf');
-    const password = document.createElement('input');
-    password.type = 'password';
-    password.id = 'senhaProf';
-    password.name = 'senha';
-    password.placeholder = "Sua senha (mínimo 6 caracteres)";
-    password.className = 'form-control';
-    password.required = true;
-    passwordContainer.appendChild(passwordLabel);
-    passwordContainer.appendChild(password);
-    formulario.appendChild(passwordContainer);
-
-    // Container para confirmação de senha
+    passwordContainer.className = 'register-field';
+    passwordContainer.innerHTML = `
+        <label for="senhaProf" class="form-label">Senha *</label>
+        <input type="password" id="senhaProf" name="senha" placeholder="Mínimo 6 caracteres" class="form-control" required>
+    `;
+    const password = passwordContainer.querySelector('#senhaProf');
     const passwordConfirmContainer = document.createElement('div');
-    passwordConfirmContainer.className = 'mb-3';
-    const passwordConfirmLabel = document.createElement('label');
-    passwordConfirmLabel.textContent = 'Confirmar senha *';
-    passwordConfirmLabel.className = 'form-label';
-    passwordConfirmLabel.setAttribute('for', 'senhaConfirmProf');
-    const passwordConfirm = document.createElement('input');
-    passwordConfirm.type = 'password';
-    passwordConfirm.id = 'senhaConfirmProf';
-    passwordConfirm.name = 'senhaConfirm';
-    passwordConfirm.placeholder = "Confirme sua senha";
-    passwordConfirm.className = 'form-control';
-    passwordConfirm.required = true;
-    passwordConfirmContainer.appendChild(passwordConfirmLabel);
-    passwordConfirmContainer.appendChild(passwordConfirm);
-    formulario.appendChild(passwordConfirmContainer);
+    passwordConfirmContainer.className = 'register-field';
+    passwordConfirmContainer.innerHTML = `
+        <label for="senhaConfirmProf" class="form-label">Confirmar senha *</label>
+        <input type="password" id="senhaConfirmProf" name="senhaConfirm" placeholder="Confirme sua senha" class="form-control" required>
+    `;
+    const passwordConfirm = passwordConfirmContainer.querySelector('#senhaConfirmProf');
+    row2.appendChild(passwordContainer);
+    row2.appendChild(passwordConfirmContainer);
+    formulario.appendChild(row2);
 
-    // Container para descrição
-    const descricaoContainer = document.createElement('div');
-    descricaoContainer.className = 'mb-3';
-    const descricaoLabel = document.createElement('label');
-    descricaoLabel.textContent = 'Descrição do Estabelecimento';
-    descricaoLabel.className = 'form-label';
-    descricaoLabel.setAttribute('for', 'descricaoProf');
-    const descricao = document.createElement('textarea');
-    descricao.id = 'descricaoProf';
-    descricao.name = 'descricao';
-    descricao.placeholder = "Descreva brevemente o seu estabelecimento (opcional)";
-    descricao.className = 'form-control';
-    descricao.rows = 3;
-    descricao.maxLength = 255;
-    descricaoContainer.appendChild(descricaoLabel);
-    descricaoContainer.appendChild(descricao);
-    formulario.appendChild(descricaoContainer);
-
-    // BOTÃO
     const btnSubmit = document.createElement('button');
     btnSubmit.type = 'submit';
     btnSubmit.textContent = 'Cadastrar';
-    btnSubmit.className = 'btn btn-primary mt-2';
+    btnSubmit.className = 'btn btn-primary register-submit-btn';
     formulario.appendChild(btnSubmit);
 
     // Aplica validação visual aos campos
@@ -119,27 +68,49 @@ export default function renderFormProf(container) {
         customMessage: friendlyMessages.password
     });
 
-    // Validação customizada para confirmação de senha (igual ao commit original)
-    passwordConfirm.addEventListener('blur', () => {
-        if (passwordConfirm.value !== password.value) {
-            passwordConfirm.classList.add('is-invalid');
-            passwordConfirm.classList.remove('is-valid');
-            const errorDiv = document.createElement('div');
+    // Validação customizada para confirmação de senha (reutiliza/atualiza erro sem acumular)
+    function setPasswordConfirmError(input, message) {
+        let errorDiv = input.parentElement.querySelector('.invalid-feedback');
+        input.classList.add('is-invalid');
+        input.classList.remove('is-valid');
+        if (!errorDiv) {
+            errorDiv = document.createElement('div');
             errorDiv.className = 'invalid-feedback';
-            errorDiv.textContent = friendlyMessages.passwordMatch;
-            passwordConfirm.parentElement.appendChild(errorDiv);
+            input.parentElement.appendChild(errorDiv);
+        }
+        errorDiv.textContent = message;
+    }
+
+    function clearPasswordConfirmError(input) {
+        input.classList.remove('is-invalid');
+        input.classList.add('is-valid');
+        const errorDiv = input.parentElement.querySelector('.invalid-feedback');
+        if (errorDiv) errorDiv.remove();
+    }
+
+    passwordConfirm.addEventListener('blur', () => {
+        if (passwordConfirm.value && passwordConfirm.value !== password.value) {
+            setPasswordConfirmError(passwordConfirm, friendlyMessages.passwordMatch);
         } else if (passwordConfirm.value.length > 0) {
-            passwordConfirm.classList.remove('is-invalid');
-            passwordConfirm.classList.add('is-valid');
-            const existingError = passwordConfirm.parentElement.querySelector('.invalid-feedback');
-            if (existingError) existingError.remove();
+            clearPasswordConfirmError(passwordConfirm);
         }
     });
 
     password.addEventListener('input', () => {
-        if (passwordConfirm.value && passwordConfirm.value !== password.value) {
-            passwordConfirm.classList.add('is-invalid');
-            passwordConfirm.classList.remove('is-valid');
+        if (passwordConfirm.value) {
+            if (passwordConfirm.value !== password.value) {
+                setPasswordConfirmError(passwordConfirm, friendlyMessages.passwordMatch);
+            } else {
+                clearPasswordConfirmError(passwordConfirm);
+            }
+        }
+    });
+
+    passwordConfirm.addEventListener('input', () => {
+        if (passwordConfirm.value === password.value) {
+            clearPasswordConfirmError(passwordConfirm);
+        } else if (passwordConfirm.value.length > 0) {
+            setPasswordConfirmError(passwordConfirm, friendlyMessages.passwordMatch);
         }
     });
 
@@ -186,8 +157,8 @@ export default function renderFormProf(container) {
                 throw new Error('Não foi possível obter o ID do cadastro criado.');
             }
 
-            // Cria profissional
-            const descricaoValue = document.getElementById('descricaoProf')?.value?.trim() || 'Cadastro em andamento';
+            // Cria profissional (descrição será preenchida na próxima etapa)
+            const descricaoValue = 'Cadastro em andamento';
             const profissionalData = {
                 nome: nome.value.trim(),
                 email: email.value.trim(),
