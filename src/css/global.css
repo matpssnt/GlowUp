@@ -144,6 +144,10 @@ body {
     transform: rotate(90deg);
 }
 
+.nav-item {
+    margin-left: 25px;
+}
+
 
 /* Responsividade navbar */
 @media (max-width: 991.98px) {

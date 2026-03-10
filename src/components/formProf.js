@@ -20,7 +20,7 @@ export default function renderFormProf(container) {
     emailContainer.innerHTML = `
         <label for="emailProf" class="form-label">E-mail *</label>
         <input type="email" id="emailProf" name="email" placeholder="Seu e-mail" class="form-control" required>
-    `;
+    `;  
     const email = emailContainer.querySelector('#emailProf');
     row1.appendChild(nomeContainer);
     row1.appendChild(emailContainer);
