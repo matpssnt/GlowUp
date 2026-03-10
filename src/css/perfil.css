@@ -978,23 +978,45 @@
         background: rgba(40, 40, 40, 0.9);
     }
 }
+/* =====================================================
+   RESPONSIVIDADE — MOBILE FIRST
+===================================================== */
 
-/* Responsividade - Mobile First */
-/* Mobile (até 767px) */
+
+/* ================= MOBILE (até 767px) ================= */
 @media (max-width: 767px) {
-    .perfil-banner-card .banner-img {
-        height: 200px;
+
+    .perfil-layout {
+        padding: 0 15px;
+        flex-direction: column;
+        gap: 25px;
     }
 
+    .perfil-sidebar {
+        position: static;
+        width: 100%;
+        padding: 20px;
+    }
+
+    .perfil-banner-card .banner-img {
+        height: 200px;
+        object-fit: cover;
+    }
+
+    /* Overlay corrigido (evita corte) */
     .perfil-overlay {
+        position: relative;
         top: -60px;
-        margin-bottom: -60px;
+        margin-bottom: 0;
         padding: 0;
+        justify-content: center;
+        z-index: 2;
     }
 
     .foto-perfil img {
         width: 120px;
         height: 120px;
+        object-fit: cover;
     }
 
     .perfil-content {
@@ -1008,20 +1030,32 @@
         width: 100%;
     }
 
+    /* ===== MINI CARROSSEL ===== */
     .mini-carrossel-section {
-        max-width: 100%;
         width: 100%;
+        max-width: 100%;
         margin: 0;
-        top: 0;
         margin-top: 80px;
+        position: relative;
+
+        min-height: 220px;
+        height: auto;
+        overflow: visible;
     }
 
     .mini-carrossel-section img {
+        width: 100%;
         height: 220px;
+        object-fit: cover;
+        display: block;
     }
 
     #miniCarousel {
         margin-right: 0;
+    }
+
+    .perfil-content-main {
+        padding: 20px;
     }
 
     .perfil-form-container {
@@ -1029,69 +1063,48 @@
     }
 
     .perfil-form-container .row {
-        margin-left: 0;
-        margin-right: 0;
+        margin: 0;
     }
 
     .perfil-form-container .col-md-6 {
-        padding-left: 0;
-        padding-right: 0;
+        padding: 0;
         margin-bottom: 1rem;
     }
 
-    /* Novos estilos responsivos */
-    .perfil-layout {
-        padding: 0 15px;
-        flex-direction: column;
-        gap: 25px;
-    }
-    
-    .perfil-sidebar {
-        position: static;
-        width: 100%;
-        padding: 20px;
-    }
-    
-    .perfil-content-main {
-        padding: 20px;
-    }
-    
     .perfil-page-container .form-section {
         padding: 20px;
     }
-    
+
     .perfil-page-container .info-cards {
         grid-template-columns: 1fr;
     }
-    
+
     .perfil-page-container .btn {
         width: 100%;
         justify-content: center;
     }
-    
+
     .perfil-page-container .action-buttons {
         flex-direction: column;
         width: 100%;
     }
 }
 
-/* Tablet (768px - 991px) */
+
+/* ================= TABLET (768px - 991px) ================= */
 @media (min-width: 768px) and (max-width: 991px) {
 
-    /* Layout geral */
     .perfil-layout {
         flex-direction: column;
         gap: 30px;
         padding: 0 25px;
     }
 
-    /* Remove sticky da sidebar */
     .perfil-sidebar {
         position: static;
         width: 100%;
     }
 
-    /* Conteúdo principal */
     .perfil-content {
         flex-direction: column;
         align-items: center;
@@ -1099,40 +1112,46 @@
         padding: 30px;
     }
 
-    /* Descrição ocupa largura total */
     .description-profissional {
-        max-width: 100%;
         width: 100%;
+        max-width: 100%;
     }
 
-    /* ===== MINI CARROSSEL AJUSTADO ===== */
+    /* ===== MINI CARROSSEL (SEM CORTE) ===== */
     .mini-carrossel-section {
-        max-width: 100%;
         width: 100%;
+        max-width: 100%;
         margin: 0;
-        top: 0; /* remove qualquer subida */
-        height: 320px;
+        position: relative;
+
+        min-height: 320px;
+        height: auto;
+        overflow: visible;
     }
 
     .mini-carrossel-section img {
+        width: 100%;
         height: 320px;
         object-fit: cover;
+        display: block;
     }
 
-    /* ===== FOTO PERFIL AJUSTADA ===== */
+    /* Overlay corrigido */
     .perfil-overlay {
+        position: relative;
         top: -60px;
-        margin-bottom: -60px;
+        margin-bottom: 0;
         justify-content: center;
         padding-left: 0;
+        z-index: 2;
     }
 
     .foto-perfil img {
         width: 130px;
         height: 130px;
+        object-fit: cover;
     }
 
-    /* Conteúdo interno */
     .perfil-content-main {
         padding: 30px;
     }
@@ -1145,35 +1164,20 @@
         padding: 20px;
     }
 }
-/* Desktop médio (992px - 1199px) */
+
+
+/* ================= DESKTOP MÉDIO (992px - 1199px) ================= */
 @media (min-width: 992px) and (max-width: 1199px) {
-    .perfil-content {
-        flex-direction: row;
-        gap: 40px;
-        padding: 20px 40px 40px;
-    }
 
-    .description-profissional {
-        max-width: 55%;
-    }
-
-    .mini-carrossel-section {
-        max-width: 550px;
-    }
-
-    /* Novos estilos responsivos */
     .perfil-layout {
         gap: 25px;
         padding: 0 20px;
     }
-    
+
     .perfil-sidebar {
         flex: 0 0 300px;
     }
-}
 
-/* Desktop grande (1200px+) */
-@media (min-width: 1200px) {
     .perfil-content {
         flex-direction: row;
         gap: 40px;
@@ -1186,15 +1190,36 @@
 
     .mini-carrossel-section {
         max-width: 550px;
+        height: auto;
+        overflow: visible;
     }
+}
 
-    /* Novos estilos responsivos */
+
+/* ================= DESKTOP GRANDE (1200px+) ================= */
+@media (min-width: 1200px) {
+
     .perfil-layout {
         max-width: 1400px;
         padding: 0 25px;
     }
-}
 
+    .perfil-content {
+        flex-direction: row;
+        gap: 40px;
+        padding: 20px 40px 40px;
+    }
+
+    .description-profissional {
+        max-width: 55%;
+    }
+
+    .mini-carrossel-section {
+        max-width: 550px;
+        height: auto;
+        overflow: visible;
+    }
+}
 /* Suporte a movimento reduzido */
 @media (prefers-reduced-motion: reduce) {
     .perfil-page-container *,
