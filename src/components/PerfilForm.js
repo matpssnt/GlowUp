@@ -6,8 +6,10 @@ import { addMaskToInput } from '../utils/validation.js';
 
 export default function PerfilForm() {
     const content = document.createElement('div');
-    content.className = 'bg-white rounded shadow-sm flex-grow-1';
+    content.className = 'bg-white rounded shadow-sm flex-grow-1 content-card';
     content.style.padding = '30px';
+    content.style.minWidth = '0';
+    content.style.overflowX = 'hidden';
 
     const api = new ApiService();
     let cadastroCompleto = null;

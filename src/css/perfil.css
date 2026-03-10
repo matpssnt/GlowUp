@@ -602,7 +602,18 @@
 /* Formulário de perfil responsivo */
 .perfil-form-container {
     width: 100%;
+    max-width: 100%;
     padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Garante que inputs mostrem conteúdo completo */
+.content-card input.form-control,
+.content-card .form-control,
+.perfil-page-container input.form-control {
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* CAMPOS DE FORMULÁRIO */
