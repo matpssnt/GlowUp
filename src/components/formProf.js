@@ -28,6 +28,7 @@ export default function renderFormProf(container) {
 
     const row2 = document.createElement('div');
     row2.className = 'register-form-row';
+
     const passwordContainer = document.createElement('div');
     passwordContainer.className = 'register-field';
     passwordContainer.innerHTML = `
@@ -35,12 +36,61 @@ export default function renderFormProf(container) {
         <input type="password" id="senhaProf" name="senha" placeholder="Mínimo 6 caracteres" class="form-control" required>
     `;
     const password = passwordContainer.querySelector('#senhaProf');
+
     const passwordConfirmContainer = document.createElement('div');
     passwordConfirmContainer.className = 'register-field';
     passwordConfirmContainer.innerHTML = `
         <label for="senhaConfirmProf" class="form-label">Confirmar senha *</label>
         <input type="password" id="senhaConfirmProf" name="senhaConfirm" placeholder="Confirme sua senha" class="form-control" required>
     `;
+
+     // Ícone olho senha
+    const togglePassword = document.createElement('img');
+    togglePassword.src = '/GlowUp/public/assets/images/olho-aberto.png';
+    togglePassword.style.position = 'absolute';
+    togglePassword.style.right = '10px';
+    togglePassword.style.top = '49px';
+    togglePassword.style.cursor = 'pointer';
+    togglePassword.style.width = '20px';
+
+    passwordContainer.appendChild(togglePassword);
+
+     // Ícone confirmar senha
+    const togglePasswordConfirm = document.createElement('img');
+    togglePasswordConfirm.src = '/GlowUp/public/assets/images/olho-aberto.png';
+    togglePasswordConfirm.style.position = 'absolute';
+    togglePasswordConfirm.style.right = '10px';
+    togglePasswordConfirm.style.top = '49px';
+    togglePasswordConfirm.style.cursor = 'pointer';
+    togglePasswordConfirm.style.width = '20px';
+
+    passwordConfirmContainer.appendChild(togglePasswordConfirm);
+
+     // EVENTOS DO OLHO
+    togglePassword.addEventListener('click', () => {
+
+        const isPassword = password.type === 'password';
+
+        password.type = isPassword ? 'text' : 'password';
+
+        togglePassword.src = isPassword
+            ? '/GlowUp/public/assets/images/esconder.png'
+            : '/GlowUp/public/assets/images/olho-aberto.png';
+
+    });
+
+    togglePasswordConfirm.addEventListener('click', () => {
+
+        const isPassword = passwordConfirm.type === 'password';
+
+        passwordConfirm.type = isPassword ? 'text' : 'password';
+
+        togglePasswordConfirm.src = isPassword
+            ? '/GlowUp/public/assets/images/esconder.png'
+            : '/GlowUp/public/assets/images/olho-aberto.png';
+
+    });
+
     const passwordConfirm = passwordConfirmContainer.querySelector('#senhaConfirmProf');
     row2.appendChild(passwordContainer);
     row2.appendChild(passwordConfirmContainer);

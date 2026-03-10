@@ -12,7 +12,11 @@ link.href = 'src/css/dashboard.css';
 document.head.appendChild(link);
 
 export default function renderSegurancaPage() {
-    if (!authState.isAuth()) { window.location.href = '/login'; return; }
+
+    if (!authState.isAuth()) {
+        window.location.href = '/login';
+        return;
+    }
 
     const root = document.getElementById('root');
     root.innerHTML = '';
@@ -32,27 +36,34 @@ export default function renderSegurancaPage() {
 
     const card = document.createElement('div');
     card.className = 'content-card';
+
     card.innerHTML = `
         <div class="card-header-custom">
             <h5 class="card-title-custom">Privacidade e Segurança</h5>
         </div>
+
         <div class="p-4">
             <form id="formTrocarSenha" class="row g-3" autocomplete="off">
-                <div class="col-12">
+
+                <div class="col-12 position-relative">
                     <label class="form-label">Senha antiga</label>
                     <input type="password" class="form-control" name="senha_antiga" required>
                 </div>
-                <div class="col-md-6">
+
+                <div class="col-md-6 position-relative">
                     <label class="form-label">Nova senha</label>
                     <input type="password" class="form-control" name="senha_nova" required>
                 </div>
-                <div class="col-md-6">
+
+                <div class="col-md-6 position-relative">
                     <label class="form-label">Confirme a nova senha</label>
                     <input type="password" class="form-control" name="senha_confirmacao" required>
                 </div>
+
                 <div class="col-12 d-flex justify-content-end gap-2 mt-3">
                     <button type="submit" class="btn btn-primary-custom">Salvar</button>
                 </div>
+
             </form>
         </div>
     `;
@@ -68,7 +79,53 @@ export default function renderSegurancaPage() {
     const api = new ApiService();
     const form = card.querySelector('#formTrocarSenha');
 
+    // =============================
+    // FUNÇÃO PARA CRIAR O OLHO
+    // =============================
+
+    function addPasswordToggle(input) {
+
+        const container = input.parentElement;
+
+        const eye = document.createElement('img');
+        eye.src = '/GlowUp/public/assets/images/olho-aberto.png';
+
+        eye.style.position = 'absolute';
+        eye.style.right = '12px';
+        eye.style.top = '45px';
+        eye.style.cursor = 'pointer';
+        eye.style.width = '20px';
+
+        container.appendChild(eye);
+
+        eye.addEventListener('click', () => {
+
+            const isPassword = input.type === 'password';
+
+            input.type = isPassword ? 'text' : 'password';
+
+            eye.src = isPassword
+                ? '/GlowUp/public/assets/images/esconder.png'
+                : '/GlowUp/public/assets/images/olho-aberto.png';
+
+        });
+
+    }
+
+    // =============================
+    // APLICAR OLHO NOS CAMPOS
+    // =============================
+
+    addPasswordToggle(form.senha_antiga);
+    addPasswordToggle(form.senha_nova);
+    addPasswordToggle(form.senha_confirmacao);
+
+    // =============================
+    // SUBMIT
+    // =============================
+
     form.addEventListener('submit', async (e) => {
+
         e.preventDefault();
 
         const senhaAntiga = form.senha_antiga.value;
@@ -81,17 +138,25 @@ export default function renderSegurancaPage() {
         }
 
         const cadastroId = authState.getCadastroId() || authState.getUser()?.id;
+
         if (!cadastroId) {
             notify.error('ID do cadastro não encontrado. Faça login novamente.');
             return;
         }
 
         try {
+
             await api.trocarSenha(cadastroId, senhaAntiga, senhaNova);
+
             notify.success('Senha atualizada com sucesso!');
             form.reset();
+
         } catch (error) {
+
             handleError(error, 'Segurança');
+
         }
+
     });
+
 }
