@@ -297,6 +297,9 @@ export default function renderExplorarPage(options = {}) {
                            placeholder="Nome, servico..."
                            value="${state.filters.busca}">
                 </div>
+                <button class="btn-clear-filters btn-clear-all">
+                    <i class="fas fa-times"></i> Limpar Filtros
+                </button>
             </div>
 
             <div class="filter-group">
@@ -354,9 +357,6 @@ export default function renderExplorarPage(options = {}) {
                 </div>
             </div>
 
-            <button class="btn-clear-filters btn-clear-all">
-                <i class="fas fa-times"></i> Limpar Filtros
-            </button>
         `;
 
         setupFilterEvents(container);

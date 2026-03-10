@@ -5,11 +5,6 @@ import AgendamentoModal from "../components/AgendamentoModal.js";
 
 const ITEMS_PER_PAGE = 15;
 
-/**
- * Pagina de Exploracao de Servicos
- * Lista todos os servicos cadastrados, independente do profissional.
- * Permite filtrar por: busca por nome, categoria, preco e localizacao.
- */
 export default function renderExplorarServicosPage() {
     const root = document.getElementById("root");
     if (!root) return;
@@ -226,9 +221,7 @@ export default function renderExplorarServicosPage() {
         return state.categorias.find((c) => c.id == idCategoria) || null;
     }
 
-    // ============================================
     // FILTROS
-    // ============================================
 
     function renderFilters(containerId) {
         const container = document.getElementById(containerId);
@@ -246,6 +239,9 @@ export default function renderExplorarServicosPage() {
                            placeholder="Nome do serviço..."
                            value="${state.filters.busca}">
                 </div>
+                <button class="btn-clear-filters btn-clear-all">
+                    <i class="fas fa-times"></i> Limpar Filtros
+                </button>
             </div>
 
             <div class="filter-group">
@@ -303,9 +299,6 @@ export default function renderExplorarServicosPage() {
                 </div>
             </div>
 
-            <button class="btn-clear-filters btn-clear-all">
-                <i class="fas fa-times"></i> Limpar Filtros
-            </button>
         `;
 
         setupFilterEvents(container);
