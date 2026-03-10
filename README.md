@@ -309,8 +309,6 @@ copies or substantial portions of the Software.
 
 **⭐ Se este projeto ajudou você, considere dar uma estrela! ⭐**
 
-Made with ❤️ by [GlowUp Team](https://github.com/your-username)
-
-[🔝 Top](#-glowup---plataforma-de-beleza-e-estética) • [📖 Docs](docs/) • [🚀 Getting Started](#-getting-started)
+Made with ❤️ by GlowUp Team
 
 </div>
