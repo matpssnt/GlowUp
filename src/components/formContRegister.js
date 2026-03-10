@@ -6,9 +6,20 @@ import { notify } from "./Notification.js";
 import { addMaskToInput } from "../utils/validation.js";
 
 export default function renderFormContRegister(container) {
-    // Cria o formulário
     const formulario = document.createElement('form');
-    formulario.className = 'cont-register-form';
+    formulario.className = 'cont-register-form cont-register-form-horizontal';
+
+    // Wrapper para layout em 2 colunas
+    const gridWrapper = document.createElement('div');
+    gridWrapper.className = 'cont-register-grid';
+
+    // Coluna esquerda: Info + Foto + Documentação
+    const colLeft = document.createElement('div');
+    colLeft.className = 'cont-register-col cont-register-col-left';
+
+    // Coluna direita: Endereço + Contato
+    const colRight = document.createElement('div');
+    colRight.className = 'cont-register-col cont-register-col-right';
 
     // Seção: Informações do Estabelecimento
     const nav = document.getElementById('navbar');
@@ -62,12 +73,11 @@ export default function renderFormContRegister(container) {
             contador.classList.add('danger');
         }
     });
-    formulario.appendChild(secaoInfo);
+    colLeft.appendChild(secaoInfo);
 
     // Campo de Foto do Estabelecimento
     const divFoto = document.createElement('div');
-    divFoto.className = 'cont-register-field';
-    divFoto.style.marginTop = '70px';
+    divFoto.className = 'cont-register-field cont-register-field-foto';
 
     const tituloFoto = document.createElement('h4');
     tituloFoto.textContent = 'Foto do Estabelecimento';
@@ -82,10 +92,8 @@ export default function renderFormContRegister(container) {
 
     // preview da imagem
     const previewImagem = document.createElement('img');
-    previewImagem.style.marginTop = '10px';
-    previewImagem.style.maxWidth = '200px';
-    previewImagem.style.display = 'none';
     previewImagem.className = 'cont-register-preview';
+    previewImagem.style.display = 'none';
 
     divFoto.appendChild(tituloFoto);
     divFoto.appendChild(inputFoto);
@@ -101,7 +109,6 @@ export default function renderFormContRegister(container) {
 
             reader.onload = function (event) {
                 previewImagem.src = event.target.result;
-                previewImagem.style.display = 'block';
             };
 
             reader.readAsDataURL(file);
@@ -261,20 +268,19 @@ export default function renderFormContRegister(container) {
     secaoContato.className = 'cont-register-section';
     secaoContato.innerHTML = `
     <h4 class="cont-register-section-title">Contato Principal</h4>
-    <div class="row g-3">
-        <div class="col-md-3">
+    <div class="cont-register-contact-row">
+        <div class="cont-register-field">
             <label class="form-label">DDD *</label>
-            <input type="text" id="ddd" class="form-control" placeholder="Ex: 55" maxlength="2" required>
+            <input type="text" id="ddd" class="form-control" placeholder="11" maxlength="2" required>
         </div>
-        <div class="col-md-9">
+        <div class="cont-register-field cont-register-field-flex">
             <label class="form-label">Telefone *</label>
             <input type="text" id="telefone" class="form-control" placeholder="99999-9999" maxlength="15" required>
         </div>
     </div>
 `;
-    formulario.appendChild(secaoContato);
-
-    formulario.appendChild(secaoEndereco);
+    colRight.appendChild(secaoEndereco);
+    colRight.appendChild(secaoContato);
 
     // Aplica máscara nos campos
     const inputDDD = formulario.querySelector('#ddd');
@@ -353,7 +359,11 @@ export default function renderFormContRegister(container) {
     camposDinamicos.className = 'd-none cont-register-dynamic';
     secaoDocumento.appendChild(camposDinamicos);
 
-    formulario.appendChild(secaoDocumento);
+    colLeft.appendChild(secaoDocumento);
+
+    gridWrapper.appendChild(colLeft);
+    gridWrapper.appendChild(colRight);
+    formulario.appendChild(gridWrapper);
 
     // Adiciona funcionalidade de alternância
     adicionarAlternanciaTipoPessoa(selectTipo, camposDinamicos);
@@ -371,7 +381,9 @@ export default function renderFormContRegister(container) {
     const btnVoltar = document.createElement('a');
     btnVoltar.href = "register";
     btnVoltar.className = 'cont-register-nav-link';
+    btnVoltar.textContent = 'Voltar ao cadastro inicial';
     containerBotoes.appendChild(btnFinalizar);
+    containerBotoes.appendChild(btnVoltar);
     formulario.appendChild(containerBotoes);
 
     // Adiciona evento de submit
