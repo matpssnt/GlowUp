@@ -70,6 +70,10 @@ export default function renderMinhaAgendaPage() {
     );
     document.body.appendChild(confirmModal);
 
+    
+
+
+
     // --- Agendamentos Section ---
     const agendamentosContainer = document.createElement('div');
     agendamentosContainer.id = 'agendamentosContainer';
@@ -187,6 +191,8 @@ export default function renderMinhaAgendaPage() {
             notify.error('Erro ao cancelar: ' + error.message);
         }
     }
+
+
 
     async function carregarDados() {
         try {
