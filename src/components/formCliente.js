@@ -7,88 +7,56 @@ import Loading from "./Loading.js";
 
 export default function renderFormCliente(container) {
 
-    // Formulário
     const formulario = document.createElement('form');
-    formulario.className = 'd-flex flex-column';
+    formulario.className = 'register-form register-form-grid';
     formulario.id = 'formCliente';
 
-    // Container para nome
+    // Linha 1: Nome | Email
+    const row1 = document.createElement('div');
+    row1.className = 'register-form-row';
     const nomeContainer = document.createElement('div');
-    nomeContainer.className = 'mb-3';
-    const nomeLabel = document.createElement('label');
-    nomeLabel.textContent = 'Nome completo *';
-    nomeLabel.className = 'form-label';
-    nomeLabel.setAttribute('for', 'nomeCliente');
-    const nome = document.createElement('input');
-    nome.type = 'text';
-    nome.id = 'nomeCliente';
-    nome.name = 'nome';
-    nome.placeholder = "Seu nome completo";
-    nome.className = 'form-control';
-    nome.required = true;
-    nomeContainer.appendChild(nomeLabel);
-    nomeContainer.appendChild(nome);
-    formulario.appendChild(nomeContainer);
-
-    // Container para email
+    nomeContainer.className = 'register-field';
+    nomeContainer.innerHTML = `
+        <label for="nomeCliente" class="form-label">Nome completo *</label>
+        <input type="text" id="nomeCliente" name="nome" placeholder="Seu nome completo" class="form-control" required>
+    `;
+    const nome = nomeContainer.querySelector('#nomeCliente');
     const emailContainer = document.createElement('div');
-    emailContainer.className = 'mb-3';
-    const emailLabel = document.createElement('label');
-    emailLabel.textContent = 'E-mail *';
-    emailLabel.className = 'form-label';
-    emailLabel.setAttribute('for', 'emailCliente');
-    const email = document.createElement('input');
-    email.type = 'email';
-    email.id = 'emailCliente';
-    email.name = 'email';
-    email.placeholder = "Seu e-mail";
-    email.className = 'form-control';
-    email.required = true;
-    emailContainer.appendChild(emailLabel);
-    emailContainer.appendChild(email);
-    formulario.appendChild(emailContainer);
+    emailContainer.className = 'register-field';
+    emailContainer.innerHTML = `
+        <label for="emailCliente" class="form-label">E-mail *</label>
+        <input type="email" id="emailCliente" name="email" placeholder="Seu e-mail" class="form-control" required>
+    `;
+    const email = emailContainer.querySelector('#emailCliente');
+    row1.appendChild(nomeContainer);
+    row1.appendChild(emailContainer);
+    formulario.appendChild(row1);
 
-    // Container para senha
+    // Linha 2: Senha | Confirmar senha
+    const row2 = document.createElement('div');
+    row2.className = 'register-form-row';
     const passwordContainer = document.createElement('div');
-    passwordContainer.className = 'mb-3';
-    const passwordLabel = document.createElement('label');
-    passwordLabel.textContent = 'Senha *';
-    passwordLabel.className = 'form-label';
-    passwordLabel.setAttribute('for', 'senhaCliente');
-    const password = document.createElement('input');
-    password.type = 'password';
-    password.id = 'senhaCliente';
-    password.name = 'senha';
-    password.placeholder = "Sua senha (mínimo 6 caracteres)";
-    password.className = 'form-control';
-    password.required = true;
-    passwordContainer.appendChild(passwordLabel);
-    passwordContainer.appendChild(password);
-    formulario.appendChild(passwordContainer);
-
-    // Container para confirmação de senha
+    passwordContainer.className = 'register-field';
+    passwordContainer.innerHTML = `
+        <label for="senhaCliente" class="form-label">Senha *</label>
+        <input type="password" id="senhaCliente" name="senha" placeholder="Mínimo 6 caracteres" class="form-control" required>
+    `;
+    const password = passwordContainer.querySelector('#senhaCliente');
     const passwordConfirmContainer = document.createElement('div');
-    passwordConfirmContainer.className = 'mb-3';
-    const passwordConfirmLabel = document.createElement('label');
-    passwordConfirmLabel.textContent = 'Confirmar senha *';
-    passwordConfirmLabel.className = 'form-label';
-    passwordConfirmLabel.setAttribute('for', 'senhaConfirmCliente');
-    const passwordConfirm = document.createElement('input');
-    passwordConfirm.type = 'password';
-    passwordConfirm.id = 'senhaConfirmCliente';
-    passwordConfirm.name = 'senhaConfirm';
-    passwordConfirm.placeholder = "Confirme sua senha";
-    passwordConfirm.className = 'form-control';
-    passwordConfirm.required = true;
-    passwordConfirmContainer.appendChild(passwordConfirmLabel);
-    passwordConfirmContainer.appendChild(passwordConfirm);
-    formulario.appendChild(passwordConfirmContainer);
+    passwordConfirmContainer.className = 'register-field';
+    passwordConfirmContainer.innerHTML = `
+        <label for="senhaConfirmCliente" class="form-label">Confirmar senha *</label>
+        <input type="password" id="senhaConfirmCliente" name="senhaConfirm" placeholder="Confirme sua senha" class="form-control" required>
+    `;
+    const passwordConfirm = passwordConfirmContainer.querySelector('#senhaConfirmCliente');
+    row2.appendChild(passwordContainer);
+    row2.appendChild(passwordConfirmContainer);
+    formulario.appendChild(row2);
 
-    // BOTÃO
     const btnSubmit = document.createElement('button');
     btnSubmit.type = 'submit';
     btnSubmit.textContent = 'Cadastrar';
-    btnSubmit.className = 'btn btn-primary mt-2';
+    btnSubmit.className = 'btn btn-primary register-submit-btn';
     formulario.appendChild(btnSubmit);
 
     // Aplica validação visual aos campos
@@ -151,19 +119,29 @@ export default function renderFormCliente(container) {
     });
 
     // ===============================
-    // REVALIDA CONFIRMAÇÃO AO DIGITAR A SENHA
+    // REVALIDA CONFIRMAÇÃO AO DIGITAR
     // ===============================
     password.addEventListener('input', () => {
-        if (
-            passwordConfirm.value.length > 0 &&
-            passwordConfirm.value !== password.value
-        ) {
+        if (passwordConfirm.value.length > 0) {
+            if (passwordConfirm.value !== password.value) {
+                setFieldError(
+                    passwordConfirm,
+                    friendlyMessages.passwordMatch || 'As senhas não coincidem'
+                );
+            } else {
+                clearFieldError(passwordConfirm);
+            }
+        }
+    });
+
+    passwordConfirm.addEventListener('input', () => {
+        if (passwordConfirm.value === password.value) {
+            clearFieldError(passwordConfirm);
+        } else if (passwordConfirm.value.length > 0) {
             setFieldError(
                 passwordConfirm,
                 friendlyMessages.passwordMatch || 'As senhas não coincidem'
             );
-        } else if (passwordConfirm.value.length > 0) {
-            clearFieldError(passwordConfirm);
         }
     });
 

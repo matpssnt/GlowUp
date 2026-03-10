@@ -17,6 +17,10 @@ export default async function renderPerfilProfissionalPage() {
     root.style.display = 'flex';
     root.style.flexDirection = 'column';
     root.style.minHeight = '100vh';
+    root.style.width = '100%';
+    root.style.maxWidth = '100vw';
+    root.style.overflowX = 'hidden';
+    root.style.boxSizing = 'border-box';
     root.style.backgroundColor = '#f5f5f5';
 
     const nav = document.getElementById('navbar');

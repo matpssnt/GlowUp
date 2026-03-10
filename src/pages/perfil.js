@@ -22,6 +22,8 @@ export default function renderPerfilPage() {
     root.style.flexDirection = 'column';
     root.style.minHeight = '100vh';
     root.style.width = '100%';
+    root.style.maxWidth = '100vw';
+    root.style.overflowX = 'hidden';
     root.style.boxSizing = 'border-box';
     root.style.backgroundColor = '#f5f5f5';
 
@@ -31,22 +33,22 @@ export default function renderPerfilPage() {
     const navbar = NavBar();
     nav.appendChild(navbar);
 
-    // Container principal
+    // Container principal (usa classes do dashboard para responsividade)
     const mainContainer = document.createElement('div');
-    mainContainer.className = 'd-flex';
-    mainContainer.style.minHeight = 'calc(100vh - 200px)';
-    mainContainer.style.padding = '20px';
-    mainContainer.style.gap = '20px';
+    mainContainer.className = 'main-content-wrapper';
 
     // Sidebar
     const sidebar = PerfilSidebar();
 
     // Formulário de perfil
+    const contentWrapper = document.createElement('div');
+    contentWrapper.className = 'content-area';
     const content = PerfilForm();
+    contentWrapper.appendChild(content);
 
     // Monta o layout
     mainContainer.appendChild(sidebar);
-    mainContainer.appendChild(content);
+    mainContainer.appendChild(contentWrapper);
     root.appendChild(mainContainer);
 
     // Footer

@@ -256,7 +256,6 @@ RewriteRule ^(.*)$ index.php [QSA,L]
 ---
 
 
-
 ## 🤝 Contribuição
 
 ### 📋 Como Contribuir
@@ -308,39 +307,8 @@ The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 ```
 
----
-
-
-## 📞 Contato & Suporte
-
-### 🏢 GlowUp Team
-
-- **📧 Email**: [contato@glowup.com](mailto:contato@glowup.com)
-- **🌐 Website**: [www.glowup.com](https://www.glowup.com)
-- **📱 WhatsApp**: +55 (11) 9999-9999
-- **🐦 Twitter**: [@glowup_br](https://twitter.com/glowup_br)
-- **📷 Instagram**: [@glowup.brasil](https://instagram.com/glowup.brasil)
-
-### 💬 Comunidade
-
-- **📋 Discord**: [GlowUp Community](https://discord.gg/glowup)
-- **💬 Telegram**: [GlowUp Devs](https://t.me/glowup_devs)
-- **📱 LinkedIn**: [GlowUp Company](https://linkedin.com/company/glowup)
-
-### 🆘 Suporte Técnico
-
-- **📖 Documentação**: [docs.glowup.com](https://docs.glowup.com)
-- **🐛 Bug Reports**: [GitHub Issues](https://github.com/your-username/glowup/issues)
-- **💡 Feature Requests**: [GitHub Discussions](https://github.com/your-username/glowup/discussions)
-
----
-
-<div align="center">
-
 **⭐ Se este projeto ajudou você, considere dar uma estrela! ⭐**
 
-Made with ❤️ by [GlowUp Team](https://github.com/your-username)
-
-[🔝 Top](#-glowup---plataforma-de-beleza-e-estética) • [📖 Docs](docs/) • [🚀 Getting Started](#-getting-started)
+Made with ❤️ by GlowUp Team
 
 </div>

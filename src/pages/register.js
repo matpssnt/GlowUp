@@ -6,13 +6,7 @@ export default function renderRegisterPage() {
 
     const root = document.getElementById('root');
     root.innerHTML = '';
-    root.style.display = 'flex';
-    root.style.justifyContent = 'center';
-    root.style.alignItems = 'center';
-    root.style.minHeight = '100vh';
-    root.style.width = '100%';
-    root.style.padding = '20px';
-    root.style.boxSizing = 'border-box';
+    root.className = 'register-page-root';
 
 
     const nav = document.getElementById('navbar');
@@ -24,23 +18,46 @@ export default function renderRegisterPage() {
     const campo = document.getElementById('cadastre-se');
     if (campo) campo.remove();
 
-    // Cria o container principal
+    // Container principal - layout horizontal (split)
     const mainContainer = document.createElement('div');
-    mainContainer.className = 'card-base card-register registration-card shadow-lg mx-auto card-register-default';
+    mainContainer.className = 'register-split-container';
     root.appendChild(mainContainer);
 
-    // Cria o título principal
+    // Painel esquerdo - branding / visual
+    const leftPanel = document.createElement('div');
+    leftPanel.className = 'register-left-panel';
+    leftPanel.innerHTML = `
+        <div class="register-branding">
+            <h2 class="register-brand-title">Junte-se ao GlowUp</h2>
+            <p class="register-brand-subtitle">Crie sua conta e descubra os melhores profissionais de beleza próximos a você.</p>
+            <ul class="register-features">
+                <li>✓ Acesso a profissionais qualificados</li>
+                <li>✓ Agendamento fácil e rápido</li>
+                <li>✓ Ofertas exclusivas</li>
+            </ul>
+        </div>
+    `;
+    mainContainer.appendChild(leftPanel);
+
+    // Painel direito - formulário
+    const rightPanel = document.createElement('div');
+    rightPanel.className = 'register-right-panel';
+    mainContainer.appendChild(rightPanel);
+
+    const formCard = document.createElement('div');
+    formCard.className = 'register-form-card';
+    rightPanel.appendChild(formCard);
+
     const titulo = document.createElement('h1');
     titulo.textContent = 'Crie sua conta';
-    titulo.className = 'base-title page-title-default';
-    mainContainer.appendChild(titulo);
+    titulo.className = 'register-page-title';
+    formCard.appendChild(titulo);
 
-    // Cria as abas de navegação
+    // Abas horizontais compactas
     const navTabs = document.createElement('ul');
-    navTabs.className = 'nav nav-tabs';
+    navTabs.className = 'nav register-nav-tabs';
     navTabs.id = 'nav-tabs';
 
-    // Aba "Sou Usuário"
     const tabCliente = document.createElement('li');
     tabCliente.className = 'nav-item';
     const linkCliente = document.createElement('a');
@@ -51,7 +68,6 @@ export default function renderRegisterPage() {
     tabCliente.appendChild(linkCliente);
     navTabs.appendChild(tabCliente);
 
-    // Aba "Sou Profissional"
     const tabProf = document.createElement('li');
     tabProf.className = 'nav-item';
     const linkProf = document.createElement('a');
@@ -62,64 +78,48 @@ export default function renderRegisterPage() {
     tabProf.appendChild(linkProf);
     navTabs.appendChild(tabProf);
 
-    mainContainer.appendChild(navTabs);
+    formCard.appendChild(navTabs);
 
-    // Cria o container dos formulários
     const formulariosContainer = document.createElement('div');
-    formulariosContainer.className = 'mt-4 form-container';
-    mainContainer.appendChild(formulariosContainer);
+    formulariosContainer.className = 'register-form-container';
+    formCard.appendChild(formulariosContainer);
 
-    // Cria o wrapper do formulário de cliente
     const clienteWrapper = document.createElement('div');
-    clienteWrapper.className = 'd-block tab-pane'; // Adiciona 'tab-pane' para a transição
+    clienteWrapper.className = 'd-block tab-pane register-tab-pane';
     clienteWrapper.id = 'formulario-cliente';
     formulariosContainer.appendChild(clienteWrapper);
 
-    // Cria o wrapper do formulário de profissional
     const profWrapper = document.createElement('div');
-    profWrapper.className = 'd-none tab-pane'; // Adiciona 'tab-pane' para a transição
+    profWrapper.className = 'd-none tab-pane register-tab-pane';
     profWrapper.id = 'formulario-prof';
     formulariosContainer.appendChild(profWrapper);
 
-    // Renderiza os formulários
     renderFormCliente(clienteWrapper);
     renderFormProf(profWrapper);
 
-    // Função para alternar entre formulários
     function alternarFormulario(tipoAtivo) {
-        const tabCliente = document.getElementById('tab-cliente');
-        const tabProf = document.getElementById('tab-prof');
+        const tabClienteEl = document.getElementById('tab-cliente');
+        const tabProfEl = document.getElementById('tab-prof');
         const formCliente = document.getElementById('formulario-cliente');
         const formProf = document.getElementById('formulario-prof');
 
         if (tipoAtivo === 'cliente') {
-            // Ativa aba de cliente
-            tabCliente.classList.add('active');
-            tabProf.classList.remove('active');
-
-            // Mostra formulário de cliente
+            tabClienteEl.classList.add('active');
+            tabProfEl.classList.remove('active');
             formCliente.classList.remove('d-none');
             formCliente.classList.add('d-block');
-
-            // Oculta formulário de profissional
             formProf.classList.remove('d-block');
             formProf.classList.add('d-none');
         } else {
-            // Ativa aba de profissional
-            tabProf.classList.add('active');
-            tabCliente.classList.remove('active');
-
-            // Mostra formulário de profissional
+            tabProfEl.classList.add('active');
+            tabClienteEl.classList.remove('active');
             formProf.classList.remove('d-none');
             formProf.classList.add('d-block');
-
-            // Oculta formulário de cliente
             formCliente.classList.remove('d-block');
             formCliente.classList.add('d-none');
         }
     }
 
-    // Event listeners para as abas
     linkCliente.addEventListener('click', (e) => {
         e.preventDefault();
         alternarFormulario('cliente');
@@ -130,10 +130,9 @@ export default function renderRegisterPage() {
         alternarFormulario('profissional');
     });
 
-    // Adiciona link para voltar ao login
     const btnVoltar = document.createElement('a');
     btnVoltar.innerHTML = "Já tem conta? Faça login aqui";
     btnVoltar.href = "login";
-    btnVoltar.className = 'btn btn-link nav-link-default mt-3';
-    mainContainer.appendChild(btnVoltar);
+    btnVoltar.className = 'register-login-link';
+    formCard.appendChild(btnVoltar);
 }

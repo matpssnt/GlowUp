@@ -27,6 +27,7 @@ export default function renderLoginPage() {
     container.style.width = '100%';
     container.style.maxWidth = '1200px';
     container.style.margin = 'auto';
+    container.style.marginTop = '17px';
     container.style.overflow = 'hidden';
     container.style.boxShadow = '0 0 40px rgba(0,0,0,0.2)';
     container.style.borderRadius = '16px';
