@@ -4,9 +4,7 @@ export default function PerfilBanner(dadosProfissional = null, endereco = null, 
 
   const baseUrl = typeof window !== 'undefined' ? (window.location.pathname.split('/').slice(0, 2).join('/') || '') : '';
   const imagensPadrao = [
-    'public/assets/images/Cabelo.jpg',
-    'public/assets/images/botox.jpg',
-    'public/assets/images/unhas.jpg'
+    'public/assets/images/logo2.png',
   ];
   const fotosServicos = Array.isArray(servicos)
     ? servicos

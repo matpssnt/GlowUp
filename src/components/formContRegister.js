@@ -275,7 +275,7 @@ export default function renderFormContRegister(container) {
         </div>
         <div class="cont-register-field cont-register-field-flex">
             <label class="form-label">Telefone *</label>
-            <input type="text" id="telefone" class="form-control" placeholder="99999-9999" maxlength="15" required>
+            <input type="text" id="telefone" class="form-control" placeholder="99999-9999" maxlength="10" required>
         </div>
     </div>
 `;

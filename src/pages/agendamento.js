@@ -144,7 +144,7 @@ export default function renderAgendamentoPage() {
 							id: servico.id,
 							nome: servico.nome,
 							descricao: servico.descricao,
-							imagem: servico.foto || servico.imagem || "public/assets/images/botox.jpg",
+							imagem: servico.foto || servico.imagem || "public/assets/images/logo2.png",
 							preco: servico.preco || servico.valor,
 							duracao: servico.duracao
 						}, profissional);

@@ -316,7 +316,7 @@ export default function renderServicosPage() {
                 const fotoUrl = servico.foto || servico.imagem;
                 const imgSrc = fotoUrl
                     ? (fotoUrl.match(/^https?:\/\//) || fotoUrl.startsWith('/') ? fotoUrl : baseUrl + '/' + fotoUrl)
-                    : 'public/assets/images/Florence-estetica.jpg';
+                    : 'public/assets/images/logo2.png';
 
                 // Formata Preco visualmente (Ponto para Virgula)
                 const precoVisual = servico.preco ? parseFloat(servico.preco).toFixed(2).replace('.', ',') : '0,00';
@@ -342,7 +342,7 @@ export default function renderServicosPage() {
 
                 tr.innerHTML = `
                     <td>
-                        <img src="${imgSrc}" alt="" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;" onerror="this.src='public/assets/images/Florence-estetica.jpg'">
+                        <img src="${imgSrc}" alt="" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;" onerror="this.src='public/assets/images/logo2.png'">
                     </td>
                     <td>
                         <div class="fw-bold">${servico.nome}</div>
