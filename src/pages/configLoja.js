@@ -368,6 +368,23 @@ export default function renderConfiguracoesLojaPage() {
         }
 
         try {
+
+            const profissionalPayload = form.nome.value.trim();
+
+            if (profissionalPayload && profissionalPayload !== profissional.nome) {
+                
+                try {
+                    await api.request(`/profissional/${profissional.id}`, 'PUT', {
+                        nome: profissionalPayload
+                    });
+                    notify.success('Nome do estabelecimento atualizado!')
+                }
+                catch (error) {
+                    notify.error('Erro ao atualizar nome: ' +  (error.message))
+                }
+
+            }
+
             // Endereço
             const enderecoPayload = {
                 rua: form.rua.value,
