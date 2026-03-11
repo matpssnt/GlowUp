@@ -74,29 +74,30 @@ export default function renderServicosPage() {
                 <input type="hidden" name="id" id="servicoId">
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label class="form-label">Nome do Serviço</label>
+                        <label class="form-label">Nome do Serviço <span class="text-danger">*</span></label>
                         <input type="text" name="nome" class="form-control" required placeholder="Ex: Corte Cabelo">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Categoria</label>
+                        <label class="form-label">Categoria <span class="text-danger">*</span></label>
                         <select name="id_categoria_fk" class="form-select" required>
                              <option value="">Carregando...</option>
                         </select>
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Descrição</label>
+                        <label class="form-label">Descrição <span class="text-danger">*</span></label>
                         <textarea name="descricao" class="form-control" rows="2" placeholder="Descreva o serviço para o cliente..."></textarea>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Preço</label>
+                        <label class="form-label">Preço <span class="text-danger">*</span></label>
                         <div class="input-group">
                              <input type="text" name="preco" class="form-control" required placeholder="R$ 0,00">
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Duração (Horas:Minutos)</label>
+                        <label class="form-label">Duração (Horas:Minutos) <span class="text-danger">*</span></label>
                         <div class="d-flex gap-2">
-                            <select id="duracaoHoras" class="form-select">
+                            <select id="duracaoHoras" class="form-select" required>
+                                <option value="">Selecione a hora</option>
                                 <option value="0">0h</option>
                                 <option value="1">1h</option>
                                 <option value="2">2h</option>
@@ -104,7 +105,8 @@ export default function renderServicosPage() {
                                 <option value="4">4h</option>
                                 <option value="5">5h</option>
                             </select>
-                            <select id="duracaoMinutos" class="form-select">
+                            <select id="duracaoMinutos" class="form-select" required>
+                                <option value="">Selecione o minuto</option>
                                 <option value="00">00min</option>
                                 <option value="10">10min</option>
                                 <option value="20">20min</option>
@@ -113,6 +115,7 @@ export default function renderServicosPage() {
                                 <option value="50">50min</option>
                             </select>
                         </div>
+                        <small class="text-danger d-none" id="duracaoError">Por favor, selecione a hora e o minuto da duração.</small>
                     </div>
                     <div class="col-12">
                         <label class="form-label">Foto do Serviço</label>
@@ -187,6 +190,44 @@ export default function renderServicosPage() {
     let maskPreco = null;
     let maskDuracao = null;
 
+
+     
+    const duracaoHoras = document.getElementById('duracaoHoras');
+    const duracaoMinutos = document.getElementById('duracaoMinutos');
+
+    // Remove erro ao selecionar hora e define minuto padrão se necessário
+    if (duracaoHoras) {
+        duracaoHoras.addEventListener('change', function() {
+            this.classList.remove('is-invalid');
+            this.setCustomValidity(''); // Limpa a mensagem customizada
+            const duracaoError = document.getElementById('duracaoError');
+            if (duracaoError) {
+                duracaoError.classList.add('d-none');
+            }
+            
+            // Se selecionou uma hora e o minuto ainda está vazio, define como 00
+            if (this.value !== '' && duracaoMinutos.value === '') {
+                duracaoMinutos.value = '00';
+            }
+        });
+    }
+
+    if (duracaoMinutos) {
+        duracaoMinutos.addEventListener('change', function() {
+            this.classList.remove('is-invalid');
+            this.setCustomValidity('');
+            const duracaoError = document.getElementById('duracaoError');
+            if (duracaoError) {
+                duracaoError.classList.add('d-none');
+            }
+            
+            // Se selecionou um minuto e a hora ainda está vazia, define como 0
+            if (this.value !== '' && duracaoHoras.value === '') {
+                duracaoHoras.value = '0';
+            }
+        });
+    }
+
     function aplicarMascaras() {
         if (typeof IMask === 'undefined') {
             setTimeout(aplicarMascaras, 500); // Tenta de novo se script não carregou
@@ -219,16 +260,28 @@ export default function renderServicosPage() {
     function toggleForm(show, reset = true) {
         formContainer.style.display = show ? 'block' : 'none';
         btnNovo.style.display = show ? 'none' : 'block';
+
         if (!show && reset) {
             form.reset();
+
             if (maskPreco) maskPreco.value = '';
-            document.getElementById('duracaoHoras').value = '0';
-            document.getElementById('duracaoMinutos').value = '00';
+            document.getElementById('duracaoHoras').value = ''; // Mudado de '0' para ''
+            document.getElementById('duracaoMinutos').value = ''; // Mudado de '00' para ''
             document.getElementById('servicoId').value = '';
             const fotoInput = formContainer.querySelector('#fotoServico');
+
             if (fotoInput) fotoInput.value = '';
             mostrarPreviewFoto(null);
             formTitle.textContent = 'Novo Serviço';
+
+            document.getElementById('duracaoHoras').classList.remove('is-invalid');
+            document.getElementById('duracaoMinutos').classList.remove('is-invalid');
+            const duracaoError = document.getElementById('duracaoError');
+
+            if (duracaoError) {
+                duracaoError.classList.add('d-none');
+            }
+
         } else if (show) {
             aplicarMascaras();
         }
@@ -238,8 +291,8 @@ export default function renderServicosPage() {
         form.reset();
         document.getElementById('servicoId').value = '';
         if (maskPreco) maskPreco.value = '';
-        document.getElementById('duracaoHoras').value = '0';
-        document.getElementById('duracaoMinutos').value = '00';
+        document.getElementById('duracaoHoras').value = ''; // Mudado de '0' para ''
+        document.getElementById('duracaoMinutos').value = ''; // Mudado de '00' para ''
         const fotoInput = formContainer.querySelector('#fotoServico');
         if (fotoInput) fotoInput.value = '';
         mostrarPreviewFoto(null);
@@ -431,13 +484,25 @@ export default function renderServicosPage() {
         }
 
         // Duracao com Selects
-        let duracaoValor = formatarDuracaoExibicao(servico.duracao); 
-        const [h, m] = duracaoValor.split(' '); //divide 'Xh Ymin'
-        document.getElementById('duracaoHoras').value = parseInt(h) || 0;
-
-        // Arredonda minutos para o mais próximo de 10 para o select
-        const minArr = String(Math.floor((parseInt(m) || 0) / 10) * 10).padStart(2, '0');
-        document.getElementById('duracaoMinutos').value = minArr;
+        if (servico.duracao) {
+            const [horas, minutos] = servico.duracao.split(':');
+            
+            // Converte para número e garante que seja um valor válido
+            const horaVal = parseInt(horas) || 0;
+            const minutoVal = parseInt(minutos) || 0;
+            
+            // Arredonda minutos para o múltiplo de 10 mais próximo
+            const minutoArredondado = Math.round(minutoVal / 10) * 10;
+            const minutoFinal = Math.min(Math.max(minutoArredondado, 0), 50); // Entre 0 e 50
+            
+            document.getElementById('duracaoHoras').value = horaVal.toString();
+            document.getElementById('duracaoMinutos').value = minutoFinal.toString().padStart(2, '0');
+            
+        } else {
+            // Se não houver duração, deixa os campos vazios
+            document.getElementById('duracaoHoras').value = ''; // Mudado de '0' para ''
+            document.getElementById('duracaoMinutos').value = ''; // Mudado de '00' para ''
+        }
 
         const catId = servico.id_categoria_fk || (servico.categoria ? servico.categoria.id : '');
         if (catId) selectCategoria.value = catId;
@@ -461,6 +526,45 @@ export default function renderServicosPage() {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
+        // VALIDAÇÃO DOS CAMPOS DE DURAÇÃO
+    const horas = document.getElementById('duracaoHoras').value;
+    const minutos = document.getElementById('duracaoMinutos').value;
+    const duracaoError = document.getElementById('duracaoError');
+
+    // Remove classe de erro se existir
+    if (duracaoError) {
+        duracaoError.classList.add('d-none');
+    }
+
+    // Valida se os campos foram preenchidos
+    if (!horas || !minutos) {
+        if (duracaoError) {
+            duracaoError.classList.remove('d-none');
+        } else {
+            // Se não existir o elemento de erro, cria um alerta
+            notify.warning('Por favor, selecione a hora e o minuto da duração do serviço.');
+        }
+        
+        // Destaca os campos com erro visual
+        if (!horas) {
+            document.getElementById('duracaoHoras').classList.add('is-invalid');
+        } else {
+            document.getElementById('duracaoHoras').classList.remove('is-invalid');
+        }
+        
+        if (!minutos) {
+            document.getElementById('duracaoMinutos').classList.add('is-invalid');
+        } else {
+            document.getElementById('duracaoMinutos').classList.remove('is-invalid');
+        }
+        
+        return;
+    }
+
+    // Remove classes de erro se passou na validação
+    document.getElementById('duracaoHoras').classList.remove('is-invalid');
+    document.getElementById('duracaoMinutos').classList.remove('is-invalid');
+
         const id = document.getElementById('servicoId').value;
         const formData = new FormData(form);
         const payload = Object.fromEntries(formData.entries());
@@ -482,9 +586,6 @@ export default function renderServicosPage() {
             }
         }
 
-        // Validacao e Correcao de Duracao (Soma selects)
-        const horas = document.getElementById('duracaoHoras').value.padStart(2, '0');
-        const minutos = document.getElementById('duracaoMinutos').value.padStart(2, '0');
         payload.duracao = `${horas}:${minutos}:00`;
 
         try {
