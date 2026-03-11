@@ -275,45 +275,13 @@ export default function renderFormContRegister(container) {
         </div>
         <div class="cont-register-field cont-register-field-flex">
             <label class="form-label">Telefone *</label>
-            <input type="text" id="telefone" class="form-control" placeholder="99999-9999" maxlength="15" required>
+            <input type="text" id="telefone" class="form-control" placeholder="99999-9999" maxlength="10" required>
         </div>
     </div>
 `;
     colRight.appendChild(secaoEndereco);
     colRight.appendChild(secaoContato);
 
-    // Aplica máscara nos campos
-    const inputDDD = formulario.querySelector('#ddd');
-    const inputTelefone = formulario.querySelector('#telefone');
-
-    if (inputDDD) {
-        addMaskToInput(inputDDD, 'ddd');
-
-        // Bloqueio forte: só permite números (remove letras em tempo real)
-        inputDDD.addEventListener('input', (e) => {
-            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 2);
-        });
-
-
-        // Impede digitação de letras/teclas inválidas desde o início
-        inputDDD.addEventListener('keypress', (e) => {
-            const charCode = e.which ? e.which : e.keyCode;
-            // Permite apenas 0-9, backspace, delete, tab, setas
-            if (charCode > 31 && (charCode < 48 || charCode > 57)) {
-                e.preventDefault();
-            }
-        });
-
-
-
-        // Opcional: melhora UX no mobile (teclado numérico)
-        inputDDD.setAttribute('inputmode', 'numeric');
-        inputDDD.setAttribute('pattern', '[0-9]{2}');
-    }
-
-    if (inputTelefone) {
-        addMaskToInput(inputTelefone, 'telefone_sem_ddd');
-    }
 
     // Seção: Documentação
     const secaoDocumento = document.createElement('div');
@@ -385,6 +353,42 @@ export default function renderFormContRegister(container) {
     containerBotoes.appendChild(btnFinalizar);
     containerBotoes.appendChild(btnVoltar);
     formulario.appendChild(containerBotoes);
+
+    container.appendChild(formulario)
+
+        // Aplica máscara nos campos
+    const inputDDD = formulario.querySelector('#ddd');
+    const inputTelefone = formulario.querySelector('#telefone');
+
+    if (inputDDD) {
+        addMaskToInput(inputDDD, 'ddd');
+
+        // Bloqueio forte: só permite números (remove letras em tempo real)
+        inputDDD.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 2);
+        });
+
+
+        // Impede digitação de letras/teclas inválidas desde o início
+        inputDDD.addEventListener('keypress', (e) => {
+            const charCode = e.which ? e.which : e.keyCode;
+            // Permite apenas 0-9, backspace, delete, tab, setas
+            if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                e.preventDefault();
+            }
+        });
+
+
+
+        // Opcional: melhora UX no mobile (teclado numérico)
+        inputDDD.setAttribute('inputmode', 'numeric');
+        inputDDD.setAttribute('pattern', '[0-9]{2}');
+    }
+
+    if (inputTelefone) {
+        addMaskToInput(inputTelefone, 'telefone_sem_ddd');
+    }
+    
 
     // Adiciona evento de submit
     formulario.addEventListener('submit', async (e) => {

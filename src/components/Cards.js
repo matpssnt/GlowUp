@@ -33,15 +33,15 @@ export default function RoomCard(indexOuProfissional) {
             <div class="carousel-inner shadow">
 
                 <div class="carousel-item active">
-                    <img class="d-block w-100" src="public/assets/images/botox.jpg" alt="Procedimento de botox sendo aplicado">
+                    <img class="d-block w-100" src="public/assets/images/logo2.png" alt="Procedimento de botox sendo aplicado">
                 </div>
 
                 <div class="carousel-item">
-                    <img class="d-block w-100" src="public/assets/images/Florence-estetica.jpg" alt="Clínica de estética Florence">
+                    <img class="d-block w-100" src="public/assets/images/logo2.png" alt="Clínica de estética Florence">
                 </div>
 
                 <div class="carousel-item">
-                    <img class="d-block w-100" src="public/assets/images/sla.avif" alt="Profissional de estética em atendimento">
+                    <img class="d-block w-100" src="public/assets/images/logo2.png" alt="Profissional de estética em atendimento">
                 </div>
 
             </div>
