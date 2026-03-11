@@ -91,8 +91,8 @@ export default function renderSegurancaPage() {
         eye.src = '/GlowUp/public/assets/images/olho-aberto.png';
 
         eye.style.position = 'absolute';
-        eye.style.right = '12px';
-        eye.style.top = '45px';
+        eye.style.right = '20px';
+        eye.style.top = '46px';
         eye.style.cursor = 'pointer';
         eye.style.width = '20px';
 
