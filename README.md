@@ -78,12 +78,17 @@ Transformar a gestão de negócios de beleza através de tecnologia inovadora, a
 | **Font Awesome** | 6.5+ | Ícones | Biblioteca de ícones vetoriais |
 | **Google Fonts** | Latest | Tipografia | Inter, Poppins |
 
+
+## Banco de Dados
+
+|Tecnologia | Versão | Uso | Descrição |
+| **MySQL** | 8.0+ | Banco de dados | Armazenamento persistente |
+
 ### 🔧 Backend Stack
 
 | Tecnologia | Versão | Uso | Descrição |
 |-----------|--------|-----|-----------|
 | **PHP** | 8.0+ | Backend principal | Lógica de negócio e API |
-| **MySQL** | 8.0+ | Banco de dados | Armazenamento persistente |
 | **JWT** | Latest | Autenticação | Tokens seguros |
 | **REST API** | - | Arquitetura | API RESTful completa |
 
@@ -95,8 +100,6 @@ Transformar a gestão de negócios de beleza através de tecnologia inovadora, a
 | **Input Validation** | Validação rigorosa de dados |
 | **SQL Injection Protection** | Prepared statements |
 ---
-
-## 🚀 Getting Started
 
 ### 📋 Pré-requisitos
 

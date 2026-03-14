@@ -185,6 +185,13 @@ body {
 
 footer.bg-body-tertiary { background-color: var(--white-color); }
 
+footer .col-md-3 .list-unstyled li {
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
 /* Redes Sociais Animadas */
 .social-links {
     display: flex;
@@ -220,6 +227,34 @@ footer.bg-body-tertiary { background-color: var(--white-color); }
 .social-facebook:hover { background: #1877F2; box-shadow: 0 5px 15px rgba(24, 119, 242, 0.4); }
 
 .social-twitter:hover { background: #1DA1F2; box-shadow: 0 5px 15px rgba(29, 161, 242, 0.4); }
+
+/* Footer tabela 820x1180 ajustes de espaçamento */
+@media (max-width: 1180px) and (min-width: 820px) {
+    footer .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    footer .container .row {
+        gap: 1.25rem;
+    }
+
+    footer .container .row > div {
+        padding-right: 1.25rem;
+        margin-bottom: 1rem;
+        min-width: calc(25% - 1.25rem);
+    }
+
+    footer .map-responsive {
+        margin-top: 0.5rem;
+    }
+
+    footer .social-link {
+        width: 45px;
+        height: 25px;
+        font-size: 1.05rem;
+    }
+}
 
 /* Depoimentos */
 .testimonials-section { margin-top: 1.5rem; }
