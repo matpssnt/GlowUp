@@ -72,8 +72,6 @@ export default function PerfilSidebar() {
             ${menuProfissional}
 
             <div class="my-3 border-top mx-3"></div>
-            <h6 class="text-uppercase text-muted ms-3 mb-3" style="font-size: 0.75rem; letter-spacing: 1px;">Suporte</h6>
-            
             <a href="#" class="sidebar-link">
                 <i class="bi bi-bell"></i>
                 <span>Notificações</span>

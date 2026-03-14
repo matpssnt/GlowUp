@@ -70,7 +70,6 @@ export default function NavBar({ hidelogin = false } = {}) {
             // Botões para usuário não logado
             authButtons = `
                 <div class="navbar-actions d-flex align-items-center gap-2">
-                    <a class="btn btn-outline-primary mx-2 suporte-btn" href="#" role="button" tabindex="0">Suporte</a>
                     <a class="btn btn-outline-primary mx-2 login-btn" href="login" role="button" tabindex="0">Entrar</a>
                     <a id="cadastre-se" class="btn btn-outline-primary mx-2 register-btn" href="register" role="button" tabindex="0">Cadastre-se</a>
                 </div>
