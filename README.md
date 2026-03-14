@@ -82,6 +82,7 @@ Transformar a gestão de negócios de beleza através de tecnologia inovadora, a
 ## Banco de Dados
 
 |Tecnologia | Versão | Uso | Descrição |
+|-----------|--------|-----|-----------|
 | **MySQL** | 8.0+ | Banco de dados | Armazenamento persistente |
 
 ### 🔧 Backend Stack
