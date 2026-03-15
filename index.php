@@ -32,7 +32,7 @@ require_once "helpers/token_jwt.php";
         "services", 
         "telefone", 
         "telprof",
-        "portifolio"
+        "portifolio",
         
         ])){
             require "routes/{$subRoute}.php";

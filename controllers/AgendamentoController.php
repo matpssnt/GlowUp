@@ -17,8 +17,13 @@ class AgendamentoController
             $dataHora = self::normalizarDataHora($data['data_hora']);
             $dataObj = new DateTime($dataHora);
 
-            if ($dataObj < new DateTime()) {
-                throw new Exception('Não é possível agendar no passado');
+            $hoje = new DateTime();
+            $hoje->setTime(0, 0, 0);
+            $amanha = new DateTime('tomorrow');
+            $amanha->setTime(0, 0, 0);
+
+            if ($dataObj < $amanha) {
+                throw new Exception('Não é possível agendar hoje ou no passado. Use uma data a partir de amanhã.');
             }
 
             // ─── CHECAGEM GLOW UP ───────────────────────────────

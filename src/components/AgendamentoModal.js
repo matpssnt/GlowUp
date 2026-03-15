@@ -72,13 +72,39 @@ export default function AgendamentoModal(servico, profissional) {
         }
     }
 
-    // Valida se a data não é passada
+    function parseDateYMD(input) {
+        if (!input) return null;
+
+        if (input instanceof Date) {
+            const d = new Date(input);
+            d.setHours(0, 0, 0, 0);
+            return d;
+        }
+
+        const parts = String(input).split('-');
+        if (parts.length !== 3) return null;
+
+        const year = Number(parts[0]);
+        const month = Number(parts[1]) - 1;
+        const day = Number(parts[2]);
+
+        const date = new Date(year, month, day);
+        date.setHours(0, 0, 0, 0);
+        return date;
+    }
+
+    // Valida se a data é a partir de amanhã
     function validarData(data) {
         const hoje = new Date();
         hoje.setHours(0, 0, 0, 0);
-        const dataSelecionada = new Date(data);
-        dataSelecionada.setHours(0, 0, 0, 0);
-        return dataSelecionada >= hoje;
+
+        const amanha = new Date(hoje);
+        amanha.setDate(amanha.getDate() + 1);
+
+        const dataSelecionada = parseDateYMD(data);
+        if (!dataSelecionada) return false;
+
+        return dataSelecionada >= amanha;
     }
 
     // Formata data para exibição
@@ -358,7 +384,11 @@ export default function AgendamentoModal(servico, profissional) {
                     // Fallback nativo
                     dataInput.type = 'date';
                     const hoje = new Date();
-                    dataInput.min = formatDateYmd(hoje);
+                    hoje.setHours(0, 0, 0, 0);
+                    const amanha = new Date(hoje);
+                    amanha.setDate(amanha.getDate() + 1);
+
+                    dataInput.min = formatDateYmd(amanha);
                     dataInput.disabled = false;
                     horariosContainer.innerHTML = '<div class="text-muted">Selecione uma data primeiro</div>';
                     return;
@@ -395,13 +425,15 @@ export default function AgendamentoModal(servico, profissional) {
 
                 const hoje = new Date();
                 hoje.setHours(0, 0, 0, 0);
+                const amanha = new Date(hoje);
+                amanha.setDate(amanha.getDate() + 1);
                 const max = addMonths(hoje, 2);
 
                 dataInput.disabled = false;
 
                 const fp = window.flatpickr(dataInput, {
                     dateFormat: 'Y-m-d',
-                    minDate: hoje,
+                    minDate: amanha,
                     maxDate: max,
                     disableMobile: true,
                     clickOpens: true,
@@ -409,10 +441,22 @@ export default function AgendamentoModal(servico, profissional) {
                     // Removido restrições de enable momentaneamente para os números aparecerem claramente
                     // O sistema já valida os horários ao selecionar a data
                     onChange: (selectedDates, dateStr) => {
-                        if (!dateStr) return;
-                        dataSelecionada = dateStr;
-                        dataFormatada.textContent = formatarData(dateStr);
-                        renderizarHorariosDoDia(dateStr);
+                        if (!selectedDates || !selectedDates[0]) return;
+
+                        const selectedDateObj = selectedDates[0];
+                        if (!validarData(selectedDateObj)) {
+                            notify.warning('Selecione uma data a partir de amanhã');
+                            dataSelecionada = null;
+                            dataInput.value = '';
+                            dataFormatada.textContent = '';
+                            horariosContainer.innerHTML = '<div class="text-muted">Selecione uma data primeiro</div>';
+                            return;
+                        }
+
+                        const formatted = formatDateYmd(selectedDateObj);
+                        dataSelecionada = formatted;
+                        dataFormatada.textContent = formatarData(formatted);
+                        renderizarHorariosDoDia(formatted);
                     },
                     onMonthChange: (selectedDates, dateStr, instance) => {
                         const base = instance.currentMonth != null && instance.currentYear != null
@@ -444,6 +488,12 @@ export default function AgendamentoModal(servico, profissional) {
         btnConfirmar.addEventListener('click', async () => {
             if (!dataSelecionada) {
                 notify.warning('Selecione uma data');
+                dataInput.focus();
+                return;
+            }
+
+            if (!validarData(dataSelecionada)) {
+                notify.warning('A data deve ser a partir de amanhã');
                 dataInput.focus();
                 return;
             }
