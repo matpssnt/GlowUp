@@ -67,6 +67,7 @@
   width: 100%;
   flex: 1;
 }
+
 /* SIDEBAR DE FILTROS */
 
 .explorar-sidebar {
@@ -617,6 +618,39 @@
   flex-direction: column;
   animation: cardFadeIn 0.5s ease forwards;
   opacity: 0;
+}
+
+/* ────────────────────────────────────────────────
+   TABLET (portrait ~768–1024px e landscape menor)
+   ──────────────────────────────────────────────── */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .explorar-card {
+    /* Aumenta um pouco o visual "premium" em tablet */
+    border-radius: 20px;
+    /* arredonda mais */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.09);
+    /* sombra um pouco mais forte */
+    border: 1px solid rgba(0, 0, 0, 0.05);
+
+    /* Remove limite rígido de largura para ocupar melhor a tela */
+    max-width: none;
+    width: 100%;
+  }
+
+  /* Exemplo: se tiver imagem no topo (muito comum) */
+  .explorar-card img {
+    height: 260px;
+    object-fit: cover;
+  }
+
+  /* Se tiver título/descrição dentro */
+  .explorar-card .card-title {
+    font-size: 1.25rem;
+  }
+
+  .explorar-card .card-description {
+    font-size: 1rem;
+  }
 }
 
 .explorar-card:hover {
