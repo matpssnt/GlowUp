@@ -220,17 +220,22 @@ export default function renderDashboardPage() {
 
         let lista = todosAgendamentos;
 
-        if (filtroAtual !== 'todos') {
-            const f = filtroAtual.toLowerCase();
-            lista = lista.filter(a =>
-                (a.status || '').toLowerCase().includes(f)
-            );
-        }
+        const f = filtroAtual.toLowerCase();
+        lista = lista.filter(a =>
+            (a.status || '').toLowerCase().includes(f)
+        );
+    
+        lista.sort((a, b) => {
+            const dataA = a.data_hora ? new Date(a.data_hora.replace(' ', 'T')) : new Date(0);
+            const dataB = b.data_hora ? new Date(b.data_hora.replace(' ', 'T')) : new Date(0);
+            return dataA - dataB;
+        })
+
 
         if (!lista.length) {
             agendamentosContainer.innerHTML =
                 `<div class="content-card text-center p-5">
-                    Nenhum agendamento encontrado.
+                    Nenhum agendamento ${filtroAtual.toLowerCase()} encontrado.
                 </div>`;
             return;
         }
@@ -274,7 +279,7 @@ export default function renderDashboardPage() {
                 criarCardResumo('Cancelados', cancelados, 'bi-x-circle', 'danger'),
                 criarCardResumo('Concluídos', concluidos, 'bi-check2-all', 'success'),
                 criarCardResumo('Hoje', hojeCount, 'bi-calendar-date', 'accent'),
-                criarCardResumo('Total', todosAgendamentos.length, 'bi-calendar', 'primary')
+                // criarCardResumo('Total', todosAgendamentos.length, 'bi-calendar', 'primary') // Card Total de agendamentos
             );
 
             renderizarLista();
