@@ -370,3 +370,46 @@ body:has(.main-content-wrapper) {
         --sidebar-width: 100%;
     }
 }
+
+/* Paginação (Dashboard) - estilo semelhante à página Explorar */
+.dashboard-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 32px;
+    gap: 8px;
+}
+
+.dashboard-pagination .page-link {
+    padding: 10px 16px;
+    border: 1.5px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-card);
+    color: var(--text-dark);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Inter', sans-serif;
+}
+
+.dashboard-pagination .page-link:hover:not(:disabled) {
+    background: var(--primary-color);
+    color: #fff;
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(41, 95, 28, 0.2);
+}
+
+.dashboard-pagination .page-item.disabled .page-link {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.dashboard-pagination .page-item.active .page-link {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(41, 95, 28, 0.3);
+}

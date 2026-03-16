@@ -9,7 +9,7 @@ import { notify } from '../components/Notification.js';
 
 export default function renderDashboardPage() {
 
-    // ================= AUTH =================
+    // AUTH
     if (!authState.isAuth()) {
         window.location.href = '/login';
         return;
@@ -20,7 +20,7 @@ export default function renderDashboardPage() {
         return;
     }
 
-    // ================= ROOT =================
+    // ROOT
     const root = document.getElementById('root');
     root.innerHTML = '';
     Object.assign(root.style, {
@@ -35,7 +35,7 @@ export default function renderDashboardPage() {
     nav.innerHTML = '';
     nav.appendChild(NavBar());
 
-    // ================= LAYOUT =================
+    // LAYOUT
     const mainWrapper = document.createElement('div');
     mainWrapper.className = 'main-content-wrapper';
     mainWrapper.appendChild(PerfilSidebar());
@@ -46,7 +46,7 @@ export default function renderDashboardPage() {
 
     root.appendChild(mainWrapper);
 
-    // ================= HEADER =================
+    // HEADER
     const header = document.createElement('div');
     header.className =
         'd-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4';
@@ -67,7 +67,7 @@ export default function renderDashboardPage() {
     `;
     contentArea.appendChild(header);
 
-    // ================= MODAIS =================
+    // MODAIS
     let idParaCancelar = null;
     let idParaConcluir = null;
 
@@ -132,7 +132,7 @@ export default function renderDashboardPage() {
 
     document.body.append(confirmCancelar, confirmConcluir, calendarModal);
 
-    // ================= CONTAINERS =================
+    // CONTAINERS
     const resumoContainer = document.createElement('div');
     resumoContainer.className = 'row g-3 mb-4';
 
@@ -149,14 +149,18 @@ export default function renderDashboardPage() {
     footerContainer.innerHTML = '';
     footerContainer.appendChild(Footer());
 
-    // ================= ESTADO =================
+    // ESTADO
     let todosAgendamentos = [];
     let filtroAtual = 'Agendado';
     // filtro de período aplicado na lista principal (datas em Date)
     let filtroPeriodo = null;
     let modalCalendarioInstancia = null;
 
-    // ================= UI HELPERS =================
+    // paginação
+    let paginaAtual = 1;
+    const itensPorPagina = 10;
+
+    // UI HELPERS
     function criarCardResumo(titulo, valor, icone, cor = 'primary') {
         const div = document.createElement('div');
         div.className = 'col-md-3 col-sm-6';
@@ -231,7 +235,7 @@ export default function renderDashboardPage() {
         return card;
     }
 
-    // ================= API =================
+    // API
     async function executarCancelamento(id) {
         try {
             await new ApiService().cancelarAgendamento(id);
@@ -252,9 +256,10 @@ export default function renderDashboardPage() {
         }
     }
 
-    // ================= FILTROS =================
+    // FILTROS
     function aplicarFiltro(status) {
         filtroAtual = status;
+        paginaAtual = 1;
 
         header.querySelectorAll('.btn-filter')
             .forEach(btn =>
@@ -291,8 +296,7 @@ export default function renderDashboardPage() {
             const dataA = a.data_hora ? new Date(a.data_hora.replace(' ', 'T')) : new Date(0);
             const dataB = b.data_hora ? new Date(b.data_hora.replace(' ', 'T')) : new Date(0);
             return dataA - dataB;
-        })
-
+        });
 
         if (!lista.length) {
             let mensagem = `Nenhum agendamento ${filtroAtual.toLowerCase()} encontrado.`;
@@ -306,9 +310,57 @@ export default function renderDashboardPage() {
             return;
         }
 
-        lista.forEach(a =>
+        const totalItems = lista.length;
+        const totalPages = Math.max(1, Math.ceil(totalItems / itensPorPagina));
+        if (paginaAtual > totalPages) paginaAtual = totalPages;
+
+        const startIndex = (paginaAtual - 1) * itensPorPagina;
+        const pageItems = lista.slice(startIndex, startIndex + itensPorPagina);
+
+        pageItems.forEach(a =>
             agendamentosContainer.appendChild(criarCardAgendamento(a))
         );
+
+        if (totalPages > 1) {
+            agendamentosContainer.appendChild(criarPaginacao(totalPages));
+        }
+    }
+
+    function criarPaginacao(totalPages) {
+        const nav = document.createElement('nav');
+        nav.className = 'd-flex justify-content-center mt-3 dashboard-pagination';
+
+        const ul = document.createElement('ul');
+        ul.className = 'pagination mb-0';
+
+        const criarItem = (label, page, disabled = false, active = false) => {
+            const li = document.createElement('li');
+            li.className = `page-item${disabled ? ' disabled' : ''}${active ? ' active' : ''}`;
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'page-link';
+            btn.textContent = label;
+            btn.disabled = disabled;
+            if (!disabled) {
+                btn.onclick = () => {
+                    paginaAtual = page;
+                    renderizarLista();
+                };
+            }
+            li.appendChild(btn);
+            return li;
+        };
+
+        ul.appendChild(criarItem('Anterior', paginaAtual - 1, paginaAtual === 1));
+
+        for (let i = 1; i <= totalPages; i++) {
+            ul.appendChild(criarItem(String(i), i, false, i === paginaAtual));
+        }
+
+        ul.appendChild(criarItem('Próximo', paginaAtual + 1, paginaAtual === totalPages));
+
+        nav.appendChild(ul);
+        return nav;
     }
 
     function aplicarFiltroPeriodo(dataInicioStr, dataFimStr) {
@@ -328,6 +380,7 @@ export default function renderDashboardPage() {
         }
 
         filtroPeriodo = { inicio: dataInicio, fim: dataFim };
+        paginaAtual = 1;
         renderizarLista();
 
         if (!modalCalendarioInstancia) {
@@ -336,7 +389,7 @@ export default function renderDashboardPage() {
         modalCalendarioInstancia.hide();
     }
 
-    // ================= CARREGAMENTO =================
+    // CARREGAMENTO
     async function carregarDados() {
         try {
             const api = new ApiService();
@@ -344,6 +397,7 @@ export default function renderDashboardPage() {
 
             todosAgendamentos =
                 await api.listarAgendamentos(user.profissional_id);
+            paginaAtual = 1;
 
             const hoje = new Date();
             hoje.setHours(0, 0, 0, 0);
@@ -380,7 +434,7 @@ export default function renderDashboardPage() {
         }
     }
 
-    // ================= EVENTOS =================
+    // EVENTOS
     header.querySelectorAll('.btn-filter')
         .forEach(btn =>
             btn.onclick = () => aplicarFiltro(btn.dataset.filter)
@@ -397,6 +451,7 @@ export default function renderDashboardPage() {
             if (inputDataInicio) inputDataInicio.value = '';
             if (inputDataFim) inputDataFim.value = '';
             filtroPeriodo = null;
+            paginaAtual = 1;
             renderizarLista();
         };
     }

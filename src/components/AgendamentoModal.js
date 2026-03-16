@@ -174,23 +174,6 @@ export default function AgendamentoModal(servico, profissional) {
                                 <div class="text-muted">Selecione uma data primeiro</div>
                             </div>
                         </div>
-
-                        <!-- Observações -->
-                        <div class="mb-3">
-                            <label for="observacoesAgendamento" class="form-label">
-                                <i class="bi bi-chat-left-text me-2"></i>Observações (opcional)
-                            </label>
-                            <textarea 
-                                id="observacoesAgendamento" 
-                                class="form-control" 
-                                rows="3"
-                                placeholder="Ex: Preferência por corte na tesoura, sem máquina..."
-                                maxlength="500"
-                            ></textarea>
-                            <small class="form-text text-muted">
-                                <span id="contadorObservacoes">0</span>/500 caracteres
-                            </small>
-                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -213,8 +196,6 @@ export default function AgendamentoModal(servico, profissional) {
         // Elementos do modal - AGORA o modal está no DOM
         const dataInput = modal.querySelector('#dataAgendamento');
         const horariosContainer = modal.querySelector('#horariosContainer');
-        const observacoesInput = modal.querySelector('#observacoesAgendamento');
-        const contadorObservacoes = modal.querySelector('#contadorObservacoes');
         const dataFormatada = modal.querySelector('#dataFormatada');
         const btnConfirmar = modal.querySelector('#btnConfirmarAgendamento');
         const form = modal.querySelector('#formAgendamento');
@@ -304,11 +285,6 @@ export default function AgendamentoModal(servico, profissional) {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             return false;
-        });
-
-        // Contador de caracteres
-        observacoesInput.addEventListener('input', (e) => {
-            contadorObservacoes.textContent = e.target.value.length;
         });
 
         // Função auxiliar para selecionar horário (reutilizável)
