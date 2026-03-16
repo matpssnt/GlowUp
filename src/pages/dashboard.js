@@ -56,10 +56,13 @@ export default function renderDashboardPage() {
             <h2 class="fw-bold mb-1">Dashboard</h2>
             <p class="text-muted mb-0">Gerencie seus agendamentos</p>
         </div>
-        <div class="filter-group d-flex gap-2">
+        <div class="filter-group d-flex gap-2 align-items-center">
             <button class="btn btn-sm btn-filter" data-filter="Agendado">Agendados</button>
             <button class="btn btn-sm btn-filter" data-filter="Concluido">Concluídos</button>
             <button class="btn btn-sm btn-filter" data-filter="Cancelado">Cancelados</button>
+            <button class="btn btn-sm btn-success" id="btnAbrirFiltroData">
+                Filtrar data
+            </button>
         </div>
     `;
     contentArea.appendChild(header);
@@ -82,7 +85,52 @@ export default function renderDashboardPage() {
         () => idParaConcluir && executarConclusao(idParaConcluir)
     );
 
-    document.body.append(confirmCancelar, confirmConcluir);
+    // Modal de calendário / filtro por período
+    const calendarModal = document.createElement('div');
+    calendarModal.className = 'modal fade';
+    calendarModal.id = 'modalCalendario';
+    calendarModal.tabIndex = -1;
+    calendarModal.innerHTML = `
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Agendamentos por período</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3 mb-3">
+                        <div class="col-12 col-md-5">
+                            <label class="form-label small text-muted mb-1">Data inicial</label>
+                            <input type="date" id="filtroDataInicio" class="form-control">
+                        </div>
+                        <div class="col-12 col-md-5">
+                            <label class="form-label small text-muted mb-1">Data final</label>
+                            <input type="date" id="filtroDataFim" class="form-control">
+                        </div>
+                        <div class="col-12 col-md-2 d-flex align-items-end gap-2">
+                            <button type="button" class="btn btn-outline-secondary w-100" id="btnLimparFiltro">
+                                Limpar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mb-3">
+                        <button type="button" class="btn btn-primary" id="btnAplicarFiltro">
+                            Aplicar filtro
+                        </button>
+                    </div>
+
+                    <div id="calendarResults" class="table-responsive">
+                        <p class="text-muted small mb-0">
+                            Selecione um intervalo de datas para visualizar os agendamentos desse período.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.append(confirmCancelar, confirmConcluir, calendarModal);
 
     // ================= CONTAINERS =================
     const resumoContainer = document.createElement('div');
@@ -104,6 +152,9 @@ export default function renderDashboardPage() {
     // ================= ESTADO =================
     let todosAgendamentos = [];
     let filtroAtual = 'Agendado';
+    // filtro de período aplicado na lista principal (datas em Date)
+    let filtroPeriodo = null;
+    let modalCalendarioInstancia = null;
 
     // ================= UI HELPERS =================
     function criarCardResumo(titulo, valor, icone, cor = 'primary') {
@@ -111,7 +162,8 @@ export default function renderDashboardPage() {
         div.className = 'col-md-3 col-sm-6';
 
         div.innerHTML = `
-            <div class="dashboard-card h-100 p-4 d-flex justify-content-between align-items-center">
+            <div class="dashboard-card h-100 p-4 d-flex justify-content-between align-items-center"
+                 ${titulo === 'Hoje' ? 'data-card-hoje="true"' : ''}>
                 <div>
                     <div class="stat-value">${valor}</div>
                     <div class="stat-label">${titulo}</div>
@@ -220,11 +272,21 @@ export default function renderDashboardPage() {
 
         let lista = todosAgendamentos;
 
+        // Filtro por status
         const f = filtroAtual.toLowerCase();
         lista = lista.filter(a =>
             (a.status || '').toLowerCase().includes(f)
         );
-    
+
+        // Filtro por período (se houver)
+        if (filtroPeriodo && filtroPeriodo.inicio && filtroPeriodo.fim) {
+            lista = lista.filter(a => {
+                if (!a.data_hora) return false;
+                const d = new Date(a.data_hora.replace(' ', 'T'));
+                return d >= filtroPeriodo.inicio && d <= filtroPeriodo.fim;
+            });
+        }
+
         lista.sort((a, b) => {
             const dataA = a.data_hora ? new Date(a.data_hora.replace(' ', 'T')) : new Date(0);
             const dataB = b.data_hora ? new Date(b.data_hora.replace(' ', 'T')) : new Date(0);
@@ -233,9 +295,13 @@ export default function renderDashboardPage() {
 
 
         if (!lista.length) {
+            let mensagem = `Nenhum agendamento ${filtroAtual.toLowerCase()} encontrado.`;
+            if (filtroPeriodo && filtroPeriodo.inicio && filtroPeriodo.fim) {
+                mensagem = 'Não existem agendamentos neste período com esse status.';
+            }
             agendamentosContainer.innerHTML =
                 `<div class="content-card text-center p-5">
-                    Nenhum agendamento ${filtroAtual.toLowerCase()} encontrado.
+                    ${mensagem}
                 </div>`;
             return;
         }
@@ -243,6 +309,31 @@ export default function renderDashboardPage() {
         lista.forEach(a =>
             agendamentosContainer.appendChild(criarCardAgendamento(a))
         );
+    }
+
+    function aplicarFiltroPeriodo(dataInicioStr, dataFimStr) {
+        if (!dataInicioStr || !dataFimStr) {
+            notify.warning?.('Selecione a data inicial e a data final para aplicar o filtro.') ||
+                alert('Selecione a data inicial e a data final para aplicar o filtro.');
+            return;
+        }
+
+        const dataInicio = new Date(`${dataInicioStr}T00:00:00`);
+        const dataFim = new Date(`${dataFimStr}T23:59:59`);
+
+        if (dataFim < dataInicio) {
+            notify.warning?.('A data final não pode ser anterior à data inicial.') ||
+                alert('A data final não pode ser anterior à data inicial.');
+            return;
+        }
+
+        filtroPeriodo = { inicio: dataInicio, fim: dataFim };
+        renderizarLista();
+
+        if (!modalCalendarioInstancia) {
+            modalCalendarioInstancia = new bootstrap.Modal(calendarModal);
+        }
+        modalCalendarioInstancia.hide();
     }
 
     // ================= CARREGAMENTO =================
@@ -279,7 +370,6 @@ export default function renderDashboardPage() {
                 criarCardResumo('Cancelados', cancelados, 'bi-x-circle', 'danger'),
                 criarCardResumo('Concluídos', concluidos, 'bi-check2-all', 'success'),
                 criarCardResumo('Hoje', hojeCount, 'bi-calendar-date', 'accent'),
-                // criarCardResumo('Total', todosAgendamentos.length, 'bi-calendar', 'primary') // Card Total de agendamentos
             );
 
             renderizarLista();
@@ -295,6 +385,39 @@ export default function renderDashboardPage() {
         .forEach(btn =>
             btn.onclick = () => aplicarFiltro(btn.dataset.filter)
         );
+
+    // Eventos do modal de calendário
+    const inputDataInicio = calendarModal.querySelector('#filtroDataInicio');
+    const inputDataFim = calendarModal.querySelector('#filtroDataFim');
+    const btnLimparFiltro = calendarModal.querySelector('#btnLimparFiltro');
+    const btnAplicarFiltro = calendarModal.querySelector('#btnAplicarFiltro');
+
+    if (btnLimparFiltro) {
+        btnLimparFiltro.onclick = () => {
+            if (inputDataInicio) inputDataInicio.value = '';
+            if (inputDataFim) inputDataFim.value = '';
+            filtroPeriodo = null;
+            renderizarLista();
+        };
+    }
+
+    if (btnAplicarFiltro) {
+        btnAplicarFiltro.onclick = () => {
+            const inicio = inputDataInicio?.value || '';
+            const fim = inputDataFim?.value || '';
+            aplicarFiltroPeriodo(inicio, fim);
+        };
+    }
+
+    const btnAbrirFiltroData = header.querySelector('#btnAbrirFiltroData');
+    if (btnAbrirFiltroData) {
+        btnAbrirFiltroData.onclick = () => {
+            if (!modalCalendarioInstancia) {
+                modalCalendarioInstancia = new bootstrap.Modal(calendarModal);
+            }
+            modalCalendarioInstancia.show();
+        };
+    }
 
     carregarDados();
 }
