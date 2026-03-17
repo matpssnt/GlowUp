@@ -143,11 +143,6 @@ export default function renderFormCliente(container) {
         customMessage: friendlyMessages.email
     });
 
-    applyVisualValidation(password, ['required', ['minLength', 6]], {
-        helpText: 'A senha deve ter no mínimo 6 caracteres',
-        customMessage: friendlyMessages.password
-    });
-
     // ===============================
     // FUNÇÕES AUXILIARES
     // ===============================

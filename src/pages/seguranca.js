@@ -47,17 +47,26 @@ export default function renderSegurancaPage() {
 
                 <div class="col-12 position-relative">
                     <label class="form-label">Senha antiga</label>
-                    <input type="password" class="form-control" name="senha_antiga" required>
+                    <div style="position: relative;">
+                        <input type="password" class="form-control" name="senha_antiga" required>
+                        <img src="/GlowUp/public/assets/images/olho-aberto.png" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); cursor: pointer; width: 20px;" class="toggle-eye">
+                    </div>
                 </div>
 
                 <div class="col-md-6 position-relative">
                     <label class="form-label">Nova senha</label>
-                    <input type="password" class="form-control" name="senha_nova" required>
+                    <div style="position: relative;">
+                        <input type="password" class="form-control" name="senha_nova" required>
+                        <img src="/GlowUp/public/assets/images/olho-aberto.png" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); cursor: pointer; width: 20px;" class="toggle-eye">
+                    </div>
                 </div>
 
                 <div class="col-md-6 position-relative">
                     <label class="form-label">Confirme a nova senha</label>
-                    <input type="password" class="form-control" name="senha_confirmacao" required>
+                    <div style="position: relative;">
+                        <input type="password" class="form-control" name="senha_confirmacao" required>
+                        <img src="/GlowUp/public/assets/images/olho-aberto.png" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); cursor: pointer; width: 20px;" class="toggle-eye">
+                    </div>
                 </div>
 
                 <div class="col-12 d-flex justify-content-end gap-2 mt-3">
@@ -80,40 +89,24 @@ export default function renderSegurancaPage() {
     const form = card.querySelector('#formTrocarSenha');
 
     // =============================
-    // FUNÇÃO PARA CRIAR O OLHO
+    // FUNÇÃO PARA ADICIONAR EVENTO NO OLHO
     // =============================
 
     function addPasswordToggle(input) {
-
         const container = input.parentElement;
-
-        const eye = document.createElement('img');
-        eye.src = '/GlowUp/public/assets/images/olho-aberto.png';
-
-        eye.style.position = 'absolute';
-        eye.style.right = '20px';
-        eye.style.top = '46px';
-        eye.style.cursor = 'pointer';
-        eye.style.width = '20px';
-
-        container.appendChild(eye);
+        const eye = container.querySelector('.toggle-eye');
 
         eye.addEventListener('click', () => {
-
             const isPassword = input.type === 'password';
-
             input.type = isPassword ? 'text' : 'password';
-
             eye.src = isPassword
                 ? '/GlowUp/public/assets/images/esconder.png'
                 : '/GlowUp/public/assets/images/olho-aberto.png';
-
         });
-
     }
 
     // =============================
-    // APLICAR OLHO NOS CAMPOS
+    // APLICAR EVENTO NOS OLHOS
     // =============================
 
     addPasswordToggle(form.senha_antiga);

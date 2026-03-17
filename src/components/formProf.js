@@ -122,11 +122,6 @@ export default function renderFormProf(container) {
         customMessage: friendlyMessages.email
     });
 
-    applyVisualValidation(password, ['required', ['minLength', 6]], {
-        helpText: 'A senha deve ter no mínimo 6 caracteres',
-        customMessage: friendlyMessages.password
-    });
-
     // ── Validação customizada confirmação de senha ─────────────
     function setPasswordConfirmError(message) {
         let errorDiv = passwordConfirm.parentElement.querySelector('.invalid-feedback');
