@@ -371,7 +371,7 @@ body:has(.main-content-wrapper) {
     }
 }
 
-/* Paginação (Dashboard) - estilo semelhante à página Explorar */
+/* Paginação (Dashboard) */
 .dashboard-pagination {
     display: flex;
     align-items: center;
@@ -412,4 +412,66 @@ body:has(.main-content-wrapper) {
     color: #fff;
     border-color: transparent;
     box-shadow: 0 4px 12px rgba(41, 95, 28, 0.3);
+}
+
+/* Estilos para cards de agendamento com serviço */
+.content-card .mb-2 {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    line-height: 1.4;
+}
+
+.content-card .mb-2 i {
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.content-card .mb-3 {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    gap: 8px;
+}
+
+.content-card .mb-3 i {
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.content-card .fw-medium {
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+/* Responsivo para mobile */
+@media (max-width: 768px) {
+    .content-card .mb-2,
+    .content-card .mb-3 {
+        font-size: 0.85rem;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+    
+    .content-card .mb-2 i,
+    .content-card .mb-3 i {
+        font-size: 0.8rem;
+    }
+    
+    .content-card h5 {
+        font-size: 1rem;
+        line-height: 1.3;
+    }
+}
+
+@media (max-width: 480px) {
+    .content-card .mb-2,
+    .content-card .mb-3 {
+        font-size: 0.8rem;
+    }
+    
+    .content-card h5 {
+        font-size: 0.95rem;
+    }
 }
