@@ -242,6 +242,7 @@ body:has(.main-content-wrapper) {
 .btn-primary-custom:hover {
     background: #1e4615;
     transform: translateY(-1px);
+    color: var(--primary-light);
     box-shadow: 0 4px 12px rgba(41, 95, 28, 0.3);
 }
 
