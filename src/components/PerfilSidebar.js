@@ -70,6 +70,7 @@ export default function PerfilSidebar() {
             ${menuAgendamentos}
             ${minhaSeguranca}
             ${menuProfissional}
+            
 
             <div class="my-3 border-top mx-3"></div>
             <a href="#" class="sidebar-link">
