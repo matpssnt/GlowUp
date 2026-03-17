@@ -82,13 +82,17 @@
     z-index: 10;
 }
 
-.foto-perfil {
-    position: relative;
+.foto-perfil.editable {
     cursor: pointer;
 }
 
+.foto-perfil.editable:hover::before,
+.foto-perfil.editable:hover::after {
+    opacity: 1;
+}
+
 /* overlay escuro + ícone sobre a foto quando hover */
-.foto-perfil::before {
+.foto-perfil.editable::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -99,7 +103,7 @@
     pointer-events: none;
 }
 
-.foto-perfil::after {
+.foto-perfil.editable::after {
     content: '\f030'; /* código do ícone de câmera FontAwesome */
     font-family: 'Font Awesome 6 Free';
     font-weight: 900;
@@ -115,10 +119,6 @@
     pointer-events: none;
 }
 
-.foto-perfil:hover::before,
-.foto-perfil:hover::after {
-    opacity: 1;
-}
 
 .foto-perfil img {
     width: 160px;
@@ -129,10 +129,6 @@
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     background: var(--white-color);
     transition: filter 0.2s ease;
-}
-
-.foto-perfil:hover img {
-    filter: brightness(0.8);
 }
 
 /* botão circular sobre a foto para editar */
@@ -149,8 +145,9 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: background 0.2s ease, opacity 0.2s ease;
     opacity: 0;
+    transition: background 0.2s ease, opacity 0.2s ease;
+    
 }
 
 /* botao de editar banner */
@@ -176,7 +173,7 @@
 }
 
 /* escurece banner ao passar o mouse e mostra que é clicável */
-.perfil-banner-card:hover .banner-img {
+.perfil-banner-card.editable:hover .banner-img {
     filter: brightness(0.8);
     cursor: pointer;
 }
@@ -190,7 +187,7 @@
     color: var(--bs-dark);
 }
 
-.foto-perfil:hover .edit-photo-btn {
+.foto-perfil.editable:hover .edit-photo-btn {
     opacity: 1;
 }
 

@@ -59,7 +59,12 @@ export default function NavBar({ hidelogin = false } = {}) {
                     '<li><a class="dropdown-item" href="configuracoes-loja">Configurações da Loja</a></li>' : ''}
                             ${userType === 'profissional' ?
                     '<li><a class="dropdown-item" href="dashboard">Dashboard</a></li>' : ''}
-                        <!-- <li><a class="dropdown-item" href="seguranca">Privacidade e Segurança</a></li> criei aqui tambem, mas como ja tem no dashboard, vou deixar comentado. -->
+                            ${userType === 'profissional' ?
+                    '<li><a class="dropdown-item" href="servicos">Meus Serviços</a></li>' : ''}
+                            ${userType === 'profissional' ?
+                    '<li><a class="dropdown-item" href="seguranca">Privacidade e Segurança</a></li>' : ''}
+                            ${userType === 'profissional' ? 
+                    '<li><a class="dropdown-item" href="perfil-profissional">Meu Perfil</a></li>' : ''}
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="#" id="logoutBtn">Sair</a></li>
                         </ul>   

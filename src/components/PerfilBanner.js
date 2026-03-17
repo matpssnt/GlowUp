@@ -69,12 +69,15 @@ export default function PerfilBanner(dadosProfissional = null, endereco = null, 
     }
   }
 
+  const bannerCardClass = permiteEdicao ? 'perfil-banner-card editable' : 'perfil-banner-card';
+  const fotoPerfilClass = permiteEdicao ? 'foto-perfil editable' : 'foto-perfil';
+
   containerPerfil.innerHTML = `
-    <div class="perfil-banner-card">
+    <div class="${bannerCardClass}">
       <img src="${bannerUrl}" class="banner-img" alt="Imagem de capa">
 
       <div class="perfil-overlay">
-        <div class="foto-perfil">
+        <div class="${fotoPerfilClass}">
           <img src="${fotoUrl}" alt="Foto de perfil">
         </div>
       </div>
