@@ -226,7 +226,7 @@
 #agendamentoModal .horario-btn:hover {
     background-color: #f7fafc;
     border-color: var(--primary-color);
-    color: var(--primary-color);
+    color: #fff;
     transform: translateY(-1px);
 }
 
