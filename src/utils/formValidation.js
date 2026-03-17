@@ -5,10 +5,21 @@ import { validateField, showFieldError, clearFieldError, markFieldValid } from '
 
 //Adiciona ícone de validação a um campo
 export function addValidationIcon(field, isValid) {
+    // Não adicionar ícones para campos de senha
+    if (field.type === 'password') {
+        return;
+    }
+
     // Remove ícones anteriores
     const existingIcon = field.parentElement.querySelector('.validation-icon');
     if (existingIcon) {
         existingIcon.remove();
+    }
+    
+    // Remove também imagens existentes (para evitar duplicação com ícones de olho)
+    const existingImg = field.parentElement.querySelector('img');
+    if (existingImg) {
+        existingImg.remove();
     }
     
     // Cria container para ícone se não existir
@@ -27,6 +38,11 @@ export function addValidationIcon(field, isValid) {
 
 // Adiciona tooltip de ajuda a um campo
 export function addHelpTooltip(field, helpText) {
+    // Não adicionar tooltip para campos de senha
+    if (field.type === 'password') {
+        return;
+    }
+
     // Remove tooltip anterior se existir
     const existingTooltip = field.parentElement.querySelector('.help-tooltip');
     if (existingTooltip) {
