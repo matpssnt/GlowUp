@@ -177,7 +177,7 @@ export default function AgendamentoModal(servico, profissional) {
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <button type="button" style="margin-top: 15px;" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                         <i class="bi bi-x-circle me-2"></i>Cancelar
                     </button>
                     <button type="button" class="btn btn-primary" id="btnConfirmarAgendamento">
