@@ -205,9 +205,15 @@ export default function renderDashboardPage() {
                 <span class="badge-custom">${agendamento.status}</span>
             </div>
 
+            <div class="mb-2">
+                <i class="bi bi-scissors me-2 text-muted"></i>
+                <span class="fw-medium">${agendamento.servico_nome || 'Serviço não informado'}</span>
+            </div>
+
             <div class="mb-3">
+                <i class="bi bi-calendar-event me-2 text-muted"></i>
                 <strong>${data}</strong>
-                <span class="ms-2">${hora}</span>
+                <span class="ms-2"><i class="bi bi-clock me-1 text-muted"></i>${hora}</span>
             </div>
 
             ${podeAcao ? `
