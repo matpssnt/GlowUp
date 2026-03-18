@@ -48,7 +48,7 @@ export default function Footer() {
                 <i class="fab fa-facebook"></i>
               </a>
               <a href="https://x.com" target="_blank" class="social-link social-twitter" aria-label="Twitter">
-                <i class="fab fa-twitter"></i>
+                <i class="fab fa-x-twitter"></i>
               </a>
             </div>
           </div>
