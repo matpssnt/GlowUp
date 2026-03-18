@@ -58,7 +58,7 @@ export default function Footer() {
             <h6 class="fw-bold mb-3" style="color: #75b16e;">Onde estamos</h6>
             <div class="map-responsive">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3656.157709162129!2d-46.65657288446812!3d-23.59708946826579!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce59c5d8f93b7b%3A0x5cf70b1c2db13454!2sPaulista%20Avenue!5e0!3m2!1sen!2sbr!4v1605275971729!5m2!1sen!2sbr"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d12305.890703937752!2d-47.43794185627569!3d-23.512237758522932!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94cf6035213bb2b9%3A0xf788703501c35c95!2sSenac%20Sorocaba!5e0!3m2!1spt-BR!2sbr!4v1773854026727!5m2!1spt-BR!2sbr"
                 width="100%" height="200" style="border:0; border-radius:6px;"
                 allowfullscreen="" loading="lazy"
                 referrerpolicy="no-referrer-when-downgrade">

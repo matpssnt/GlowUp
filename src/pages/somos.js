@@ -1,6 +1,6 @@
 import NavBar from "../components/NavBar.js";
 import Footer from "../components/Footer.js";
-import renderRegisterPage from "./register.js";
+import authState from "../utils/AuthState.js";
 
 export default function renderquemSomos() {
     const Divroot = document.getElementById('root');
@@ -12,6 +12,26 @@ export default function renderquemSomos() {
 
     const page = document.createElement('div');
     page.className = 'sobre-container fade-in';
+
+    // Verifica se usuário está logado
+    const isLoggedIn = authState.isAuth();
+    let ctaSection = '';
+
+    if (!isLoggedIn) {
+        // Só mostra CTA se NÃO estiver logado
+        ctaSection = `
+        <!-- CTA -->
+        <section class="sobre-cta">
+            <div class="sobre-cta-content">
+                <h2>Faça parte da nossa comunidade</h2>
+                <p>
+                    Cadastre-se agora e comece a aproveitar todos os recursos disponíveis na nossa plataforma.
+                </p>
+                <a href="#" class="btn-somos" id="btn-register">Criar minha conta</a>
+            </div>
+        </section>
+        `;
+    }
 
     page.innerHTML = `
         <!-- HERO -->
@@ -71,26 +91,19 @@ export default function renderquemSomos() {
             </div>
         </section>
 
-        <!-- CTA -->
-        <section class="sobre-cta">
-            <div class="sobre-cta-content">
-                <h2>Faça parte da nossa comunidade</h2>
-                <p>
-                    Cadastre-se agora e comece a aproveitar todos os recursos disponíveis na nossa plataforma.
-                </p>
-                <a href="#" class="btn-somos" id="btn-register">Criar minha conta</a>
-            </div>
-        </section>
-
+        ${ctaSection}
     `;
 
     Divroot.appendChild(page);
 
+    // Só adiciona o event listener se o botão existir (usuário não logado)
     const btnRegister = document.getElementById('btn-register');
-    btnRegister?.addEventListener('click', (e) => {
-        e.preventDefault();  
-        renderRegisterPage(); 
-    });
+    if (btnRegister) {
+        btnRegister.addEventListener('click', (e) => {
+            e.preventDefault();  
+            window.location.href = 'register';
+        });
+    }
 
     // Botão WhatsApp flutuante
     if (!document.querySelector('.whatsapp-float')) {
