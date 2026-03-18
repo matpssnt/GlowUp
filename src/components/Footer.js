@@ -6,7 +6,7 @@ export default function Footer() {
         <div class="row mt-3">
 
           <!-- Sobre -->
-          <div class="col-md-3 col-lg-3 col-xl-3 mb-4">
+          <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mb-4">
             <h6 class="fw-bold mb-3" style="color: #75b16e;">
               Glow Up
             </h6>
@@ -17,7 +17,7 @@ export default function Footer() {
           </div>
 
           <!-- Links úteis -->
-          <div class="col-md-2 col-lg-2 col-xl-2 mb-4">
+          <div class="col-12 col-sm-6 col-md-2 col-lg-2 col-xl-2 mb-4">
             <h6 class="fw-bold mb-3" style="color: #75b16e;">Links Úteis</h6>
             <ul class="list-unstyled">
               <li class="mb-2"><a href="estabelecimentos" class="text-reset footer-link">Estabelecimentos</a></li>
@@ -30,7 +30,7 @@ export default function Footer() {
           </div>
 
           <!-- Contato e Redes Sociais -->
-          <div class="col-md-3 col-lg-3 col-xl-3 mb-4">
+          <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mb-4">
             <h6 class="fw-bold mb-3" style="color: #75b16e;">Contato</h6>
             <ul class="list-unstyled">
               <li class="mb-2"><i class="fas fa-envelope me-2"></i> projetointegrador@gmail.com</li>
@@ -54,7 +54,7 @@ export default function Footer() {
           </div>
 
           <!-- Depoimentos e Mapa -->
-          <div class="col-md-4 col-lg-4 col-xl-4 mb-4">
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 mb-4">
             <h6 class="fw-bold mb-3" style="color: #75b16e;">Onde estamos</h6>
             <div class="map-responsive">
               <iframe

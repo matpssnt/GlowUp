@@ -109,16 +109,14 @@ export default function PerfilForm() {
                     <label for="sobrenome" class="form-label">Sobrenome</label>
                     <input type="text" class="form-control" id="sobrenome" value="${sobrenome}" required>
                 </div>
-            </div>
-
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" value="${user?.email || ''}" required>
-            </div>
- 
-            <div class="mb-3">
-                <label for="telefone" class="form-label">Número para contato</label>
-                <input type="tel" class="form-control" id="telefone" placeholder="(00) 00000-0000" value="">
+                <div class="col-md-6">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" value="${user?.email || ''}" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="telefone" class="form-label">Número para contato</label>
+                    <input type="tel" class="form-control" id="telefone" placeholder="(00) 00000-0000" value="">
+                </div>
             </div>
 
             ${isProfissional ? `

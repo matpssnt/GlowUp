@@ -228,21 +228,21 @@ footer .col-md-3 .list-unstyled li {
 
 .social-twitter:hover { background: #1DA1F2; box-shadow: 0 5px 15px rgba(29, 161, 242, 0.4); }
 
-/* Footer tabela 820x1180 ajustes de espaçamento */
-@media (max-width: 1180px) and (min-width: 820px) {
+/* Responsividade Footer - Tablet (768px a 1024px) */
+@media (max-width: 1024px) and (min-width: 768px) {
     footer .container {
         padding-left: 1rem;
         padding-right: 1rem;
     }
 
     footer .container .row {
-        gap: 1.25rem;
+        gap: 1.5rem;
+        row-gap: 2rem;
     }
 
     footer .container .row > div {
-        padding-right: 1.25rem;
-        margin-bottom: 1rem;
-        min-width: calc(25% - 1.25rem);
+        margin-bottom: 1.5rem;
+        flex: 0 0 auto;
     }
 
     footer .map-responsive {
@@ -250,9 +250,64 @@ footer .col-md-3 .list-unstyled li {
     }
 
     footer .social-link {
-        width: 45px;
-        height: 25px;
-        font-size: 1.05rem;
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+}
+
+/* Responsividade Footer - Mobile (até 767px) */
+@media (max-width: 767px) {
+    footer .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    footer .container .row {
+        gap: 0;
+        row-gap: 2rem;
+        flex-direction: column;
+    }
+
+    footer .container .row > div {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+        margin-bottom: 1.5rem;
+        padding: 0 !important;
+        min-width: auto !important;
+    }
+
+    /* Centraliza conteúdo em mobile */
+    footer h6 {
+        text-align: center;
+    }
+
+    footer .list-unstyled {
+        padding: 0;
+    }
+
+    footer .list-unstyled li {
+        justify-content: center;
+    }
+
+    /* Deixa a seção de contato e redes sociais centralizadas */
+    footer .social-links {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    footer .map-responsive {
+        margin-top: 1rem;
+    }
+
+    footer .social-link {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    footer .map-responsive iframe {
+        height: 250px;
     }
 }
 
