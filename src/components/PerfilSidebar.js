@@ -70,17 +70,6 @@ export default function PerfilSidebar() {
             ${menuAgendamentos}
             ${minhaSeguranca}
             ${menuProfissional}
-            
-
-            <div class="my-3 border-top mx-3"></div>
-            <a href="#" class="sidebar-link">
-                <i class="bi bi-bell"></i>
-                <span>Notificações</span>
-            </a>
-            <a href="#" class="sidebar-link">
-                <i class="bi bi-question-circle"></i>
-                <span>Ajuda</span>
-            </a>
         </div>
     `;
 
