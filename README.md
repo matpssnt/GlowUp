@@ -118,8 +118,6 @@ O <strong>GlowUp</strong> é uma aplicação web desenvolvida com arquitetura cl
 /uploads
 </pre>
 
-<p><i>(A estrutura pode variar conforme organização do projeto)</i></p>
-
 <hr>
 
 <h2>🚀 Como executar o projeto</h2>
